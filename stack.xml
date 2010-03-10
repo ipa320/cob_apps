@@ -1,0 +1,17 @@
+<stack>
+  <description brief="cob3_apps">
+
+     cob3_apps
+
+  </description>
+  <author>Maintained by Florian Weisshardt, email: florian.weisshardt@ipa.fhg.de</author>
+  <license>LGPL</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://www.care-o-bot.org</url>
+
+  <depend stack="cob3_driver" /> <!-- sickS300, cob3_hokuyo, cob3_platform, cob3_tf_broadcaster -->
+  <depend stack="joystick_drivers" /> <!-- joy, ps3joy -->
+  <depend stack="ros" /> <!-- roscpp -->
+  <depend stack="slam_gmapping" /> <!-- gmapping -->
+
+</stack>
