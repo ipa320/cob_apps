@@ -1,10 +1,10 @@
 <stack>
-  <description brief="cob3_apps">
+  <description brief="cob_apps">
 
-     cob3_apps
+     The cob_apps stack provides example applications, mainly for testing the Care-O-bot hardware drivers.
 
   </description>
-  <author>Maintained by Florian Weisshardt, email: florian.weisshardt@ipa.fhg.de</author>
+  <author>Maintained by Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
   <license>LGPL</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_apps</url>
