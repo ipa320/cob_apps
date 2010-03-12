@@ -16,7 +16,7 @@
 
   <!-- dynamic map generation -->
   <node pkg="gmapping" type="slam_gmapping" name="gmapping" respawn="false" output="screen" >
-    <remap from="scan" to="scan" />
+    <remap from="scan" to="scan_front" />
     <param name="xmin" value="-2.5"/>
     <param name="ymin" value="-2.5"/>
     <param name="xmax" value="2.5"/>
