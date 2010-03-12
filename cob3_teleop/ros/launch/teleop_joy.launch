@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 
+  <!-- start platform node -->
+  <node pkg="cob3_platform" type="cob3_platform" name="cob3_platform" cwd="node" output="screen"/>
+
  <!-- joy node -->
-  <node respawn="true" pkg="joy" type="joy" name="joystick">
+  <node respawn="false" pkg="joy" type="joy" name="joystick">
     <param name="dev" type="string" value="/dev/input/js0"/>
     <param name="deadzone" value="0.12"/>
   </node>
