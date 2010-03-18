@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- get scan from sickS300 -->
+  <!--include file="$(find sick_s300)/ros/launch/scanner_front.launch" /-->
+
+  <!-- get scan hokuyo -->
+  <include file="$(find cob3_hokuyo)/ros/launch/cob3_hokuyo.launch"/>
+
+  <!-- start tf broadcaster -->
+  <node pkg="cob3_tf_broadcaster" type="cob3_tf_broadcaster" name="cob3_tf_broadcaster" respawn="false" output="screen" />
+
+  <!-- teleoperate platform with joystick -->
+  <include file="$(find cob3_teleop)/ros/launch/teleop_joy.launch" />
+
+</launch>
