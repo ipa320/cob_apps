@@ -137,7 +137,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "drive_identification_node");
 
     NodeClass node;
-	//if(node.init() == 1) return 1;
+	if(node.init() == 1) return 1;
 	node.simpleDriveTest(argc, argv);
 	
     
@@ -182,11 +182,11 @@ int NodeClass::simpleDriveTest(int argc, char** argv) {
 		case 10:
 			startTime = ros::Time::now().toSec();
 			while(ros::Time::now().toSec() - startTime < atof(argv[1])) {
-				srvClient_GetJointState.call(srvGetJointState);
         		for(int i = 0; i<iNumMotors; i++) {
 		    		msgDriveCmd.velocity[i] = atof(argv[i+2]);
 				}
 				topicPub_JointStateCmd.publish(msgDriveCmd);
+				srvClient_GetJointState.call(srvGetJointState);
 				
 				ROS_INFO_STREAM("Actual Vel for Motor " << 0 << " is " << srvGetJointState.response.jointstate.velocity[0]);
 			}
