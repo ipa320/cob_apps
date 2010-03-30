@@ -2,7 +2,7 @@
 <launch>
 
   <!-- start platform node -->
-  <node pkg="cob3_platform" type="cob3_platform" name="cob3_platform" cwd="node" output="screen"/>
+  <node pkg="cob_platform" type="cob_platform" name="cob_platform" cwd="node" output="screen"/>
 
  <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">
@@ -18,6 +18,6 @@
   <param name="scale_angular" value="0.1" type="double"/>
 
  <!-- cob3 teleop platform node -->
-  <node pkg="cob3_teleop" type="cob3_teleop_platform_joy" name="teleop_platform"/>
+  <node pkg="cob_teleop" type="cob_teleop_platform_joy" name="teleop_platform"/>
 
 </launch>

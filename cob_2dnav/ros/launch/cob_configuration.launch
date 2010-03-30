@@ -7,10 +7,14 @@
   
   <!-- get the odometry -->
   <!-- start platform node -->
-  <node pkg="cob_platform" type="cob_platform" name="cob_platform" cwd="node" output="screen"/>
-   
+  <node pkg="cob_platform" type="cob_platform" name="cob_platform" cwd="node" output="screen" >
+    <remap from="odometry" to="odom"/>
+  </node>
+ 
   <!-- start tf broadcaster -->
-  <node pkg="cob_tf_broadcaster" type="cob_tf_broadcaster" name="cob_tf_broadcaster" respawn="false" output="screen" />
+  <node pkg="cob_tf_broadcaster" type="cob_tf_broadcaster" name="cob_tf_broadcaster" respawn="false" output="screen" >
+    <remap from="odometry" to="odom"/>
+  </node>
 
   <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">
