@@ -1,0 +1,18 @@
+<package>
+  <description brief="cob_2dnav">
+
+     cob_2dnav
+
+  </description>
+  <author>b-it-bots</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_2dnav</url>
+  <depend package="move_base"/>
+  <depend package="cob3_platform"/>
+  <depend package="cob3_tf_broadcaster"/>
+  <depend package="sick_s300"/>
+
+</package>
+
+

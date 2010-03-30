@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- get scan from sickS300 -->
+  <include file="$(find sick_s300)/ros/launch/scanner_front.launch" />
+  <!--<include file="$(find sick_s300)/ros/launch/scanner_rear.launch" /> -->
+  
+  <!-- get the odometry -->
+  <!-- start platform node -->
+  <node pkg="cob3_platform" type="cob3_platform" name="cob3_platform" cwd="node" output="screen"/>
+   
+  <!-- start tf broadcaster -->
+  <node pkg="cob3_tf_broadcaster" type="cob3_tf_broadcaster" name="cob3_tf_broadcaster" respawn="false" output="screen" />
+
+  <!-- joy node -->
+  <node respawn="false" pkg="joy" type="joy" name="joystick">
+    <param name="dev" type="string" value="/dev/input/js0"/>
+    <param name="deadzone" value="0.12"/>
+  </node>
+
+ <!-- Axes definition-->
+  <param name="axis_linear_x" value="1" type="int"/>
+  <param name="axis_linear_y" value="0" type="int"/>
+  <param name="axis_angular_z" value="2" type="int"/>
+  <param name="scale_linear" value="0.1" type="double"/>
+  <param name="scale_angular" value="0.1" type="double"/>
+
+ <!-- cob3 teleop platform node -->
+  <node pkg="cob3_teleop" type="cob3_teleop_platform_joy" name="teleop_platform"/>
+ 
+</launch>
