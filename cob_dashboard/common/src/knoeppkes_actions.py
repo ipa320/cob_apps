@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import roslib; roslib.load_manifest('cob3_dashboard')
+import roslib; roslib.load_manifest('cob_dashboard')
 
 from home import *
 from folded import *

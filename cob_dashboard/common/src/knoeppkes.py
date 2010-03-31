@@ -46,7 +46,7 @@ class Knoeppkes(Frame):
   def __init__(self):
     Frame.__init__(self)
     self.grid()
-    self.master.title("cob3_dashboard")
+    self.master.title("cob_dashboard")
     col = 0
 
     panel = General(self)
