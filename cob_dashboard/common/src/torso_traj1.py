@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('cob3_dashboard')
+import roslib; roslib.load_manifest('cob_dashboard')
 import rospy
 import actionlib
 
