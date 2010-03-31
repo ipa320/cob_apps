@@ -12,6 +12,6 @@
   <depend package="roscpp"/>
   <depend package="joy"/>
   <depend package="ps3joy"/>
-  <depend package="cob3_platform"/>
+  <depend package="cob_platform"/>
 
 </package>

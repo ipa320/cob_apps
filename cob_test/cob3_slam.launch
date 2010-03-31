@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- get scan from sickS300 -->
+  <include file="$(find sick_s300)/ros/launch/scanner_front.launch" />
+   <include file="$(find sick_s300)/ros/launch/scanner_rear.launch" /> 
+   
+
+  <!-- get scan hokuyo 
+  <include file="$(find cob3_hokuyo)/ros/launch/cob3_hokuyo.launch"/>
+-->
+  <!-- start tf broadcaster -->
+  <node pkg="cob3_tf_broadcaster" type="cob3_tf_broadcaster" name="cob3_tf_broadcaster" respawn="false" output="screen" />
+
+  <!-- dynamic map generation -->
+  <node pkg="gmapping" type="slam_gmapping" name="gmapping" respawn="false" output="screen" >
+    <remap from="scan" to="scan_front" />
+<!--	<remap from="scan" to="scan_rear" /> -->
+    <param name="xmin" value="-5"/>
+    <param name="ymin" value="-5"/>
+    <param name="xmax" value="5"/>
+    <param name="ymax" value="5"/>
+    <param name="delta" value="0.05"/> 
+	<param name="map_update_interval" value="1.0"/>
+	<param name="maxRange" value="29.5"/>
+	<param name="maxUrange" value="29.5"/>
+    <param name="inverted_laser" value="false"/> 
+   <!--  <param name="inverted_laser" value="true"/> -->
+    <param name="base_frame" value="/base_laser_front"/>
+<!--	<param name="map_frame" value="base_footprint"/> 
+    <param name="laser_frame" value="base_laser_front"/> -->
+   <!--  <param name="laser_frame" value="base_hokuyo"/>-->
+    <param name="odom_frame" value="/odom"/>
+  </node>
+
+
+  <!-- teleoperate platform with joystick -->
+  <include file="$(find cob3_teleop)/ros/launch/teleop_joy.launch" />
+
+</launch>

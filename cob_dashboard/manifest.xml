@@ -13,6 +13,6 @@
   <depend package="actionlib"/>
   <depend package="std_msgs"/>
   <depend package="pr2_controllers_msgs"/>
-  <depend package="cob3_arm"/>
+  <depend package="cob_arm"/>
 
 </package>
