@@ -21,8 +21,7 @@
     <remap from="odometry" to="odom"/>
   </node>
 
-
-
+  <!-- teleoperate platform with joystick -->
   <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">
     <param name="dev" type="string" value="/dev/input/js0"/>

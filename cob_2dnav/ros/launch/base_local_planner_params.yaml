@@ -5,10 +5,10 @@ TrajectoryPlannerROS:
   acc_lim_th: 2.2  #3.2   # The rotational acceleration limit of the robot in radians/sec^2 
   max_vel_x: 0.5   #0.5   # The maximum forward velocity allowed for the base in meters/sec 
   min_vel_x: 0.05   #0.1   # The minimum forward velocity allowed for the base in meters/sec. It is useful to specify this to guarantee that velocity commands sent to a mobile base are high enough to allow the base to overcome friction. 
-  max_vel_y: 0.5   
-  min_vel_y: 0.05    
-  max_rotational_vel: 0.7   #1.0    # The maximum rotational velocity allowed for the base in radians/sec 
-  min_in_place_rotational_vel: 0.1   #0.4    # The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec 
+#  max_vel_y: 0.5   
+#  min_vel_y: 0.05    
+  max_rotational_vel: 0.4   #1.0    # The maximum rotational velocity allowed for the base in radians/sec 
+  min_in_place_rotational_vel: 0.01   #0.4    # The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec 
   backup_vel: -0.1    # Speed used for backing up during escapes in meters/sec 
   holonomic_robot: true    # Determines whether velocity commands are generated for a holonomic or non-holonomic robot. For holonomic robots, strafing velocity commands may be issued to the base. For non-holonomic robots, no strafing velocity commands will be issued. 
 
@@ -20,10 +20,10 @@ TrajectoryPlannerROS:
   xy_goal_tolerance: 0.10    # The tolerance in meters for the controller in the x & y distance when achieving a goal 
 
 #Forward Simulation Parameters
-  sim_time: 5.0 #1.0   # The amount of time to forward-simulate trajectories in seconds 
+  sim_time: 3.0 #1.0   # The amount of time to forward-simulate trajectories in seconds 
   sim_granularity: 0.01    # The step size, in meters, to take between points on a given trajectory 
   vx_samples: 10 #3    # The number of samples to use when exploring the x velocity space 
-  vy_samples: 10
+#  vy_samples: 10
   vtheta_samples: 20    # The number of samples to use when exploring the theta velocity space 
   controller_frequency: 20.0    # The frequency at which this controller will be called in Hz. Uses searchParam to read the parameter from parent namespaces if not set in the namespace of the controller. For use with move_base, this means that you only need to set its "controller_frequncy" parameter and can safely leave this one unset. 
 
