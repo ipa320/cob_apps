@@ -9,6 +9,7 @@
   <include file="$(find cob_2dnav)/ros/launch/amcl_omni.launch" />
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  	<param name="controller_frequency" value="10.0"/>
     <rosparam file="$(find cob_2dnav)/ros/launch/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find cob_2dnav)/ros/launch/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find cob_2dnav)/ros/launch/local_costmap_params.yaml" command="load" />
