@@ -2,8 +2,13 @@
 <launch>
 
   <!-- get scan from sickS300 -->
-  <include file="$(find cob_sick_s300)/ros/launch/scanner_front.launch" />
-  <!--<include file="$(find sick_s300)/ros/launch/scanner_rear.launch" /> -->
+  <include file="$(find cob_sick_s300)/ros/launch/cob3-1_scanner_front.launch" />
+  <include file="$(find cob_sick_s300)/ros/launch/cob3-1_scanner_rear.launch" />
+<!--  <include file="$(find cob_hokuyo)/ros/launch/cob_hokuyo.launch" />  -->
+
+<!-- start cob_point_cloud -->
+  <node pkg="cob_point_cloud_publisher" type="cob_point_cloud_publisher" name="cob_point_cloud_publisher" cwd="node" output="screen" >
+  </node>
   
   <!-- get the odometry -->
   <!-- start platform node -->
@@ -15,6 +20,8 @@
   <node pkg="cob_tf_broadcaster" type="cob_tf_broadcaster" name="cob_tf_broadcaster" respawn="false" output="screen" >
     <remap from="odometry" to="odom"/>
   </node>
+
+
 
   <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">

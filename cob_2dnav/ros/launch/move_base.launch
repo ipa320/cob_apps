@@ -3,7 +3,7 @@
   <master auto="start"/>
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="/home/fmw/ipa_kitchen.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="/home/b-it-bots/RoboLab2010-04-01.yaml"/>
 
   <!--- Run AMCL -->
   <include file="$(find cob_2dnav)/ros/launch/amcl_omni.launch" />
@@ -15,5 +15,6 @@
     <rosparam file="$(find cob_2dnav)/ros/launch/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find cob_2dnav)/ros/launch/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find cob_2dnav)/ros/launch/base_local_planner_params.yaml" command="load" />
+    <param name="recovery_behavior_enabled" value="false"/>
   </node>
 </launch>
