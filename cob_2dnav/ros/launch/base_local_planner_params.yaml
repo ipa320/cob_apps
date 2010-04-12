@@ -22,7 +22,7 @@ TrajectoryPlannerROS:
   sim_granularity: 0.01    # The step size, in meters, to take between points on a given trajectory 
   vx_samples: 3 #3    # The number of samples to use when exploring the x velocity space 
   vtheta_samples: 20    # The number of samples to use when exploring the theta velocity space 
-  controller_frequency: 10.0  #20   # The frequency at which this controller will be called in Hz. Uses searchParam to read the parameter from parent namespaces if not set in the namespace of the controller. For use with move_base, this means that you only need to set its "controller_frequncy" parameter and can safely leave this one unset. 
+  controller_frequency: 5.0  #20   # The frequency at which this controller will be called in Hz. Uses searchParam to read the parameter from parent namespaces if not set in the namespace of the controller. For use with move_base, this means that you only need to set its "controller_frequncy" parameter and can safely leave this one unset. 
 
 #Trajectory Scoring Parameters
 
