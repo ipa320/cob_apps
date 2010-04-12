@@ -16,5 +16,6 @@
     <rosparam file="$(find cob_2dnav)/ros/launch/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find cob_2dnav)/ros/launch/base_local_planner_params.yaml" command="load" />
     <param name="recovery_behavior_enabled" value="false"/>
+    <param name="controller_frequency" value="5"/>
   </node>
 </launch>
