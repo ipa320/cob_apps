@@ -14,7 +14,6 @@
   <depend package="base_drive_chain"/>
   <depend package="cob_srvs"/>
   <depend package="sensor_msgs"/>
-  <depend package="cob_utilities"/>
 
 </package>
 
