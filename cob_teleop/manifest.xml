@@ -1,0 +1,17 @@
+<package>
+  <description brief="cob3_teleop">
+
+     cob3_teleop
+
+  </description>
+  <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
+  <license>LGPL</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://www.care-o-bot.org</url>
+  
+  <depend package="roscpp"/>
+  <depend package="joy"/>
+  <depend package="ps3joy"/>
+  <depend package="cob_platform"/>
+
+</package>

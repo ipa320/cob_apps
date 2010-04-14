@@ -1,0 +1,19 @@
+<package>
+  <description brief="cob3_test">
+
+     cob3_test
+
+  </description>
+  <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
+  <license>LGPL</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://www.care-o-bot.org</url>
+
+  <depend package="cob_platform"/>
+  <depend package="cob_sick_s300"/>
+  <depend package="cob_hokuyo"/>
+  <depend package="cob_tf_broadcaster"/>
+  <depend package="gmapping"/>
+  <depend package="cob_teleop"/>
+  
+</package>

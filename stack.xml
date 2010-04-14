@@ -8,7 +8,7 @@
   <license>LGPL</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_apps</url>
-  <depend stack="cob_driver" /> <!-- sick_s300, cob3_arm, cob3_hokuyo, cob3_platform, cob3_tf_broadcaster -->
+  <depend stack="cob_driver" /> <!-- cob_arm, cob_platform, cob_hokuyo, cob_tf_broadcaster, cob_sick_s300 -->
   <depend stack="common" /> <!-- actionlib -->
   <depend stack="joystick_drivers" /> <!-- joy, ps3joy -->
   <depend stack="pr2_controllers" /> <!-- pr2_controllers_msgs -->

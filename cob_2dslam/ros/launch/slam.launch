@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- dynamic map generation -->
+  <node pkg="gmapping" type="slam_gmapping" name="gmapping" respawn="false" output="screen" >
+    <remap from="scan" to="scan_front" />
+    <param name="xmin" value="-10"/>
+    <param name="ymin" value="-10"/>
+    <param name="xmax" value="10"/>
+    <param name="ymax" value="10"/>
+    <param name="delta" value="0.05"/>
+    <param name="base_frame" value="link_platform"/>
+    <param name="laser_frame" value="link_scanner_front"/>
+    <param name="odom_frame" value="odom"/>
+  </node>
+
+</launch>
