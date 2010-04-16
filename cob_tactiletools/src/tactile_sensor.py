@@ -21,8 +21,8 @@ class Screen(gtk.DrawingArea):
 	def do_expose_event(self, event):
 		# Create the cairo context
 		cr = self.window.cairo_create()
-		print "Width: ", self.allocation.width
-		print "Height: ", self.allocation.height
+		#print "Width: ", self.allocation.width
+		#print "Height: ", self.allocation.height
 		# Restrict Cairo to the exposed area; avoid extra work
 		cr.rectangle(event.area.x, event.area.y, event.area.width, event.area.height)
 		cr.clip()
@@ -31,19 +31,16 @@ class Screen(gtk.DrawingArea):
 	def draw(self, cr, width, height):
 		# Fill the background with gray
 		color = 0.5
-		xw = height/(self.sizex+1)
-		print height, ", ", self.sizex
-		yw = width/(self.sizey+1)
-		print "Divider: ", xw, ", ", yw
-		for i in range(0,self.sizey):
-			for j in range(0,self.sizex):
+		xw = width/(self.sizex)
+		yw = height/(self.sizey)
+		for i in range(0,self.sizex):
+			for j in range(0,self.sizey):
 				if(color==0.0):
 					color=1.0
 				else:
 					color=0.0
 				cr.set_source_rgb(color, 1-color, 0.5)
-				print (j)*yw,":", (i)*xw,":", (j+1)*yw,":", (i+1) * xw
-				cr.rectangle((j)*xw, (i)*yw, xw, yw)
+				cr.rectangle((i)*xw, (j)*yw, xw, yw)
 				cr.fill()
 	def updateTactileMatrix(self, string):
 		print "Got something: ", string
@@ -82,17 +79,20 @@ try:
 	sc2.set_size_request((winwidth/3)-10, (winheight/2)-5)
 	sc3 = Screen()
 	sc3.set_size_request((winwidth/3)-10, (winheight/2)-5)
-	button4 = gtk.Button("box.pack4")
-	button5 = gtk.Button("box.pack5")
-	button6 = gtk.Button("box.pack6")
+	sc4 = Screen()
+	sc4.set_size_request((winwidth/3)-10, (winheight/2)-5)
+	sc5 = Screen()
+	sc5.set_size_request((winwidth/3)-10, (winheight/2)-5)
+	sc6 = Screen()
+	sc6.set_size_request((winwidth/3)-10, (winheight/2)-5)
 	hbox1=gtk.HBox(False ,10 )
 	hbox1.pack_start(sc1,False, True, 0)
 	hbox1.pack_start(sc2,False, True, 0)
 	hbox1.pack_start(sc3,False, True, 0)
-	hbox2=gtk.HBox(True,0)
-	hbox2.pack_start(button4,False, False, 0)
-	hbox2.pack_start(button5,False, False, 0)
-	hbox2.pack_start(button6,False, False, 0)
+	hbox2=gtk.HBox(False,10)
+	hbox2.pack_start(sc4,False, True, 0)
+	hbox2.pack_start(sc5,False, True, 0)
+	hbox2.pack_start(sc6,False, True, 0)
 	vbox=gtk.VBox(True,0)
 	vbox.pack_start(hbox1,False, False, 0)
 	vbox.pack_start(hbox2,False, False, 0)
