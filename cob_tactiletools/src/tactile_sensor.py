@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import roslib; roslib.load_manifest('cob_tactiletools')
 import rospy
+from cob_msgs.msg import TactileMatrix
 import pygtk
 pygtk.require('2.0')
 import gtk, gobject, cairo
@@ -8,7 +9,7 @@ import threading
 import time
 
 #Initializing the gtk's thread engine
-gtk.threads_init()
+gtk.gdk.threads_init()
 
 class Screen(gtk.DrawingArea):
 
@@ -42,29 +43,34 @@ class Screen(gtk.DrawingArea):
 				cr.set_source_rgb(color, 1-color, 0.5)
 				cr.rectangle((i)*xw, (j)*yw, xw, yw)
 				cr.fill()
+
+	def setMatrixSize(self, matrixx, matrixy):
+		self.sizex = matrixx
+		self.sizey = matrixy
+
 	def updateTactileMatrix(self, string):
 		print "Got something: ", string
 		self.queue_draw()
 
 
-class DataGet(threading.Thread):
-	stopthread = threading.Event()	
-	def run(self):
-		global sc1
-		while not self.stopthread.isSet() :
-			gtk.threads_enter()
-			sc1.updateTactileMatrix("test")
-			gtk.threads_leave()
-			time.sleep(0.5)
-	def stop(self):
-		"""Stop method, sets the event to terminate the thread's main loop"""
-		self.stopthread.set()
+			
+def roscb(data):
+	global sc1
+	global testv
+	gtk.threads_enter()
+	if (testv == 0):
+		sc1.setMatrixSize(5,13)
+		testv = 1
+	else:
+		sc1.setMatrixSize(7,11)
+		testv = 0
+	sc1.updateTactileMatrix("test")
+	gtk.threads_leave()
+
 
 # GTK mumbo-jumbo to show the widget in a window and quit when it's closed
 def main_quit(obh, obb):
-	global dget
 	#Stopping the thread and the gtk's main loop
-	dget.stop()
 	gtk.main_quit()
 
 try:
@@ -73,6 +79,7 @@ try:
 	winheight = 400
 	window.set_size_request(winwidth,winheight)
 	window.set_title("TactileSensorData")
+	testv = 0
 	sc1 = Screen()
 	sc1.set_size_request((winwidth/3)-10, (winheight/2)-5)
 	sc2 = Screen()
@@ -100,9 +107,8 @@ try:
 	window.show_all()
 	window.connect("delete-event", main_quit)
 	window.present()
-	dget = DataGet()
-	dget.start()
-
+	rospy.init_node('TactileSensorView', anonymous=True)
+	rospy.Subscriber("cob_sdh/tactile_data", TactileMatrix, roscb)
 	gtk.main()
 except KeyboardInterrupt:
     main_quit("tut", "tut")
