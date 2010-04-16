@@ -1,0 +1,15 @@
+<package>
+  <description brief="cob_tactiletools">
+
+     cob_tactiletools
+
+  </description>
+  <author>bagside</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_tactiletools</url>
+  <depend package="rospy"/>
+
+</package>
+
+
