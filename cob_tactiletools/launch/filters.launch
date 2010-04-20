@@ -1,0 +1,5 @@
+<launch>
+   <param name="TouchedTreshold" value="10" />
+   <node name="tactile_filters" pkg="cob_tactiletools" type="tactile_filters.py" output="screen"/>
+   
+</launch>

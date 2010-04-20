@@ -1,0 +1,4 @@
+<launch>
+   <node name="tactile_data_gui" pkg="cob_tactiletools" type="tactile_data_gui.py" output="screen"/>
+   
+</launch>
