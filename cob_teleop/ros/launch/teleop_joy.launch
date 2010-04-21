@@ -14,7 +14,7 @@
   <param name="axis_linear_x" value="1" type="int"/>
   <param name="axis_linear_y" value="0" type="int"/>
   <param name="axis_angular_z" value="2" type="int"/>
-  <param name="scale_linear" value="0.5" type="double"/>
+  <param name="scale_linear" value="0.2" type="double"/>
   <param name="scale_angular" value="0.1" type="double"/>
 
  <!-- cob3 teleop platform node -->
