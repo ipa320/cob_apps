@@ -3,9 +3,9 @@
   <master auto="start"/>
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="/home/b-it-bots/RoboLab2010-04-01.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="/home/b-it-bots/RoboCupLab_outside.yaml"/>
 
-  <!--- Run AMCL -->
+  <!-- Run AMCL -->
   <include file="$(find cob_2dnav)/ros/launch/amcl_omni.launch" />
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
