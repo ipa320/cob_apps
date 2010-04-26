@@ -6,7 +6,7 @@
 
  <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">
-    <param name="dev" type="string" value="/dev/input/js0"/>
+    <param name="dev" type="string" value="/dev/input/js1"/>
     <param name="deadzone" value="0.12"/>
   </node>
 
@@ -14,7 +14,7 @@
   <param name="axis_linear_x" value="1" type="int"/>
   <param name="axis_linear_y" value="0" type="int"/>
   <param name="axis_angular_z" value="2" type="int"/>
-  <param name="scale_linear" value="0.5" type="double"/>
+  <param name="scale_linear" value="0.2" type="double"/>
   <param name="scale_angular" value="0.1" type="double"/>
 
  <!-- cob3 teleop platform node -->
