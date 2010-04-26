@@ -75,12 +75,12 @@ class Screen(gtk.DrawingArea):
         color = 0.5
         xw = width/(self.sizex)
         yw = height/(self.sizey)
-        print "SIZE+++++ ", len(self.tactile_array)
-        for i in range(0,self.sizex):
-            for j in range(0,self.sizey):
+        #print "SIZE+++++ ", len(self.tactile_array)
+        for j in range(0,self.sizey):
+            for i in range(0,self.sizex):
                 #print (i+1)*(j+1)
-                [colorr, colorg, colorb] = self.getColorCode(self.tactile_array[self.sizey*i+j])
-                print colorr, colorg, colorb
+                [colorr, colorg, colorb] = self.getColorCode(self.tactile_array[self.sizex*j+i])
+                #print colorr, colorg, colorb
                 cr.set_source_rgb(colorr, colorg, colorb)
                 cr.rectangle((i)*xw, (j)*yw, xw, yw)
                 cr.fill()
@@ -90,7 +90,7 @@ class Screen(gtk.DrawingArea):
         self.sizey = matrixy
 
     def updateTactileMatrix(self, array):
-        print "Got something: ", array
+        #print "Got something: ", array
         self.tactile_array = array
         self.queue_draw()
 
@@ -105,27 +105,27 @@ def roscb(data):
     global sc6
     global testv
     matrices = data.tactile_matrix
-    gtk.threads_enter()
+    gtk.gdk.threads_enter()
     for mat in matrices:
-        if(mat.matrix_id == 0):
+        if(mat.matrix_id == 1):
             sc1.setMatrixSize(mat.cells_x,mat.cells_y)
             sc1.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 2):
+        if(mat.matrix_id == 3):
             sc2.setMatrixSize(mat.cells_x,mat.cells_y)
             sc2.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 4):
+        if(mat.matrix_id == 5):
             sc3.setMatrixSize(mat.cells_x,mat.cells_y)
             sc3.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 1):
+        if(mat.matrix_id == 0):
             sc4.setMatrixSize(mat.cells_x,mat.cells_y)
             sc4.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 3):
+        if(mat.matrix_id == 2):
             sc5.setMatrixSize(mat.cells_x,mat.cells_y)
             sc5.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 5):
+        if(mat.matrix_id == 4):
             sc6.setMatrixSize(mat.cells_x,mat.cells_y)
             sc6.updateTactileMatrix(mat.tactile_array)
-    gtk.threads_leave()
+    gtk.gdk.threads_leave()
 
 
 # GTK mumbo-jumbo to show the widget in a window and quit when it's closed
