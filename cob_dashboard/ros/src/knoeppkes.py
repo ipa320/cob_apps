@@ -1,17 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 from Tkinter import *
+from buttons import *
 
-#class arm:
-#	def __init__(self, master=None):
-#		print "start"
-
-from knoeppkes_buttons import *
-
-def start(func):
-	print "starting", func
-	func()
-#	Async(func, ())
+def start(func, args):
+#	print "starting", func
+	func(*args)
 
 class General(Frame):
   def __init__(self, master=None):
@@ -44,6 +39,10 @@ class Panel(Frame):
 
 class Knoeppkes(Frame):
   def __init__(self):
+    # init ros node
+    rospy.init_node('cob_dashboard')
+  
+    # init GUI
     Frame.__init__(self)
     self.grid()
     self.master.title("cob_dashboard")
@@ -55,8 +54,8 @@ class Knoeppkes(Frame):
 
     for pname, actions in panels:
       panel = Panel(self, pname)
-      for aname, func in actions:
-        panel.addButton(text=aname, command=lambda f=func: start(f))
+      for aname, func, args in actions:
+        panel.addButton(text=aname, command=lambda f=func, a=args: start(f, a))
       panel.grid(row=0, column=col, padx=3, pady=3, sticky=N)
       col += 1
 
