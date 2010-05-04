@@ -1,4 +1,13 @@
 #!/usr/bin/python
+#
+#
+#
+#
+#
+#
+#
+#
+
 import roslib; roslib.load_manifest('cob_tactiletools')
 import rospy
 from cob_msgs.msg import TactileMatrix, TactileSensor
@@ -32,19 +41,47 @@ class Screen(gtk.DrawingArea):
         cr.clip()
         self.draw(cr, self.allocation.width,self.allocation.height )
 
+    def getColorCode(self, value):
+        if(value < 0):
+            #schwarz
+            return [1,1,1]
+        if(value > 4000):
+            #rot
+            return [1,0,0]
+        elif (value > 3429):
+            #orange
+            return [248./256,171./256,21./256]
+        elif (value > 2857):
+            #gelb
+            return [248./256,245./256,21./256]
+        elif (value > 2286):
+            #gruen
+            return [1./256,181./256,22./256.]
+        elif (value > 1714):
+            #gruen hell
+            return [118./256,255./256,86./256]
+        elif (value > 1143):
+            #tuerkis
+            return [85./256.,249./256.,251./256.]
+        elif (value > 571):
+            #blauig
+            return [39./256.,126./256.,167./256.]
+        else:
+            #blau
+            return [1./256.,7./256.,255./256.]
+
     def draw(self, cr, width, height):
         # Fill the background with gray
         color = 0.5
         xw = width/(self.sizex)
         yw = height/(self.sizey)
-        print "SIZE+++++ ", len(self.tactile_array)
-        for i in range(0,self.sizex):
-            for j in range(0,self.sizey):
+        #print "SIZE+++++ ", len(self.tactile_array)
+        for j in range(0,self.sizey):
+            for i in range(0,self.sizex):
                 #print (i+1)*(j+1)
-                color = self.tactile_array[self.sizey*i+j]/1000
-                if(color != 0.0):
-                    print color
-                cr.set_source_rgb(1, 1-color, 1)
+                [colorr, colorg, colorb] = self.getColorCode(self.tactile_array[self.sizex*j+i])
+                #print colorr, colorg, colorb
+                cr.set_source_rgb(colorr, colorg, colorb)
                 cr.rectangle((i)*xw, (j)*yw, xw, yw)
                 cr.fill()
 
@@ -53,7 +90,7 @@ class Screen(gtk.DrawingArea):
         self.sizey = matrixy
 
     def updateTactileMatrix(self, array):
-        print "Got something: ", array
+        #print "Got something: ", array
         self.tactile_array = array
         self.queue_draw()
 
@@ -68,27 +105,27 @@ def roscb(data):
     global sc6
     global testv
     matrices = data.tactile_matrix
-    gtk.threads_enter()
+    gtk.gdk.threads_enter()
     for mat in matrices:
-        if(mat.matrix_id == 0):
+        if(mat.matrix_id == 1):
             sc1.setMatrixSize(mat.cells_x,mat.cells_y)
             sc1.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 1):
+        if(mat.matrix_id == 3):
             sc2.setMatrixSize(mat.cells_x,mat.cells_y)
             sc2.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 2):
+        if(mat.matrix_id == 5):
             sc3.setMatrixSize(mat.cells_x,mat.cells_y)
             sc3.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 3):
+        if(mat.matrix_id == 0):
             sc4.setMatrixSize(mat.cells_x,mat.cells_y)
             sc4.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 4):
+        if(mat.matrix_id == 2):
             sc5.setMatrixSize(mat.cells_x,mat.cells_y)
             sc5.updateTactileMatrix(mat.tactile_array)
-        if(mat.matrix_id == 5):
+        if(mat.matrix_id == 4):
             sc6.setMatrixSize(mat.cells_x,mat.cells_y)
             sc6.updateTactileMatrix(mat.tactile_array)
-    gtk.threads_leave()
+    gtk.gdk.threads_leave()
 
 
 # GTK mumbo-jumbo to show the widget in a window and quit when it's closed
@@ -98,8 +135,8 @@ def main_quit(obh, obb):
 
 try:
     window = gtk.Window()
-    winwidth = 400
-    winheight = 400
+    winwidth = 500
+    winheight = 700
     window.set_size_request(winwidth,winheight)
     window.set_title("TactileSensorData")
     testv = 0
