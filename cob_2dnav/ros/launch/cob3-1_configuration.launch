@@ -7,8 +7,7 @@
 <!--  <include file="$(find cob_hokuyo)/ros/launch/cob_hokuyo.launch" />  -->
 
 <!-- start cob_point_cloud -->
-  <node pkg="cob_point_cloud_publisher" type="cob_point_cloud_publisher" name="cob_point_cloud_publisher" cwd="node" output="screen" >
-  </node>
+  <!--node pkg="cob_point_cloud_publisher" type="cob_point_cloud_publisher" name="cob_point_cloud_publisher" cwd="node" output="screen" /-->
   
   <!-- get the odometry -->
   <!-- start platform node -->
@@ -24,7 +23,7 @@
   <!-- teleoperate platform with joystick -->
   <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">
-    <param name="dev" type="string" value="/dev/input/js0"/>
+    <param name="dev" type="string" value="/dev/input/js1"/>
     <param name="deadzone" value="0.12"/>
   </node>
 
