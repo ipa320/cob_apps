@@ -6,7 +6,7 @@
 
  <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">
-    <param name="dev" type="string" value="/dev/input/js1"/>
+    <param name="dev" type="string" value="/dev/input/js0"/>
     <param name="deadzone" value="0.12"/>
   </node>
 
