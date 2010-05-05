@@ -3,8 +3,7 @@
 import roslib; roslib.load_manifest('cob_dashboard')
 import rospy
 import actionlib
-from cob_actions.msg import *
-#from pr2_controllers_msgs.msg import *
+from pr2_controllers_msgs.msg import *
 
 from parameters import *
 
