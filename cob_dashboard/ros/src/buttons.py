@@ -6,6 +6,7 @@ from parameters import *
 arm=arm()
 arm_pr2=arm_pr2()
 torso=torso()
+tray=tray()
 
 panels = [  
   ( "arm", [ 
@@ -21,5 +22,9 @@ panels = [
   ( "torso", [ 
 	 ( "Home", torso.MoveTraj, (torsoParameter.home,)),
 	 ( "Front", torso.MoveTraj, (torsoParameter.front,)),
+	 ]),
+  ( "tray", [ 
+	 ( "Up", tray.MoveTraj, (trayParameter.up,)),
+	 ( "Down", tray.MoveTraj, (trayParameter.down,)),
 	 ]),
    ]

@@ -63,3 +63,23 @@ class torsoParameter:
 	point.velocities=[0,0,0,0]
 	point.time_from_start=rospy.Duration(3)
 	front.points.append(point)
+	
+class trayParameter:
+	action_goal_topic = 'tray/JointTrajectory'
+	joint_names = ["torso_tray_joint"]
+
+	up = JointTrajectory()
+	up.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[0]
+	point.velocities=[0]
+	point.time_from_start=rospy.Duration(3)
+	up.points.append(point)
+	
+	down = JointTrajectory()
+	down.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[-3.1415926]
+	point.velocities=[0]
+	point.time_from_start=rospy.Duration(3)
+	down.points.append(point)

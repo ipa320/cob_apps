@@ -59,10 +59,31 @@ class torso:
 		print "arm: MoveTraj"
 		
 		self.client = actionlib.SimpleActionClient(torsoParameter.action_goal_topic, JointTrajectoryAction)
+		print "waiting for action server to start"
+		self.client.wait_for_server()
+		
+		print traj
+		
+		goal = JointTrajectoryGoal()
+		goal.trajectory = traj
+		self.client.send_goal(goal)
+		
+		print "waiting for action result"
+		self.client.wait_for_result()
+		print self.client.get_result()
+
+class tray:
+	def Stop(self):
+		print "tray: Stop"
+		
+	def MoveTraj(self,traj):
+		print "tray: MoveTraj"
+		
+		self.client = actionlib.SimpleActionClient(trayParameter.action_goal_topic, JointTrajectoryAction)
 		#print "waiting for action server to start"
 		#self.client.wait_for_server()
 		
-		#print traj
+		print traj
 		
 		goal = JointTrajectoryGoal()
 		goal.trajectory = traj
