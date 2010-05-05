@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from Tkinter import *
-from knoeppkes_buttons import *
+from buttons import *
 
 def start(func, args):
 #	print "starting", func
