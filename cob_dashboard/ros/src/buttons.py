@@ -5,6 +5,7 @@ from parameters import *
 
 arm=arm()
 arm_pr2=arm_pr2()
+torso=torso()
 
 panels = [  
   ( "arm", [ 
@@ -16,5 +17,9 @@ panels = [
   ( "pr2_r_arm", [ 
 	 ( "Home", arm_pr2.MoveTraj, (armParameter_pr2.home,)),
 	 ( "Folded", arm_pr2.MoveTraj, (armParameter_pr2.folded,)),
+	 ]),
+  ( "torso", [ 
+	 ( "Home", torso.MoveTraj, (torsoParameter.home,)),
+	 ( "Front", torso.MoveTraj, (torsoParameter.front,)),
 	 ]),
    ]

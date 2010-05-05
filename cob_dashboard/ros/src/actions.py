@@ -3,7 +3,8 @@
 import roslib; roslib.load_manifest('cob_dashboard')
 import rospy
 import actionlib
-from pr2_controllers_msgs.msg import *
+from cob_actions.msg import *
+#from pr2_controllers_msgs.msg import *
 
 from parameters import *
 
@@ -51,6 +52,27 @@ class arm_pr2:
 		#self.client.wait_for_result()
 		#print self.client.get_result()
 
+class torso:
+	def Stop(self):
+		print "torso: Stop"
+		
+	def MoveTraj(self,traj):
+		print "arm: MoveTraj"
+		
+		self.client = actionlib.SimpleActionClient(torsoParameter.action_goal_topic, JointTrajectoryAction)
+		#print "waiting for action server to start"
+		#self.client.wait_for_server()
+		
+		#print traj
+		
+		goal = JointTrajectoryGoal()
+		goal.trajectory = traj
+		self.client.send_goal(goal)
+		
+		#print "waiting for action result"
+		#self.client.wait_for_result()
+		#print self.client.get_result()
+		
 class sdh:
 	def MovePos(self):
 		print "MoveArm"
