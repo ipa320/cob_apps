@@ -4,6 +4,7 @@ import roslib; roslib.load_manifest('cob_dashboard')
 import rospy
 import actionlib
 from pr2_controllers_msgs.msg import *
+from cob_srvs.srv import *
 
 from parameters import *
 
@@ -54,6 +55,23 @@ class arm_pr2:
 class torso:
 	def Stop(self):
 		print "torso: Stop"
+		rospy.wait_for_service('torso/Stop')
+		try:
+			torso_stop = rospy.ServiceProxy('torso/Stop', Trigger)
+			resp = torso_stop()
+			print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+	
+	def Init(self):
+		print "torso: Init"
+		rospy.wait_for_service('torso/Init')
+		try:
+			torso_init = rospy.ServiceProxy('torso/Init', Trigger)
+			resp = torso_init()
+			print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e		
 		
 	def MoveTraj(self,traj):
 		print "arm: MoveTraj"
@@ -68,9 +86,9 @@ class torso:
 		goal.trajectory = traj
 		self.client.send_goal(goal)
 		
-		print "waiting for action result"
-		self.client.wait_for_result()
-		print self.client.get_result()
+		#print "waiting for action result"
+		#self.client.wait_for_result()
+		#print self.client.get_result()
 
 class tray:
 	def Stop(self):
