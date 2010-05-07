@@ -3,10 +3,12 @@
 
 from Tkinter import *
 from buttons import *
+import thread
 
 def start(func, args):
 #	print "starting", func
-	func(*args)
+#	func(*args)
+	thread.start_new_thread(func,args)
 
 class General(Frame):
   def __init__(self, master=None):
