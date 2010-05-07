@@ -18,14 +18,15 @@ class torso:
 		try:
 			rospy.wait_for_service('torso/Stop',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("torso service server not ready, aborting...")
 			return
 			
 		try:
 			torso_stop = rospy.ServiceProxy('torso/Stop', Trigger)
 			resp = torso_stop()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
+			print "torso service call failed: %s"%e
 	
 	def Init(self):
 		rospy.loginfo("torso: Init")
@@ -33,14 +34,15 @@ class torso:
 		try:
 			rospy.wait_for_service('torso/Init',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("torso service server not ready, aborting...")
 			return
 			
 		try:
 			torso_init = rospy.ServiceProxy('torso/Init', Trigger)
 			resp = torso_init()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
+			print "torso service call failed: %s"%e
 		
 	def MoveTraj(self,traj):
 		rospy.loginfo("torso: MoveTraj")
@@ -65,14 +67,15 @@ class tray:
 		try:
 			rospy.wait_for_service('tray/Stop',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("tray service server not ready, aborting...")
 			return
 			
 		try:
 			tray_stop = rospy.ServiceProxy('tray/Stop', Trigger)
 			resp = tray_stop()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
+			print "tray service call failed: %s"%e
 	
 	def Init(self):
 		rospy.loginfo("tray: Init")
@@ -80,14 +83,15 @@ class tray:
 		try:
 			rospy.wait_for_service('tray/Init',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("tray service server not ready, aborting...")
 			return
 			
 		try:
 			tray_init = rospy.ServiceProxy('tray/Init', Trigger)
 			resp = tray_init()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e		
+			print "tray service call failed: %s"%e		
 		
 	def MoveTraj(self,traj):
 		rospy.loginfo("tray: MoveTraj")
@@ -112,14 +116,15 @@ class arm:
 		try:
 			rospy.wait_for_service('arm/Stop',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("arm service server not ready, aborting...")
 			return
 			
 		try:
 			arm_stop = rospy.ServiceProxy('arm/Stop', Trigger)
 			resp = arm_stop()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
+			print "arm service call failed: %s"%e
 	
 	def Init(self):
 		rospy.loginfo("arm: Init")
@@ -127,14 +132,15 @@ class arm:
 		try:
 			rospy.wait_for_service('arm/Init',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("arm service server not ready, aborting...")
 			return
 			
 		try:
 			arm_init = rospy.ServiceProxy('arm/Init', Trigger)
 			resp = arm_init()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
+			print "arm service call failed: %s"%e
 			
 	def MoveTraj(self,traj):
 		rospy.loginfo("arm: MoveTraj")
@@ -157,9 +163,13 @@ class arm:
 		print name
 		print name2
 
+class lbr:
+	def MoveTraj(self,traj):
+		rospy.loginfo("lbr: MoveTraj")
+
 class arm_pr2:
 	def MoveTraj(self,traj):
-		rospy.logdebug("arm_pr2: MoveTraj")
+		rospy.loginfo("arm_pr2: MoveTraj")
 		
 		self.client = actionlib.SimpleActionClient(armParameter_pr2.action_goal_topic, JointTrajectoryAction)
 		rospy.logdebug("waiting for arm_pr2 action server to start")
@@ -181,14 +191,15 @@ class sdh:
 		try:
 			rospy.wait_for_service('sdh/Stop',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("sdh service server not ready, aborting...")
 			return
 			
 		try:
 			sdh_stop = rospy.ServiceProxy('sdh/Stop', Trigger)
 			resp = sdh_stop()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
+			print "sdh service call failed: %s"%e
 	
 	def Init(self):
 		rospy.loginfo("sdh: Init")
@@ -196,14 +207,15 @@ class sdh:
 		try:
 			rospy.wait_for_service('sdh/Init',5)
 		except rospy.ROSException, e:
-			rospy.logerr("service server not ready, aborting...")
+			rospy.logerr("sdh service server not ready, aborting...")
 			return
 			
 		try:
 			sdh_init = rospy.ServiceProxy('sdh/Init', Trigger)
 			resp = sdh_init()
+			print resp
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e	
+			print "sdh service call failed: %s"%e	
 	def MoveCommand(self,command):
 		rospy.loginfo("sdh: MoveCommand")
 		
