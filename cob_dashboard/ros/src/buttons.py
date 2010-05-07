@@ -3,35 +3,48 @@
 from actions import *
 from parameters import *
 
-arm=arm()
-arm_pr2=arm_pr2()
 torso=torso()
 tray=tray()
+arm=arm()
+arm_pr2=arm_pr2()
+sdh=sdh()
 
 panels = [  
-  ( "arm", [ 
-	( "Stop", arm.Stop, ()),
-	( "Home", arm.MoveTraj, (armParameter.home,)),
-	( "Folded", arm.MoveTraj, (armParameter.folded,)),
-	( "moveArm3", arm.MoveArm3, ("dadsasasfd","asdf")),
-	]),
-  ( "pr2_r_arm", [ 
-	( "Home", arm_pr2.MoveTraj, (armParameter_pr2.home,)),
-	( "Folded", arm_pr2.MoveTraj, (armParameter_pr2.folded,)),
-	]),
   ( "torso", [ 
-	( "Stop", torso.Stop, ()),
-	( "Init", torso.Init, ()),
-	( "Home", torso.MoveTraj, (torsoParameter.home,)),
-	( "Front", torso.MoveTraj, (torsoParameter.front,)),
-	( "Back", torso.MoveTraj, (torsoParameter.back,)),
-	( "Left", torso.MoveTraj, (torsoParameter.left,)),
-	( "Right", torso.MoveTraj, (torsoParameter.right,)),
-	( "Shake", torso.MoveTraj, (torsoParameter.shake,)),
-	( "Nod", torso.MoveTraj, (torsoParameter.nod,)),
+	( "stop", torso.Stop, ()),
+	( "init", torso.Init, ()),
+	( "home", torso.MoveTraj, (torsoParameter.home,)),
+	( "front", torso.MoveTraj, (torsoParameter.front,)),
+	( "back", torso.MoveTraj, (torsoParameter.back,)),
+	( "left", torso.MoveTraj, (torsoParameter.left,)),
+	( "right", torso.MoveTraj, (torsoParameter.right,)),
+	( "shake", torso.MoveTraj, (torsoParameter.shake,)),
+	( "nod", torso.MoveTraj, (torsoParameter.nod,)),
 	]),
   ( "tray", [ 
-	( "Up", tray.MoveTraj, (trayParameter.up,)),
-	( "Down", tray.MoveTraj, (trayParameter.down,)),
+  	( "stop", tray.Stop, ()),
+	( "init", tray.Init, ()),
+	( "up", tray.MoveTraj, (trayParameter.up,)),
+	( "down", tray.MoveTraj, (trayParameter.down,)),
 	]),
+  ( "arm", [ 
+	( "stop", arm.Stop, ()),
+	( "init", arm.Init, ()),
+	( "home", arm.MoveTraj, (armParameter.home,)),
+	( "folded", arm.MoveTraj, (armParameter.folded,)),
+	( "moveArm3", arm.MoveArm3, ("dadsasasfd","asdf")),
+	]),
+#  ( "pr2_r_arm", [ 
+#	( "Home", arm_pr2.MoveTraj, (armParameter_pr2.home,)),
+#	( "Folded", arm_pr2.MoveTraj, (armParameter_pr2.folded,)),
+#	]),
+  ( "sdh", [ 
+  	( "stop", sdh.Stop, ()),
+	( "init", sdh.Init, ()),
+	( "home", sdh.MoveCommand, (sdhParameter.home,)),
+	( "cylClose", sdh.MoveCommand, (sdhParameter.cylClose,)),
+	( "cylOpen", sdh.MoveCommand, (sdhParameter.cylOpen,)),
+	( "spherClose", sdh.MoveCommand, (sdhParameter.spherClose,)),
+	( "spherOpen", sdh.MoveCommand, (sdhParameter.spherOpen,)),
+	])
   ]
