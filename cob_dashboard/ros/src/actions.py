@@ -166,6 +166,8 @@ class arm:
 class lbr:
 	def MoveTraj(self,traj):
 		rospy.loginfo("lbr: MoveTraj")
+		pub = rospy.Publisher('/Trajectory', JointTrajectory)
+		pub.publish(traj)
 
 class arm_pr2:
 	def MoveTraj(self,traj):

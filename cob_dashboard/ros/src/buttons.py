@@ -38,6 +38,11 @@ panels = [
   ( "lbr", [ 
 	( "home", lbr.MoveTraj, (lbrParameter.home,)),
 	( "folded", lbr.MoveTraj, (lbrParameter.folded,)),
+	( "foldedTopregrasp", lbr.MoveTraj, (lbrParameter.foldedTopregrasp,)),
+	( "pregrasp", lbr.MoveTraj, (lbrParameter.pregrasp,)),
+	( "grasp", lbr.MoveTraj, (lbrParameter.grasp,)),
+	( "graspTOtablet", lbr.MoveTraj, (lbrParameter.graspTOtablet,)),
+	( "tablet", lbr.MoveTraj, (lbrParameter.tablet,)),
 	]),
 #  ( "pr2_r_arm", [ 
 #	( "Home", arm_pr2.MoveTraj, (armParameter_pr2.home,)),
