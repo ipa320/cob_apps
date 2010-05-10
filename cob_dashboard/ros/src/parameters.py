@@ -149,7 +149,7 @@ class lbrParameter:
 	folded = JointTrajectory()
 	folded.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-1.04, -2.06, -2.24, -1.62, -2.93, -1.54, 0.43]
+	point.positions=[-1.16, -2.10, -2.53, -1.78, -2.84, -0.97, 1.76]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(3)
 	folded.points.append(point)
@@ -157,7 +157,7 @@ class lbrParameter:
 	pregrasp = JointTrajectory()
 	pregrasp.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-0.87, -2.1, -0.94, -1.68, -2.96, 0.55, 1.37]
+	point.positions=[-1.46, -2.10, -1.79, -1.42, -2.41, -0.91, 2.54]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(3)
 	pregrasp.points.append(point)
@@ -165,7 +165,7 @@ class lbrParameter:
 	grasp = JointTrajectory()
 	grasp.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-0.49, -1.79, -0.83, -0.85, -2.96, 0.23, 1.38]
+	point.positions=[-0.82, -2.01, -1.23, -1.00, -2.62, -0.62, 2.78]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(3)
 	grasp.points.append(point)
@@ -173,52 +173,74 @@ class lbrParameter:
 	graspTOtablet = JointTrajectory()
 	graspTOtablet.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-1.2, -1.85, -0.86, -1.79, -2.53, 0.67, 1.31]
+	point.positions=[-0.87, -1.76, -1.35, -0.91, -2.61, -1.09, 2.97]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(3)
 	graspTOtablet.points.append(point)
 	point=JointTrajectoryPoint()
-	point.positions=[-1.05, -1.43, -0.77, -1.79, -2.55, -0.60, 1.62]
+	point.positions=[-0.94, -1.74, -1.18, -1.68, -2.81, -1.45, 2.90]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(6)
 	graspTOtablet.points.append(point)
 	point=JointTrajectoryPoint()
-	point.positions=[-0.40, -0.88, -0.41, -1.82, -2.63, -1.17, 1.66]
+	point.positions=[-0.15, -1.15, -0.82, -2.10, -2.93, -1.37, 2.97]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(9)
 	graspTOtablet.points.append(point)
 	point=JointTrajectoryPoint()
-	point.positions=[-0.65, 0.49, 0.80, -1.61, -2.69, -0.58, 1.73]
+	point.positions=[1.99, -0.77, -2.00, -2.10, -2.83, -0.27, 2.96]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(12)
 	graspTOtablet.points.append(point)
 	point=JointTrajectoryPoint()
-	point.positions=[-0.56, 0.98, 0.69, -1.74, -2.7, -0.73, 1.31]
+	point.positions=[2.52, -1.12, -2.36, -1.90, -2.83, -0.25, 2.83]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(12)
 	graspTOtablet.points.append(point)
+	
+	overTablet=JointTrajectory()
+	overTablet.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[2.52, -1.12, -2.36, -1.90, -2.83, -0.25, 2.83]
+	point.velocities=[0,0,0,0,0,0,0]
+	point.time_from_start=rospy.Duration(3)
+	overTablet.points.append(point)
 	
 	foldedTopregrasp = JointTrajectory()
 	foldedTopregrasp.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-1.55, -1.40, -2.20, -2.07, -2.56, -1.81, 0.59]
+	point.positions=[-1.44, -2.08, -1.74, -1.44, -2.72, -1.77, 2.92]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(3)
 	foldedTopregrasp.points.append(point)
 	point=JointTrajectoryPoint()
-	point.positions=[-0.86, -2.08, -0.85, -1.67, -2.62, -1.10, 1.31]
+	point.positions=[-1.46, -2.10, -1.79, -1.42, -2.41, -0.91, 2.54]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(6)
 	foldedTopregrasp.points.append(point)
-	point.positions=[-0.87, -2.1, -0.94, -1.68, -2.96, 0.55, 1.37]
+
+	tabletTOfolded = JointTrajectory()
+	tabletTOfolded.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[2.01, -0.72, -2.15, -1.89, -2.78, -0.74, 2.82]
+	point.velocities=[0,0,0,0,0,0,0]
+	point.time_from_start=rospy.Duration(3)
+	tabletTOfolded.points.append(point)
+	point=JointTrajectoryPoint()
+	point.positions=[0.89, -1.73, -1.98, -1.67, -2.90, -0.89, 2.24]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(6)
-	foldedTopregrasp.points.append(point)
+	tabletTOfolded.points.append(point)
+	point=JointTrajectoryPoint()
+	point.positions=[-1.16, -2.10, -2.53, -1.78, -2.84, -0.97, 1.76]
+	point.velocities=[0,0,0,0,0,0,0]
+	point.time_from_start=rospy.Duration(6)
+	tabletTOfolded.points.append(point)
 	
 	tablet = JointTrajectory()
 	tablet.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-0.56, 0.98, 0.69, -1.74, -2.7, -0.73, 1.31]
+	point.positions=[2.47, -1.14, -2.43, -1.87, -2.82, -0.33, 2.78]
 	point.velocities=[0,0,0,0,0,0,0]
 	point.time_from_start=rospy.Duration(3)
 	tablet.points.append(point)
@@ -282,3 +304,19 @@ class sdhParameter:
 	trainObjectsParallel.joint_names = joint_names
 	trainObjectsParallel.positions=[0.0,-1.5700,-1.5700,0.0,-1.5700,-1.5700,0.0,-1.5700,-1.5700]
 	trainObjectsParallel.velocities=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+	
+	cupHome = JointCommand()
+	cupHome.joint_names = joint_names
+	cupHome.positions=[0.0,0.0,0.0,1.5700,-0.2094,0.6108,0.0,-0.2094,0.6108]
+	
+	cupOpen = JointCommand()
+	cupOpen.joint_names = joint_names
+	cupOpen.positions=[0.0,-1.3962,1.3962,1.5700,-0.2094,-0.5235,0.0,-0.2094,-0.5235]
+	
+	cupClose = JointCommand()
+	cupClose.joint_names = joint_names
+	cupClose.positions=[0.0,-1.3962,1.3962,1.5700,-0.2094,0.6108,0.0,-0.2094,0.6108]
+	
+	cupRelease = JointCommand()
+	cupRelease.joint_names = joint_names
+	cupRelease.positions=[0.0,-1.3962,1.3962,1.5700,-0.5235,0.5235,0.0,-0.5235,0.5235]
