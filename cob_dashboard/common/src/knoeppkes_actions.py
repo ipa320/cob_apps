@@ -1,58 +1,44 @@
 #!/usr/bin/python
 
 import roslib; roslib.load_manifest('cob_dashboard')
-
-from home import *
-from folded import *
-from simple_trajectory import *
-from simple_trajectory2 import *
-from torso_home import *
-from torso_front import *
-from torso_traj1 import *
+import rospy
+import actionlib
+from trajectory_msgs.msg import *
+from pr2_controllers_msgs.msg import *
 
 class arm:
-	def Home(self):
-		home()
-
-	def Folded(self):
-		folded() 
-	   
-	def SimpleTrajectory(self):
-		simple_trajectory()
+	def Stop(self):
+		print "arm: Stop"
 		
-	def SimpleTrajectory2(self):
-		simple_trajectory2()
-
-class torso:
-	def Home(self):
-		torso_home()
-		print "torso.Home"
-   
-	def Front(self):
-		torso_front()
-		print "torso.Front"
-
-	def Back(self):
-		print "torso.Back"
-
-	def Left(self):
-		print "torso.Left"
-
-	def Right(self):
-		print "torso.Right"
-
-	def Traj1(self):
-		torso_traj1()
-		print "torso.Traj1"
+	def MoveTraj(self,traj):
+		print "arm: MoveTraj"
+		
+		self.client = actionlib.SimpleActionClient('arm_controller/joint_trajectory_action', JointTrajectoryAction)
+		#print "waiting for action server to start"
+		#self.client.wait_for_server()
+		
+		#print traj
+		
+		goal = JointTrajectoryGoal()
+		goal.trajectory = traj
+		self.client.send_goal(goal)
+		
+		#print "waiting for action result"
+		#self.client.wait_for_result()
+		#print self.client.get_result()
+		
+	def MoveArm3(self,name,name2):
+		print "arm: MoveArm3"
+		print name
+		print name2
 
 class sdh:
-	def Home(self):
-		print "sdh.Home"
-   
-	def Close(self):
-		print "sdh.Close"
-		
-class cob3:
-	arm=arm()
-	torso=torso()
-	sdh=sdh()
+	def MovePos(self):
+		print "MoveArm"
+	def MovePos(self,name):
+		print "MoveArm2"
+		print name
+	def MovePos(self,name,name2):
+		print "MoveArm3"
+		print name
+		print name2
