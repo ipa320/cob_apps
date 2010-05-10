@@ -6,9 +6,11 @@ footprint: [[0.4, 0.3], [0.4, -0.3], [-0.4, -0.3],[-0.4, 0.3]] #[m]
 inflation_radius: 0.55 #[m]
 
 #observation_sources: laser_scan_sensor point_cloud_sensor
-observation_sources: laser_scan_sensor
+observation_sources: laser_scan_sensor laser_scan_sensor_rear
 
 laser_scan_sensor: {sensor_frame: base_laser_front, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+
+laser_scan_sensor_rear: {sensor_frame: base_laser_rear, data_type: LaserScan, topic: scan_rear, marking: true, clearing: true}
 
 #point_cloud_sensor: {sensor_frame: base_link, data_type: PointCloud, topic: point_cloud, marking: true, clearing: true}
 
