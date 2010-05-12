@@ -164,9 +164,12 @@ class arm:
 		print name2
 
 class lbr:
+	def Stop(self):
+		rospy.logerr("Can't stop lbr, stop not implemented...")
+		print ("login via telnet: telnet")
 	def Init(self):
 		rospy.logerr("Can't initialize lbr automatically, please init manually...")
-		print ("login via telnet: telnet")
+		print ("login via telnet: telnet 192.168.42.146")
 	def MoveTraj(self,traj):
 		rospy.loginfo("lbr: MoveTraj")
 		pub = rospy.Publisher('/Trajectory', JointTrajectory)

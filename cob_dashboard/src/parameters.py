@@ -252,6 +252,50 @@ class lbrParameter:
 	point.time_from_start=rospy.Duration(3)
 	coolerButton.points.append(point)
 	
+	coolerPreGrasp = JointTrajectory()
+	coolerPreGrasp.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[-1.33, -2.10, -1.58, -1.83, -0.73, -0.55, 0.88]
+	point.time_from_start=rospy.Duration(3)
+	coolerPreGrasp.points.append(point)
+	
+	coolerGrasp = JointTrajectory()
+	coolerGrasp.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[-1.02, -2.09, -1.44, -1.55, -0.72, -0.56, 0.89]
+	point.time_from_start=rospy.Duration(3)
+	coolerGrasp.points.append(point)
+
+	coolerPostGrasp = JointTrajectory()
+	coolerPostGrasp.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[-1.19, -2.08, -1.46, -1.65, -0.72, -0.45, 0.90]
+	point.time_from_start=rospy.Duration(3)
+	coolerPostGrasp.points.append(point)
+	
+	cupTOtablet = JointTrajectory()
+	cupTOtablet.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[-1.50, -2.10, -1.47, -2.02, -1.58, -0.23, 1.78]
+	point.velocities=[0,0,0,0,0,0,0]
+	point.time_from_start=rospy.Duration(6)
+	cupTOtablet.points.append(point)
+	point=JointTrajectoryPoint()
+	point.positions=[-0.15, -1.15, -0.82, -2.10, -2.93, -1.37, 2.97]
+	point.velocities=[0,0,0,0,0,0,0]
+	point.time_from_start=rospy.Duration(9)
+	cupTOtablet.points.append(point)
+	point=JointTrajectoryPoint()
+	point.positions=[1.99, -0.77, -2.00, -2.10, -2.83, -0.27, 2.96]
+	point.velocities=[0,0,0,0,0,0,0]
+	point.time_from_start=rospy.Duration(12)
+	cupTOtablet.points.append(point)
+	point=JointTrajectoryPoint()
+	point.positions=[2.52, -1.12, -2.36, -1.90, -2.83, -0.25, 2.83]
+	point.velocities=[0,0,0,0,0,0,0]
+	point.time_from_start=rospy.Duration(12)
+	cupTOtablet.points.append(point)
+	
 class armParameter_pr2:
 	action_goal_topic = 'r_arm_controller/joint_trajectory_action'
 	joint_names = ["r_shoulder_pan_joint","r_shoulder_lift_joint","r_upper_arm_roll_joint","r_elbow_flex_joint","r_forearm_roll_joint","r_wrist_flex_joint","r_wrist_roll_joint"]
@@ -334,4 +378,12 @@ class sdhParameter:
 	
 	coolerButtonDown = JointCommand()
 	coolerButtonDown.joint_names = joint_names
-	coolerButtonDown.positions=[0.0,0.0,1.5700,0.0,0.0,1.5700,0.0,0.087,0.0]
+	coolerButtonDown.positions=[0.0,0.0,1.5700,0.0,0.0,1.5700,0.0,0.160,0.0]
+	
+	coolerCupOpen = JointCommand()
+	coolerCupOpen.joint_names = joint_names
+	coolerCupOpen.positions=[0.0, -1.5700, 0.0, 1.5700, -0.2000, 0.2400, 1.5700, -0.2000, 0.2400]
+	
+	coolerCupClose = JointCommand()
+	coolerCupClose.joint_names = joint_names
+	coolerCupClose.positions=[0.0, -1.5700, -0.0, 1.5700, -0.2000, 0.3500, 1.5700, -0.2000, 0.3500]
