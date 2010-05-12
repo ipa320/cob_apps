@@ -245,6 +245,13 @@ class lbrParameter:
 	point.time_from_start=rospy.Duration(3)
 	tablet.points.append(point)
 
+	coolerButton = JointTrajectory()
+	coolerButton.joint_names = joint_names
+	point=JointTrajectoryPoint()
+	point.positions=[-1.26, -2.10, -1.43, -1.58, -1.47, -0.37, -1.47]
+	point.time_from_start=rospy.Duration(3)
+	coolerButton.points.append(point)
+	
 class armParameter_pr2:
 	action_goal_topic = 'r_arm_controller/joint_trajectory_action'
 	joint_names = ["r_shoulder_pan_joint","r_shoulder_lift_joint","r_upper_arm_roll_joint","r_elbow_flex_joint","r_forearm_roll_joint","r_wrist_flex_joint","r_wrist_roll_joint"]
@@ -320,3 +327,11 @@ class sdhParameter:
 	cupRelease = JointCommand()
 	cupRelease.joint_names = joint_names
 	cupRelease.positions=[0.0,-1.3962,1.3962,1.5700,-0.5235,0.5235,0.0,-0.5235,0.5235]
+		
+	coolerButtonUp = JointCommand()
+	coolerButtonUp.joint_names = joint_names
+	coolerButtonUp.positions=[0.0,0.0,1.5700,0.0,0.0,1.5700,0.0,-0.087,0.0]
+	
+	coolerButtonDown = JointCommand()
+	coolerButtonDown.joint_names = joint_names
+	coolerButtonDown.positions=[0.0,0.0,1.5700,0.0,0.0,1.5700,0.0,0.087,0.0]

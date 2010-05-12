@@ -46,6 +46,7 @@ panels = [
 	( "overTablet", lbr.MoveTraj, (lbrParameter.overTablet,)),
 	( "tablet", lbr.MoveTraj, (lbrParameter.tablet,)),
 	( "tabletTOfolded", lbr.MoveTraj, (lbrParameter.tabletTOfolded,)),
+	( "coolerButton", lbr.MoveTraj, (lbrParameter.coolerButton,)),
 	]),
 #  ( "pr2_r_arm", [ 
 #	( "Home", arm_pr2.MoveTraj, (armParameter_pr2.home,)),
@@ -65,5 +66,7 @@ panels = [
 	( "cupClose", sdh.MoveCommand, (sdhParameter.cupClose,)),
 	( "cupOpen", sdh.MoveCommand, (sdhParameter.cupOpen,)),
 	( "cupRelease", sdh.MoveCommand, (sdhParameter.cupRelease,)),
+	( "coolerButtonUp", sdh.MoveCommand, (sdhParameter.coolerButtonUp,)),
+	( "coolerButtonDown", sdh.MoveCommand, (sdhParameter.coolerButtonDown,)),
 	])
   ]
