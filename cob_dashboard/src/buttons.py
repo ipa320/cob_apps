@@ -28,13 +28,13 @@ panels = [
 	( "up", tray.MoveTraj, (trayParameter.up,)),
 	( "down", tray.MoveTraj, (trayParameter.down,)),
 	]),
-#  ( "arm", [ 
-#	( "stop", arm.Stop, ()),
-#	( "init", arm.Init, ()),
-#	( "home", arm.MoveTraj, (armParameter.home,)),
-#	( "folded", arm.MoveTraj, (armParameter.folded,)),
+  ( "arm", [ 
+	( "stop", arm.Stop, ()),
+	( "init", arm.Init, ()),
+	( "home", arm.MoveTraj, (armParameter.home,)),
+	( "folded", arm.MoveTraj, (armParameter.folded,)),
 #	( "moveArm3", arm.MoveArm3, ("dadsasasfd","asdf")),
-#	]),
+	]),
   ( "lbr", [ 
   	( "stop", lbr.Stop, ()),
 	( "init", lbr.Init, ()),
@@ -83,5 +83,11 @@ panels = [
 	( "coolerButtonDown", sdh.MoveCommand, (sdhParameter.coolerButtonDown,)),
 	( "coolerCupOpen", sdh.MoveCommand, (sdhParameter.coolerCupOpen,)),
 	( "coolerCupClose", sdh.MoveCommand, (sdhParameter.coolerCupClose,)),
+	]),
+  ( "sdh sim", [ 
+  	( "stop", sdh.Stop, ()),
+	( "init", sdh.Init, ()),
+	( "home", sdh.MoveTraj, (sdhTrajParameter.home,)),
+	( "cylClose", sdh.MoveTraj, (sdhTrajParameter.cylClose,)),
 	])
   ]
