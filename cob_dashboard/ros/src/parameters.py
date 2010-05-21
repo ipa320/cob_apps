@@ -45,7 +45,7 @@ class armParameter_pr2:
 	
 
 class torsoParameter:
-	action_goal_topic = 'torso/JointTrajectory'
+	action_goal_topic = 'torso_controller/joint_trajectory_action'
 	joint_names = ["torso_lower_neck_pan_joint","torso_lower_neck_tilt_joint","torso_upper_neck_pan_joint","torso_upper_neck_tilt_joint"]
 
 	home = JointTrajectory()
@@ -135,7 +135,7 @@ class torsoParameter:
 	shake.points.append(point)
 	
 class trayParameter:
-	action_goal_topic = 'tray/JointTrajectory'
+	action_goal_topic = 'tray_controller/joint_trajectory_action'
 	joint_names = ["torso_tray_joint"]
 
 	up = JointTrajectory()
@@ -149,7 +149,8 @@ class trayParameter:
 	down = JointTrajectory()
 	down.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-3.1415926]
+	#point.positions=[-3.1415926]
+	point.positions=[0.5]
 	point.velocities=[0]
 	point.time_from_start=rospy.Duration(3)
 	down.points.append(point)
