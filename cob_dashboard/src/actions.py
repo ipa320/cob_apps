@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-import time
-
 import roslib; roslib.load_manifest('cob_dashboard')
 import rospy
 import actionlib
@@ -58,6 +56,7 @@ class torso:
 		
 		goal = JointTrajectoryGoal()
 		goal.trajectory = traj
+		goal.trajectory.header.stamp = rospy.Time.now()
 		self.client.send_goal(goal)
 
 class tray:
@@ -107,6 +106,7 @@ class tray:
 		
 		goal = JointTrajectoryGoal()
 		goal.trajectory = traj
+		goal.trajectory.header.stamp = rospy.Time.now()
 		self.client.send_goal(goal)
 
 class arm:
@@ -156,6 +156,7 @@ class arm:
 		
 		goal = JointTrajectoryGoal()
 		goal.trajectory = traj
+		goal.trajectory.header.stamp = rospy.Time.now()
 		self.client.send_goal(goal)
 		
 	def MoveArm3(self,name,name2):
@@ -189,6 +190,7 @@ class arm_pr2:
 		
 		goal = JointTrajectoryGoal()
 		goal.trajectory = traj
+		goal.trajectory.header.stamp = rospy.Time.now()
 		self.client.send_goal(goal)
 	
 class sdh:
@@ -237,4 +239,21 @@ class sdh:
 		
 		goal = JointCommandGoal()
 		goal.command = command
+		self.client.send_goal(goal)
+		
+	def MoveTraj(self,traj):
+		rospy.loginfo("sdh: MoveTraj")
+		
+		self.client = actionlib.SimpleActionClient(sdhTrajParameter.action_goal_topic, JointTrajectoryAction)
+		rospy.logdebug("waiting for sdh action server to start")
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			rospy.logerr("sdh action server not ready within timeout, aborting...")
+			return
+		else:
+			rospy.logdebug("sdh action server ready")
+		#print traj
+		
+		goal = JointTrajectoryGoal()
+		goal.trajectory = traj
+		goal.trajectory.header.stamp = rospy.Time.now()
 		self.client.send_goal(goal)
