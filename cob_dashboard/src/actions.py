@@ -14,13 +14,13 @@ class torso:
 		rospy.loginfo("torso: Stop")
 		
 		try:
-			rospy.wait_for_service('torso/Stop',5)
+			rospy.wait_for_service('torso_controller/Stop',5)
 		except rospy.ROSException, e:
 			rospy.logerr("torso service server not ready, aborting...")
 			return
 			
 		try:
-			torso_stop = rospy.ServiceProxy('torso/Stop', Trigger)
+			torso_stop = rospy.ServiceProxy('torso_controller/Stop', Trigger)
 			resp = torso_stop()
 			print resp
 		except rospy.ServiceException, e:
@@ -30,13 +30,13 @@ class torso:
 		rospy.loginfo("torso: Init")
 		
 		try:
-			rospy.wait_for_service('torso/Init',5)
+			rospy.wait_for_service('torso_controller/Init',5)
 		except rospy.ROSException, e:
 			rospy.logerr("torso service server not ready, aborting...")
 			return
 			
 		try:
-			torso_init = rospy.ServiceProxy('torso/Init', Trigger)
+			torso_init = rospy.ServiceProxy('torso_controller/Init', Trigger)
 			resp = torso_init()
 			print resp
 		except rospy.ServiceException, e:
@@ -64,13 +64,13 @@ class tray:
 		rospy.loginfo("tray: Stop")
 		
 		try:
-			rospy.wait_for_service('tray/Stop',5)
+			rospy.wait_for_service('tray_controller/Stop',5)
 		except rospy.ROSException, e:
 			rospy.logerr("tray service server not ready, aborting...")
 			return
 			
 		try:
-			tray_stop = rospy.ServiceProxy('tray/Stop', Trigger)
+			tray_stop = rospy.ServiceProxy('tray_controller/Stop', Trigger)
 			resp = tray_stop()
 			print resp
 		except rospy.ServiceException, e:
@@ -80,13 +80,13 @@ class tray:
 		rospy.loginfo("tray: Init")
 		
 		try:
-			rospy.wait_for_service('tray/Init',5)
+			rospy.wait_for_service('tray_controller/Init',5)
 		except rospy.ROSException, e:
 			rospy.logerr("tray service server not ready, aborting...")
 			return
 			
 		try:
-			tray_init = rospy.ServiceProxy('tray/Init', Trigger)
+			tray_init = rospy.ServiceProxy('tray_controller/Init', Trigger)
 			resp = tray_init()
 			print resp
 		except rospy.ServiceException, e:
@@ -114,13 +114,13 @@ class arm:
 		rospy.loginfo("arm: Stop")
 		
 		try:
-			rospy.wait_for_service('arm/Stop',5)
+			rospy.wait_for_service('arm_controller/Stop',5)
 		except rospy.ROSException, e:
 			rospy.logerr("arm service server not ready, aborting...")
 			return
 			
 		try:
-			arm_stop = rospy.ServiceProxy('arm/Stop', Trigger)
+			arm_stop = rospy.ServiceProxy('arm_controller/Stop', Trigger)
 			resp = arm_stop()
 			print resp
 		except rospy.ServiceException, e:
@@ -130,13 +130,13 @@ class arm:
 		rospy.loginfo("arm: Init")
 		
 		try:
-			rospy.wait_for_service('arm/Init',5)
+			rospy.wait_for_service('arm_controller/Init',5)
 		except rospy.ROSException, e:
 			rospy.logerr("arm service server not ready, aborting...")
 			return
 			
 		try:
-			arm_init = rospy.ServiceProxy('arm/Init', Trigger)
+			arm_init = rospy.ServiceProxy('arm_controller/Init', Trigger)
 			resp = arm_init()
 			print resp
 		except rospy.ServiceException, e:
