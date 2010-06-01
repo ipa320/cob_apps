@@ -36,14 +36,19 @@ class torso:
 			return
 			
 		try:
-			torso_init = rospy.ServiceProxy('torso_controller/Init', Trigger)
-			resp = torso_init()
+			torso_srvCall = rospy.ServiceProxy('torso_controller/Init', Trigger)
+			resp = torso_srvCall()
 			print resp
 		except rospy.ServiceException, e:
 			print "torso service call failed: %s"%e
+			
+	def SetOperationMode(self,operationMode):
+		rospy.loginfo("torso: SetOperationMode to -%s-",operationMode)
+		rospy.set_param('torso_controller/OperationMode', operationMode)
 		
 	def MoveTraj(self,traj):
 		rospy.loginfo("torso: MoveTraj")
+		rospy.set_param('torso_controller/OperationMode', "position")
 		
 		self.client = actionlib.SimpleActionClient(torsoParameter.action_goal_topic, JointTrajectoryAction)
 		rospy.logdebug("waiting for torso action server to start")
@@ -86,14 +91,19 @@ class tray:
 			return
 			
 		try:
-			tray_init = rospy.ServiceProxy('tray_controller/Init', Trigger)
-			resp = tray_init()
+			tray_srvCall = rospy.ServiceProxy('tray_controller/Init', Trigger)
+			resp = tray_srvCall()
 			print resp
 		except rospy.ServiceException, e:
-			print "tray service call failed: %s"%e		
+			print "tray service call failed: %s"%e
+		
+	def SetOperationMode(self,operationMode):
+		rospy.loginfo("tray: SetOperationMode to -%s-",operationMode)
+		rospy.set_param('tray_controller/OperationMode', operationMode)
 		
 	def MoveTraj(self,traj):
 		rospy.loginfo("tray: MoveTraj")
+		rospy.set_param('tray_controller/OperationMode', "position")
 		
 		self.client = actionlib.SimpleActionClient(trayParameter.action_goal_topic, JointTrajectoryAction)
 		rospy.logdebug("waiting for tray action server to start")
@@ -136,14 +146,19 @@ class arm:
 			return
 			
 		try:
-			arm_init = rospy.ServiceProxy('arm_controller/Init', Trigger)
-			resp = arm_init()
+			arm_srvCall = rospy.ServiceProxy('arm_controller/Init', Trigger)
+			resp = arm_srvCall()
 			print resp
 		except rospy.ServiceException, e:
 			print "arm service call failed: %s"%e
 			
+	def SetOperationMode(self,operationMode):
+		rospy.loginfo("arm: SetOperationMode to -%s-",operationMode)
+		rospy.set_param('arm_controller/OperationMode', operationMode)
+	
 	def MoveTraj(self,traj):
 		rospy.loginfo("arm: MoveTraj")
+		rospy.set_param('arm_controller/OperationMode', "position")
 		
 		self.client = actionlib.SimpleActionClient(armParameter.action_goal_topic, JointTrajectoryAction)
 		rospy.logdebug("waiting for arm action server to start")
@@ -220,8 +235,8 @@ class sdh:
 			return
 			
 		try:
-			sdh_init = rospy.ServiceProxy('sdh/Init', Trigger)
-			resp = sdh_init()
+			sdh_srvCall = rospy.ServiceProxy('sdh/Init', Trigger)
+			resp = sdh_srvCall()
 			print resp
 		except rospy.ServiceException, e:
 			print "sdh service call failed: %s"%e	

@@ -14,6 +14,8 @@ panels = [
   ( "torso", [ 
 	( "stop", torso.Stop, ()),
 	( "init", torso.Init, ()),
+	( "Mode: Joy", torso.SetOperationMode, ("velocity",)),
+#	( "SetOperationMode (pos)", torso.SetOperationMode, ("position",)),
 	( "home", torso.MoveTraj, (torsoParameter.home,)),
 	( "front", torso.MoveTraj, (torsoParameter.front,)),
 	( "back", torso.MoveTraj, (torsoParameter.back,)),
@@ -25,12 +27,16 @@ panels = [
   ( "tray", [ 
   	( "stop", tray.Stop, ()),
 	( "init", tray.Init, ()),
+	( "Mode: Joy", tray.SetOperationMode, ("velocity",)),
+#	( "SetOperationMode (pos)", tray.SetOperationMode, ("position",)),
 	( "up", tray.MoveTraj, (trayParameter.up,)),
 	( "down", tray.MoveTraj, (trayParameter.down,)),
 	]),
   ( "arm", [ 
 	( "stop", arm.Stop, ()),
 	( "init", arm.Init, ()),
+	( "Mode: Joy", arm.SetOperationMode, ("velocity",)),
+#	( "SetOperationMode (pos)", arm.SetOperationMode, ("position",)),
 	( "home", arm.MoveTraj, (armParameter.home,)),
 	( "folded", arm.MoveTraj, (armParameter.folded,)),
 	( "pregrasp", arm.MoveTraj, (armParameter.pregrasp,)),
