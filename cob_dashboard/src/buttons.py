@@ -1,4 +1,55 @@
 #!/usr/bin/python
+#***************************************************************
+#
+# Copyright (c) 2010
+#
+# Fraunhofer Institute for Manufacturing Engineering	
+# and Automation (IPA)
+#
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# Project name: care-o-bot
+# ROS stack name: cob_apps
+# ROS package name: cob_dashboard
+#								
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#			
+# Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+# Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+#
+# Date of creation: May 2010
+# ToDo:
+#
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Fraunhofer Institute for Manufacturing 
+#       Engineering and Automation (IPA) nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License LGPL as 
+# published by the Free Software Foundation, either version 3 of the 
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License LGPL for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public 
+# License LGPL along with this program. 
+# If not, see <http://www.gnu.org/licenses/>.
+#
+#****************************************************************
 
 from actions import *
 from parameters import *
@@ -15,7 +66,6 @@ panels = [
 	( "stop", torso.Stop, ()),
 	( "init", torso.Init, ()),
 	( "Mode: Joy", torso.SetOperationMode, ("velocity",)),
-#	( "SetOperationMode (pos)", torso.SetOperationMode, ("position",)),
 	( "home", torso.MoveTraj, (torsoParameter.home,)),
 	( "front", torso.MoveTraj, (torsoParameter.front,)),
 	( "back", torso.MoveTraj, (torsoParameter.back,)),
@@ -28,7 +78,6 @@ panels = [
   	( "stop", tray.Stop, ()),
 	( "init", tray.Init, ()),
 	( "Mode: Joy", tray.SetOperationMode, ("velocity",)),
-#	( "SetOperationMode (pos)", tray.SetOperationMode, ("position",)),
 	( "up", tray.MoveTraj, (trayParameter.up,)),
 	( "down", tray.MoveTraj, (trayParameter.down,)),
 	]),
@@ -36,7 +85,6 @@ panels = [
 	( "stop", arm.Stop, ()),
 	( "init", arm.Init, ()),
 	( "Mode: Joy", arm.SetOperationMode, ("velocity",)),
-#	( "SetOperationMode (pos)", arm.SetOperationMode, ("position",)),
 	( "home", arm.MoveTraj, (armParameter.home,)),
 	( "folded", arm.MoveTraj, (armParameter.folded,)),
 	( "pregrasp", arm.MoveTraj, (armParameter.pregrasp,)),
@@ -48,39 +96,10 @@ panels = [
   ( "arm traj", [ 
 	( "stop", arm.Stop, ()),
 	( "init", arm.Init, ()),
+	( "Mode: Joy", arm.SetOperationMode, ("velocity",)),
 	( "graspTOtablet", arm.MoveTraj, (armParameter.graspTOtablet,)),
 	( "tabletTOfolded", arm.MoveTraj, (armParameter.tabletTOfolded,)),
 	]),
-#  ( "lbr", [ 
-#  	( "stop", lbr.Stop, ()),
-#	( "init", lbr.Init, ()),
-#	( "home", lbr.MoveTraj, (lbrParameter.home,)),
-#	( "folded", lbr.MoveTraj, (lbrParameter.folded,)),
-#	( "foldedTopregrasp", lbr.MoveTraj, (lbrParameter.foldedTopregrasp,)),
-#	( "pregrasp", lbr.MoveTraj, (lbrParameter.pregrasp,)),
-#	( "grasp", lbr.MoveTraj, (lbrParameter.grasp,)),
-#	( "graspTOtablet", lbr.MoveTraj, (lbrParameter.graspTOtablet,)),
-#	( "overTablet", lbr.MoveTraj, (lbrParameter.overTablet,)),
-#	( "tablet", lbr.MoveTraj, (lbrParameter.tablet,)),
-#	( "tabletTOfolded", lbr.MoveTraj, (lbrParameter.tabletTOfolded,)),
-#	( "coolerButton", lbr.MoveTraj, (lbrParameter.coolerButton,)),
-#	( "coolerPreGrasp", lbr.MoveTraj, (lbrParameter.coolerPreGrasp,)),
-#	( "coolerGrasp", lbr.MoveTraj, (lbrParameter.coolerGrasp,)),
-#	( "coolerPostGrasp", lbr.MoveTraj, (lbrParameter.coolerPostGrasp,)),
-#	( "cupTOtablet", lbr.MoveTraj, (lbrParameter.cupTOtablet,)),
-#	]),
-#  ( "lbr traj", [ 
-#  	( "stop", lbr.Stop, ()),
-#  	( "init", lbr.Init, ()),
-#	( "foldedTopregrasp", lbr.MoveTraj, (lbrParameter.foldedTopregrasp,)),
-#	( "graspTOtablet", lbr.MoveTraj, (lbrParameter.graspTOtablet,)),
-#	( "cupTOtablet", lbr.MoveTraj, (lbrParameter.cupTOtablet,)),
-#	( "tabletTOfolded", lbr.MoveTraj, (lbrParameter.tabletTOfolded,)),
-#	]),
-#  ( "pr2_r_arm", [ 
-#	( "Home", arm_pr2.MoveTraj, (armParameter_pr2.home,)),
-#	( "Folded", arm_pr2.MoveTraj, (armParameter_pr2.folded,)),
-#	]),
 #  ( "sdh", [ 
 #  	( "stop", sdh.Stop, ()),
 #	( "init", sdh.Init, ()),

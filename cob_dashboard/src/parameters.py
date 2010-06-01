@@ -1,4 +1,55 @@
 #!/usr/bin/python
+#***************************************************************
+#
+# Copyright (c) 2010
+#
+# Fraunhofer Institute for Manufacturing Engineering	
+# and Automation (IPA)
+#
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# Project name: care-o-bot
+# ROS stack name: cob_apps
+# ROS package name: cob_dashboard
+#								
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#			
+# Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+# Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+#
+# Date of creation: May 2010
+# ToDo:
+#
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Fraunhofer Institute for Manufacturing 
+#       Engineering and Automation (IPA) nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License LGPL as 
+# published by the Free Software Foundation, either version 3 of the 
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License LGPL for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public 
+# License LGPL along with this program. 
+# If not, see <http://www.gnu.org/licenses/>.
+#
+#****************************************************************
 
 import rospy
 from trajectory_msgs.msg import *
@@ -337,24 +388,6 @@ class lbrParameter:
 	point.positions=[2.52, -1.12, -2.36, -1.90, -2.83, -0.25, 2.83]
 	point.time_from_start=rospy.Duration(12)
 	cupTOtablet.points.append(point)
-	
-class armParameter_pr2:
-	action_goal_topic = 'r_arm_controller/joint_trajectory_action'
-	joint_names = ["r_shoulder_pan_joint","r_shoulder_lift_joint","r_upper_arm_roll_joint","r_elbow_flex_joint","r_forearm_roll_joint","r_wrist_flex_joint","r_wrist_roll_joint"]
-
-	home = JointTrajectory()
-	home.joint_names = joint_names
-	point=JointTrajectoryPoint()
-	point.positions=[0,0,0,0,0,0,0]
-	point.time_from_start=rospy.Duration(3)
-	home.points.append(point)
-
-	folded = JointTrajectory()
-	folded.joint_names = joint_names
-	point=JointTrajectoryPoint()
-	point.positions=[5.5721729814511107, -2.0183510724544447, -3.8943530935444444, 1.7423621625444443, 0.16022122259999999, 0.97994999840111108, 4.8579668104255562]
-	point.time_from_start=rospy.Duration(3)
-	folded.points.append(point)
 	
 class sdhParameter:
 	action_goal_topic = 'sdh/JointCommand'

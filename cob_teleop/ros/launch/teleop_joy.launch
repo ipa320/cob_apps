@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- start platform node -->
-  <node pkg="cob_platform" type="cob_platform" name="cob_platform" cwd="node" output="screen"/>
+	<!-- start platform node -->
+	<node pkg="cob_platform" type="cob_platform" name="cob_platform" cwd="node" output="screen"/>
 
- <!-- joy node -->
-  <node respawn="false" pkg="joy" type="joy" name="joystick">
-    <param name="dev" type="string" value="/dev/input/js0"/>
-    <param name="deadzone" value="0.12"/>
-  </node>
+	<!-- joy node -->
+	<node respawn="false" pkg="joy" type="joy" name="joystick">
+		<param name="dev" type="string" value="/dev/input/js0"/>
+		<param name="deadzone" value="0.12"/>
+	</node>
 
- <!-- Axes definition-->
-  <param name="axis_linear_x" value="1" type="int"/>
-  <param name="axis_linear_y" value="0" type="int"/>
-  <param name="axis_angular_z" value="2" type="int"/>
-  <param name="scale_linear" value="0.2" type="double"/>
-  <param name="scale_angular" value="0.1" type="double"/>
+	<!-- Axes definition -->
+	<param name="axis_linear_x" value="1" type="int"/>
+	<param name="axis_linear_y" value="0" type="int"/>
+	<param name="axis_angular_z" value="2" type="int"/>
+	<param name="scale_linear" value="0.2" type="double"/>
+	<param name="scale_angular" value="0.1" type="double"/>
 
- <!-- cob3 teleop platform node -->
-  <node pkg="cob_teleop" type="cob_teleop_platform_joy" name="teleop_platform"/>
+	<!-- cob teleop platform node -->
+	<node pkg="cob_teleop" type="cob_teleop_platform_joy" name="teleop_platform"/>
 
 </launch>

@@ -8,15 +8,15 @@
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *
  * Project name: care-o-bot
- * ROS stack name: cob3_driver
- * ROS package name: cob3_teleop
+ * ROS stack name: cob_apps
+ * ROS package name: cob_teleop
  *								
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *			
  * Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
  * Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
  *
- * Date of creation: Jan 2010
+ * Date of creation: June 2010
  * ToDo:
  *
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

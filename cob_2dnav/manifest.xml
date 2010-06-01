@@ -1,19 +1,21 @@
 <package>
   <description brief="cob_2dnav">
 
-     cob_2dnav
+     This Package provides launch files for running Care-O-bot with the ROS navigation stack.
 
   </description>
-  <author>b-it-bots</author>
-  <license>BSD</license>
+  <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
+  <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_2dnav</url>
+  
   <depend package="move_base"/>
   <depend package="cob_platform"/>
   <depend package="cob_teleop"/>
   <depend package="cob_tf_broadcaster"/>
   <depend package="cob_sick_s300"/>
+  <depend package="cob_hokuyo"/>
+  <depend package="cob_camera_sensors"/>
+  <depend package="cob_point_cloud_publisher"/>
 
 </package>
-
-

@@ -1,13 +1,13 @@
 <package>
-  <description brief="cob3_test">
+  <description brief="cob_2dslam">
 
-     cob3_test
+     This Package provides launch files for running Care-O-bot with the gmapping slam package of ROS.
 
   </description>
   <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
-  <url>http://www.care-o-bot.org</url>
+  <url>http://ros.org/wiki/cob_2dslam</url>
 
   <depend package="cob_platform"/>
   <depend package="cob_sick_s300"/>
