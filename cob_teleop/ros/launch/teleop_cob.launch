@@ -1,12 +1,6 @@
 <?xml version="1.0" ?>
 <launch>
   
-  <!--launch empty world-->
-  <include file="$(find gazebo)/launch/empty_world.launch" />
-
-  <!--launch care-o-bot-->
-  <include file="$(find cob_gazebo)/ros/launch/cob3.launch" />
-
   <!--axes-->
   <param name="axis_vx" value="5" type="int" />
   <param name="axis_vy" value="4" type="int" />
@@ -38,8 +32,8 @@
   <param name="arm_up_down_step" value="0.1" type="double"/>
 
   <!--cob teleop package-->
-  <node pkg="learning_joy" type="teleop_cob" name="cob_teleop" output="screen">
-    <remap from="cmd_vel" to="base_controller/command" />
+  <node pkg="cob_teleop" type="teleop_cob" name="cob_teleop" output="screen">
+    <!--remap from="cmd_vel" to="base_controller/command" /-->
   </node>
   
   <!--run joystick-->
