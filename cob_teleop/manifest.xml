@@ -1,7 +1,7 @@
 <package>
-  <description brief="cob3_teleop">
+  <description brief="cob_teleop">
 
-     cob3_teleop
+     cob_teleop
 
   </description>
   <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
@@ -10,6 +10,10 @@
   <url>http://www.care-o-bot.org</url>
   
   <depend package="roscpp"/>
+  <depend package="geometry_msgs"/>
+  <depend package="sensor_msgs"/>
+  <depend package="pr2_controllers_msgs"/>
+  <depend package="trajectory_msgs"/>
   <depend package="joy"/>
   <depend package="ps3joy"/>
   <depend package="cob_platform"/>
