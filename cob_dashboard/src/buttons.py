@@ -58,7 +58,6 @@ torso=torso()
 tray=tray()
 arm=arm()
 lbr=lbr()
-arm_pr2=arm_pr2()
 sdh=sdh()
 
 panels = [  
