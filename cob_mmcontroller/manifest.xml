@@ -1,0 +1,19 @@
+<package>
+  <description brief="cob_mmcontroller">
+
+     cob_mmcontroller
+
+  </description>
+  <author>Alexander Bubeck</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_mmcontroller</url>
+  <depend package="roscpp"/>
+  <depend package="cob_simpletrajectories"/>
+  <depend package="geometry_msgs"/>
+  <depend package="trajectory_msgs"/>
+  <depend package="cob_srvs"/>
+
+</package>
+
+
