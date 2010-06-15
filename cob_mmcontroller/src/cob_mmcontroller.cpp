@@ -5,15 +5,27 @@
 #include <cob_srvs/Trigger.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <geometry_msgs/Twist.h>
-#include <pr2_controller_msgs/JointTrajectoryControllerState.h>
+#include <pr2_controllers_msgs/JointTrajectoryControllerState.h>
+#include <kdl/chain.hpp>
+#include <kdl/chainfksolver.hpp>
+#include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/chainiksolvervel_pinv.hpp>
+#include <kdl/chainiksolvervel_wdls.hpp>
+#include <kdl/chainiksolverpos_nr.hpp>
+#include <kdl/frames_io.hpp>
 
+#include <kdl/path_line.hpp>
+#include <kdl/path_circle.hpp>
+#include <kdl/frames.hpp>
+#include <kdl/rotational_interpolation_sa.hpp>
+#include <kdl/trajectory_segment.hpp>
 
 
 class cob_mmcontroller
 {
 private:
   ros::Subscriber topicSub_cartvel_;
-  ros::Subscriber topicSub__ControllerState_;
+  ros::Subscriber topicSub_ControllerState_;
   ros::Publisher topicPub_armcmd_;
 
 
@@ -22,9 +34,13 @@ private:
   ros::ServiceServer srvServer_Stop_;
   //  ros::ServiceServer srvServer_Trajectoy_;
 
+  
   KDL::Chain m_chain;
-
-
+  KDL::ChainFkSolverPos_recursive * fksolver;;
+  KDL::ChainIkSolverVel_pinv * iksolver1v; //generalize pseudo inverse
+  KDL::ChainIkSolverPos_NR * iksolver1;
+  std::vector<double> m_CurrentConfig;
+  std::vector<double> m_CurrentVels;
 public:
   ros::NodeHandle nh_;
 
@@ -66,15 +82,41 @@ void cob_mmcontroller::getTrajectoryTwist()
 
 void cob_mmcontroller::updateArmCommands()
 {
+  if(m_bInitialized)
+    {
+      unsigned int nj = m_chain.getNrOfJoints();
+      KDL::JntArray jointpositions = KDL::JntArray(nj);
+      KDL::JntArray qdot_out = KDL::JntArray(nj);
+      KDL::Twist myTwist;
+      for(int i = 0; i < nj; i++)
+	jointpositions(i) = m_CurrentConfig[i];
+      iksolver1v->CartToJnt(jointpositions, myTwist, qdot_out);
+      trajectory_msgs::JointTrajectory msg;
+      msg.header.stamp = ros::Time::now();
+      msg.points.resize(0);
+      msg.points[0].velocities.resize(nj);
+      for(int i = 0; i < nj; i++)
+	msg.points[0].velocities[i] = qdot_out(i);
+      topicPub_armcmd_.publish(msg);     
+    }
+		       
 }
 
 void cob_mmcontroller::topicCallback_CartVel(const geometry_msgs::Twist::ConstPtr& msg)
 {
+  
+}
+
+void cob_mmcontroller::topicCallback_ControllerState(const pr2_controllers_msgs::JointTrajectoryControllerState::ConstPtr& msg)
+{
+  m_CurrentConfig = msg->actual.positions;
+  m_CurrentVels = msg->actual.velocities;
+
 }
 
 bool cob_mmcontroller::srvCallback_Init(cob_srvs::Trigger::Request &req, cob_srvs::Trigger::Response &res )
 {
-  m_bInitialized = true;
+  
   m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.250    , 0.0     )));
   m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
   m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.408    , 0.0     )));
@@ -82,6 +124,12 @@ bool cob_mmcontroller::srvCallback_Init(cob_srvs::Trigger::Request &req, cob_srv
   m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0, -0.316    , 0.0     )));
   m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
   m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI,  -0.327    , 0.0     )));
+
+  fksolver = new KDL::ChainFkSolverPos_recursive(m_chain);
+  iksolver1v = new  KDL::ChainIkSolverVel_pinv(m_chain,1e-6,200); //generalize pseudo inverse
+
+
+  m_bInitialized = true;
   return true;
 }
 
@@ -102,7 +150,7 @@ int main(int argc, char ** argv)
   cob_mmcontroller mmctrl;
   ros::Rate loop_rate(50); // Hz
 
-  while(nodeClass.n_.ok())
+  while(mmctrl.nh_.ok())
     {
       mmctrl.getExternalTwist();
       mmctrl.getTrajectoryTwist();
