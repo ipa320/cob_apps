@@ -5,7 +5,7 @@
 
   </description>
   <author>bagside</author>
-  <license>BSD</license>
+  <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_tactiletools</url>
   <depend package="rospy"/>

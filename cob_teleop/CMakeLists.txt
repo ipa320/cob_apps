@@ -31,3 +31,4 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/ros/lib)
 
 # add project executable
 rosbuild_add_executable(${PROJECT_NAME}_platform_joy ros/src/${PROJECT_NAME}_platform_joy.cpp)
+rosbuild_add_executable(${PROJECT_NAME} ros/src/${PROJECT_NAME}.cpp)
