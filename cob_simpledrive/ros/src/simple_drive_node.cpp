@@ -8,14 +8,14 @@
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *
  * Project name: care-o-bot
- * ROS stack name: cob_apps
- * ROS package name: cob3_simpleDrive
+ * ROS stack name: cob_driver
+ * ROS package name: cob_simpledrive
  * Description:
  *								
  * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *			
- * Author: cpc-pk
- * Supervised by: cpc
+ * Author: Philipp Koehler
+ * Supervised by: Christian Connette, email:christian.connette@ipa.fhg.de
  *
  * Date of creation: Mar 2010
  * ToDo:
@@ -65,7 +65,7 @@
 #include <sensor_msgs/JointState.h>
 
 // ROS service includes
-#include <cob_srvs/Switch.h>
+#include <cob_srvs/Trigger.h>
 #include <cob_srvs/GetJointState.h>
 
 // external includes
@@ -103,8 +103,8 @@ class NodeClass
             topicPub_JointStateCmd = n.advertise<sensor_msgs::JointState>("JointStateCmd", 1);
 			
 			srvClient_GetJointState = n.serviceClient<cob_srvs::GetJointState>("GetJointState");
-			srvClient_InitPltf = n.serviceClient<cob_srvs::Switch>("Init");
-			srcClient_ShutdownPltf = n.serviceClient<cob_srvs::Switch>("Shutdown");
+			srvClient_InitPltf = n.serviceClient<cob_srvs::Trigger>("Init");
+			srcClient_ShutdownPltf = n.serviceClient<cob_srvs::Trigger>("Shutdown");
 
             //topicSub_demoSubscribe = n.subscribe("demoSubscribe", 1, &NodeClass::topicCallback_demoSubscribe, this);
 
@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 //#### function implementations ####
 int NodeClass::init(){
 
-	cob_srvs::Switch data;
+	cob_srvs::Trigger data;
     srvClient_InitPltf.call(data);
 
     if(data.response.success != true) {
