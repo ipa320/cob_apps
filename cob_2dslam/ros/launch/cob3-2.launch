@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <launch>
 
-	<!-- get scan from front scanner-->
-	<include file="$(find cob_sick_s300)/ros/launch/cob3-2_scanner_front.launch" />
+  <!-- get scan from front scanner-->
+  <include file="$(find cob_sick_s300)/ros/launch/cob3-2_scanner_front.launch" />
 
-	<!-- start tf broadcaster -->
-	<node pkg="cob_tf_broadcaster" type="cob_tf_broadcaster" name="cob_tf_broadcaster" respawn="false" output="screen" />
+  <!-- start tf broadcaster -->
+  <node pkg="cob_tf_broadcaster" type="cob_tf_broadcaster" name="cob_tf_broadcaster" respawn="false" output="screen" />
 
-	<!-- teleoperate platform with joystick -->
-	<include file="$(find cob_teleop)/ros/launch/teleop_cob.launch" />
-
-	<!-- dynamic map generation -->
-	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-		<remap from="scan" to="scan"/>
-		<param name="maxUrange" type="int" value="8"/>
-		<param name="xmin" type="int" value="-20"/>
-		<param name="ymin" type="int" value="-20"/>
-		<param name="xmax" type="int" value="20"/>
-		<param name="ymax" type="int" value="20"/>
-	</node>
-
+  <!-- teleoperate platform with joystick -->
+  <include file="$(find cob_teleop)/ros/launch/teleop_joy.launch" />
+ 
+  <!-- dynamic map generation -->
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+    <remap from="scan" to="scan"/>
+    <param name="maxUrange" type="int" value="8"/>
+    <param name="xmin" type="int" value="-20"/>
+    <param name="ymin" type="int" value="-20"/>
+    <param name="xmax" type="int" value="20"/>
+    <param name="ymax" type="int" value="20"/>
+  </node>
+ 
 </launch>
