@@ -68,7 +68,7 @@ using namespace std;
 class TeleopCOB
 {
 public:
-   //torso(lower neck and upper neck)
+   //torso (lower neck and upper neck)
    double req_lower_tilt,req_lower_pan,req_upper_tilt,req_upper_pan; //positions
    double req_lower_tilt_vel,req_lower_pan_vel,req_upper_tilt_vel,req_upper_pan_vel;//velocities
    double lower_tilt_step,lower_pan_step,upper_tilt_step,upper_pan_step; //step variables
