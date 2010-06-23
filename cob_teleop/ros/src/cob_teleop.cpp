@@ -230,17 +230,29 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 		}
 		
 		req_tray = joint_init_values_[0];
+		req_tray_vel = 0.0;
 		req_lower_pan = joint_init_values_[1];
+		req_lower_pan_vel = 0.0;
 		req_lower_tilt = joint_init_values_[2];
+		req_lower_tilt_vel = 0.0;
 		req_upper_pan = joint_init_values_[3];
+		req_upper_pan_vel = 0.0;
 		req_upper_tilt = joint_init_values_[4];
+		req_upper_tilt_vel = 0.0;
 		req_j1 = joint_init_values_[5];
+		req_j1_vel = 0.0;
 		req_j2 = joint_init_values_[6];
+		req_j2_vel = 0.0;
 		req_j3 = joint_init_values_[7];
+		req_j3_vel = 0.0;
 		req_j4 = joint_init_values_[8];
+		req_j4_vel = 0.0;
 		req_j5 = joint_init_values_[9];
+		req_j5_vel = 0.0;
 		req_j6 = joint_init_values_[10];
+		req_j6_vel = 0.0;
 		req_j7 = joint_init_values_[11];
+		req_j7_vel = 0.0;
 		
 		for (int i = 0; i<joint_names_.size(); i++ )
 		{
