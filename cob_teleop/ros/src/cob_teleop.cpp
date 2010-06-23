@@ -120,6 +120,7 @@ class TeleopCOB
 		ros::Publisher arm_pub_;  //publish topic arm_controller/command
 		
 		bool got_init_values_;
+		double time_for_init_;
 		std::vector<std::string> joint_names_;
 		std::vector<double> joint_init_values_;
 
@@ -128,6 +129,7 @@ class TeleopCOB
 		void joy_cb(const joy::Joy::ConstPtr &joy_msg);
 		void joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_states_msg);
 		void update();
+		void setInitValues();
 		~TeleopCOB();
 };
 
@@ -135,6 +137,7 @@ class TeleopCOB
 TeleopCOB::TeleopCOB()
 {
 	got_init_values_ = false;
+	time_for_init_ = 0.0;
 	joint_names_.push_back("torso_tray_joint");
 	joint_names_.push_back("torso_lower_neck_pan_joint");
 	joint_names_.push_back("torso_lower_neck_tilt_joint");
@@ -208,6 +211,41 @@ void TeleopCOB::init()
 	arm_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(ARM_TOPIC,1);
 }
 
+void TeleopCOB::setInitValues()
+{
+	req_tray = joint_init_values_[0];
+	req_tray_vel = 0.0;
+	req_lower_pan = joint_init_values_[1];
+	req_lower_pan_vel = 0.0;
+	req_lower_tilt = joint_init_values_[2];
+	req_lower_tilt_vel = 0.0;
+	req_upper_pan = joint_init_values_[3];
+	req_upper_pan_vel = 0.0;
+	req_upper_tilt = joint_init_values_[4];
+	req_upper_tilt_vel = 0.0;
+	req_j1 = joint_init_values_[5];
+	req_j1_vel = 0.0;
+	req_j2 = joint_init_values_[6];
+	req_j2_vel = 0.0;
+	req_j3 = joint_init_values_[7];
+	req_j3_vel = 0.0;
+	req_j4 = joint_init_values_[8];
+	req_j4_vel = 0.0;
+	req_j5 = joint_init_values_[9];
+	req_j5_vel = 0.0;
+	req_j6 = joint_init_values_[10];
+	req_j6_vel = 0.0;
+	req_j7 = joint_init_values_[11];
+	req_j7_vel = 0.0;
+	
+	for (int i = 0; i<joint_names_.size(); i++ )
+	{
+		ROS_INFO("joint_name = %s, joint_init_value = %f",joint_names_[i].c_str(),joint_init_values_[i]);
+	}
+	
+	got_init_values_ = true;
+}
+
 void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_states_msg)
 {
 	if (!got_init_values_)
@@ -229,37 +267,7 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 			}
 		}
 		
-		req_tray = joint_init_values_[0];
-		req_tray_vel = 0.0;
-		req_lower_pan = joint_init_values_[1];
-		req_lower_pan_vel = 0.0;
-		req_lower_tilt = joint_init_values_[2];
-		req_lower_tilt_vel = 0.0;
-		req_upper_pan = joint_init_values_[3];
-		req_upper_pan_vel = 0.0;
-		req_upper_tilt = joint_init_values_[4];
-		req_upper_tilt_vel = 0.0;
-		req_j1 = joint_init_values_[5];
-		req_j1_vel = 0.0;
-		req_j2 = joint_init_values_[6];
-		req_j2_vel = 0.0;
-		req_j3 = joint_init_values_[7];
-		req_j3_vel = 0.0;
-		req_j4 = joint_init_values_[8];
-		req_j4_vel = 0.0;
-		req_j5 = joint_init_values_[9];
-		req_j5_vel = 0.0;
-		req_j6 = joint_init_values_[10];
-		req_j6_vel = 0.0;
-		req_j7 = joint_init_values_[11];
-		req_j7_vel = 0.0;
-		
-		for (int i = 0; i<joint_names_.size(); i++ )
-		{
-			ROS_INFO("joint_name = %s, joint_init_value = %f",joint_names_[i].c_str(),joint_init_values_[i]);
-		}
-		
-		got_init_values_ = true;
+		setInitValues();
 	}
 }
 
@@ -473,8 +481,17 @@ void TeleopCOB::update()
 	// set initial values
 	if(!got_init_values_)
 	{
-		ROS_WARN("still waiting for initial values");
-		return;
+		if (time_for_init_ < 5.0) // wait for 5 sec, then set init values to 0.0
+		{
+			ROS_DEBUG("still waiting for initial values, time_for_init_ = %f",time_for_init_);
+			time_for_init_ = time_for_init_ + 1.0/PUBLISH_FREQ;
+			return;
+		}
+		else
+		{
+			ROS_WARN("Timeout waiting for /joint_states message. Setting all init values to 0.0");
+			setInitValues();
+		}
 	}
 
   //torso
