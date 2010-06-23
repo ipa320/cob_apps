@@ -2,7 +2,7 @@
 <launch>
 
 	<!-- start cob teleop node -->
-	<node pkg="cob_teleop" type="teleop_cob" name="cob_teleop" output="screen">
+	<node pkg="cob_teleop" type="cob_teleop" name="cob_teleop" output="screen">
 
 		<!--remap from="cmd_vel" to="base_controller/command" /-->
 
