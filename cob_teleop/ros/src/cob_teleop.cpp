@@ -501,20 +501,20 @@ void TeleopCOB::update()
 
    trajectory_msgs::JointTrajectory traj;
    traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
-   traj.joint_names.push_back("torso_lower_neck_tilt_joint");
    traj.joint_names.push_back("torso_lower_neck_pan_joint");
-   traj.joint_names.push_back("torso_upper_neck_tilt_joint");
+   traj.joint_names.push_back("torso_lower_neck_tilt_joint");
    traj.joint_names.push_back("torso_upper_neck_pan_joint");
+   traj.joint_names.push_back("torso_upper_neck_tilt_joint");
    traj.points.resize(1);
-   //test here
-   traj.points[0].positions.push_back(req_lower_tilt + req_lower_tilt_vel*horizon);
-   traj.points[0].velocities.push_back(req_lower_tilt_vel); //lower_neck_tilt
+
    traj.points[0].positions.push_back(req_lower_pan + req_lower_pan_vel*horizon);
    traj.points[0].velocities.push_back(req_lower_pan_vel);  //lower_neck_pan
-   traj.points[0].positions.push_back(req_upper_tilt + req_upper_tilt_vel*horizon);
-   traj.points[0].velocities.push_back(req_upper_tilt_vel); //upper_neck_tilt
+   traj.points[0].positions.push_back(req_lower_tilt + req_lower_tilt_vel*horizon);
+   traj.points[0].velocities.push_back(req_lower_tilt_vel); //lower_neck_tilt
    traj.points[0].positions.push_back(req_upper_pan + req_upper_pan_vel*horizon);
    traj.points[0].velocities.push_back(req_upper_pan_vel);  //upper_neck_pan
+   traj.points[0].positions.push_back(req_upper_tilt + req_upper_tilt_vel*horizon);
+   traj.points[0].velocities.push_back(req_upper_tilt_vel); //upper_neck_tilt
    traj.points[0].time_from_start = ros::Duration(horizon);
 
    torso_pub_.publish(traj);
