@@ -55,11 +55,13 @@
 #include <unistd.h>
 #include <ros/ros.h>
 #include <joy/Joy.h>
+#include <sensor_msgs/JointState.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <geometry_msgs/Twist.h>
 
 const int PUBLISH_FREQ = 20.0;
 
+#define BASE_TOPIC "base_controller/command"
 #define TORSO_TOPIC "torso_controller/command"
 #define TRAY_TOPIC "tray_controller/command"
 #define ARM_TOPIC "arm_controller/command"
@@ -67,133 +69,206 @@ using namespace std;
 
 class TeleopCOB
 {
-public:
-   //torso(lower neck and upper neck)
-   double req_lower_tilt,req_lower_pan,req_upper_tilt,req_upper_pan; //positions
-   double req_lower_tilt_vel,req_lower_pan_vel,req_upper_tilt_vel,req_upper_pan_vel;//velocities
-   double lower_tilt_step,lower_pan_step,upper_tilt_step,upper_pan_step; //step variables
-   int lower_neck_button,upper_neck_button; //buttons
+	public:
+		//torso(lower neck and upper neck)
+		double req_lower_tilt,req_lower_pan,req_upper_tilt,req_upper_pan; //positions
+		double req_lower_tilt_vel,req_lower_pan_vel,req_upper_tilt_vel,req_upper_pan_vel;//velocities
+		double lower_tilt_step,lower_pan_step,upper_tilt_step,upper_pan_step; //step variables
+		int lower_neck_button,upper_neck_button; //buttons
 
-   //tray
-   double req_tray; //position
-   double req_tray_vel; //velocity
-   double tray_step;
-   int tray_button;
+		//tray
+		double req_tray; //position
+		double req_tray_vel; //velocity
+		double tray_step;
+		int tray_button;
 
-   //base
-   geometry_msgs::Twist cmd;
-   double req_vx,req_vy,req_vw;
-   double max_vx,max_vy,max_vw;
-   int axis_vx,axis_vy,axis_vw;
-  
-   //arm
-   double req_j1,req_j1_vel; //joint1 between link_0 and link_1 left_right movement
-   double req_j2,req_j2_vel; //joint2 between link_1 and link_2 up_down movement
-   int arm_joint12_button;
+		//base
+		geometry_msgs::Twist cmd;
+		double req_vx,req_vy,req_vw;
+		double max_vx,max_vy,max_vw;
+		int axis_vx,axis_vy,axis_vw;
 
-   double req_j3,req_j3_vel; //joint3 between link_2 and link_3 left_right
-   double req_j4,req_j4_vel; //joint4 between link_3 and link_4 up_down 
-   int arm_joint34_button;
+		//arm
+		double req_j1,req_j1_vel; //joint1 between link_0 and link_1 left_right movement
+		double req_j2,req_j2_vel; //joint2 between link_1 and link_2 up_down movement
+		int arm_joint12_button;
 
-   double req_j5,req_j5_vel; //joint5 between link_4 and link_5 left_right
-   double req_j6,req_j6_vel; //joint6 between link_5 and link_6 up_down
-   int arm_joint56_button;
- 
-   double req_j7,req_j7_vel; //joint7 between link_6 and link_7 left_right
-   int arm_joint7_button;
-   
-   double arm_left_right_step; //arm left_right_step
-   double arm_up_down_step; //arm up_down_step
- 
-   //signs
-   int up_down,left_right;   //sign for movements of upper_neck and tray
-   
-  
-   ros::NodeHandle n_;
-   ros::Publisher torso_pub_;  //publish topic torso_controller/command
-   ros::Publisher tray_pub_;  //publish topic tray_controller/command
-   ros::Publisher vel_pub_;  //publish topic "cmd_vel"
-   ros::Publisher arm_pub_;  //publish topic arm_controller/command
-   ros::Subscriber joy_sub_;  //subscribe topic joy
-  
-   TeleopCOB();
-   void init();
-   void joy_cb(const joy::Joy::ConstPtr &joy_msg);
-   void send_cmd_vel();
-   ~TeleopCOB();
+		double req_j3,req_j3_vel; //joint3 between link_2 and link_3 left_right
+		double req_j4,req_j4_vel; //joint4 between link_3 and link_4 up_down 
+		int arm_joint34_button;
 
+		double req_j5,req_j5_vel; //joint5 between link_4 and link_5 left_right
+		double req_j6,req_j6_vel; //joint6 between link_5 and link_6 up_down
+		int arm_joint56_button;
+
+		double req_j7,req_j7_vel; //joint7 between link_6 and link_7 left_right
+		int arm_joint7_button;
+
+		double arm_left_right_step; //arm left_right_step
+		double arm_up_down_step; //arm up_down_step
+
+		//signs
+		int up_down,left_right;   //sign for movements of upper_neck and tray
+
+
+		ros::NodeHandle n_;
+		ros::Subscriber joy_sub_;  //subscribe topic joy
+		ros::Subscriber joint_states_sub_;  //subscribe topic joint_states
+		ros::Publisher torso_pub_;  //publish topic torso_controller/command
+		ros::Publisher tray_pub_;  //publish topic tray_controller/command
+		ros::Publisher vel_pub_;  //publish topic base_controller/command
+		ros::Publisher arm_pub_;  //publish topic arm_controller/command
+		
+		bool got_init_values_;
+		double time_for_init_;
+		std::vector<std::string> joint_names_;
+		std::vector<double> joint_init_values_;
+
+		TeleopCOB();
+		void init();
+		void joy_cb(const joy::Joy::ConstPtr &joy_msg);
+		void joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_states_msg);
+		void update();
+		void setInitValues();
+		~TeleopCOB();
 };
 
-TeleopCOB::TeleopCOB():req_lower_tilt(0.0),req_lower_pan(0.0),req_upper_tilt(0.0),req_upper_pan(0.0),req_tray(0.0),req_vx(0.0),req_vy(0.0),req_vw(0.0),req_j1(0.0),req_j2(0.0),req_j3(0.0),req_j4(0.0),req_j5(0.0),req_j6(0.0),req_j7(0.0)
+//TeleopCOB::TeleopCOB():req_lower_tilt(0.0),req_lower_pan(0.0),req_upper_tilt(0.0),req_upper_pan(0.0),req_tray(0.0),req_vx(0.0),req_vy(0.0),req_vw(0.0),req_j1(0.0),req_j2(0.0),req_j3(0.0),req_j4(0.0),req_j5(0.0),req_j6(0.0),req_j7(0.0)
+TeleopCOB::TeleopCOB()
 {
+	got_init_values_ = false;
+	time_for_init_ = 0.0;
+	joint_names_.push_back("torso_tray_joint");
+	joint_names_.push_back("torso_lower_neck_pan_joint");
+	joint_names_.push_back("torso_lower_neck_tilt_joint");
+	joint_names_.push_back("torso_upper_neck_pan_joint");
+	joint_names_.push_back("torso_upper_neck_tilt_joint");
+	joint_names_.push_back("arm_1_joint");
+	joint_names_.push_back("arm_2_joint");
+	joint_names_.push_back("arm_3_joint");
+	joint_names_.push_back("arm_4_joint");
+	joint_names_.push_back("arm_5_joint");
+	joint_names_.push_back("arm_6_joint");
+	joint_names_.push_back("arm_7_joint");
+	
+	joint_init_values_.resize(joint_names_.size());
 }
 
 void TeleopCOB::init()
 {
-   //torso
-   //button for lower neck
-   n_.param("lower_neck_button",lower_neck_button,6);
-   //button for upper neck
-   n_.param("upper_neck_button",upper_neck_button,4);
-  
-   //tray
-   n_.param("tray_button",tray_button,tray_button);
+	
+	// assign buttons
+	n_.param("lower_neck_button",lower_neck_button,6);
+	n_.param("upper_neck_button",upper_neck_button,4);
+	n_.param("tray_button",tray_button,5);
+	n_.param("arm_joint12_button",arm_joint12_button,0); //button 0
+	n_.param("arm_joint34_button",arm_joint34_button,1); //button 1
+	n_.param("arm_joint56_button",arm_joint56_button,2); //button 2
+	n_.param("arm_joint7_button",arm_joint7_button,3); //button 3
 
-   //base
-   cmd.linear.x = cmd.linear.y = cmd.angular.z = 0.0;
-   n_.param("axis_vx",axis_vx,axis_vx);
-   n_.param("axis_vy",axis_vy,axis_vy);
-   n_.param("axis_vw",axis_vw,axis_vw);
+	// assign axis
+	n_.param("axis_vx",axis_vx,1);
+	n_.param("axis_vy",axis_vy,0);
+	n_.param("axis_vw",axis_vw,2);
+	n_.param("up_down",up_down,5); //axis[5] tray--up/down; tilt--front/back, here we just name up_down
+	n_.param("left_right",left_right,4);  //axis[4] pan--left/right
 
-   //arm
-   n_.param("arm_joint12_button",arm_joint12_button,0); //button 0
-   n_.param("arm_joint34_button",arm_joint34_button,1); //button 1
-   n_.param("arm_joint56_button",arm_joint56_button,2); //button 2
-   n_.param("arm_joint7_button",arm_joint7_button,3); //button 3
-   
-   //signs
-   n_.param("up_down",up_down,1); //axis[1] tray--up/down; tilt--front/back, here we just name up_down
-   n_.param("left_right",left_right,0);  //axis[0] pan--left/right
+	cmd.linear.x = cmd.linear.y = cmd.angular.z = 0.0;
 
-   n_.param("lower_tilt_step",lower_tilt_step,0.15);
-   n_.param("lower_pan_step",lower_pan_step,0.05);
+	// define step sizes
+	n_.param("lower_tilt_step",lower_tilt_step,0.1); // rad/sec
+	n_.param("lower_pan_step",lower_pan_step,0.1); // rad/sec
+	n_.param("upper_tilt_step",upper_tilt_step,0.15); // rad/sec
+	n_.param("upper_pan_step",upper_pan_step,0.15); // rad/sec
+	n_.param("tray_step",tray_step,0.15); // rad/sec
+	n_.param("arm_left_right_step",arm_left_right_step,0.1); // rad/sec
+	n_.param("arm_up_down_step",arm_up_down_step,0.1); // rad/sec
 
-   n_.param("upper_tilt_step",upper_tilt_step,0.1);
-   n_.param("upper_pan_step",upper_pan_step,0.05);
-   
-   n_.param("tray_step",tray_step,0.15);
+	n_.param("max_vx", max_vx, 0.3); // m/sec
+	n_.param("max_vy", max_vy, 0.3); // m/sec
+	n_.param("max_vw", max_vw, 0.2); // rad/sec
 
-   n_.param("max_vx", max_vx, 0.3);
-   n_.param("max_vy", max_vy, 0.3);
-   n_.param("max_vw", max_vw, 0.2);
+	// output for debugging
+	ROS_INFO("init::lower_neck_button: %d",lower_neck_button);
+	ROS_INFO("init::upper_neck_button: %d",upper_neck_button);
+	ROS_INFO("init::tray_button: %d",tray_button);
+	ROS_INFO("init::arm_joint12_button: %d",arm_joint12_button);
+	ROS_INFO("init::arm_joint34_button: %d",arm_joint34_button);
+	ROS_INFO("init::arm_joint56_button: %d",arm_joint56_button);
+	ROS_INFO("init::arm_joint7_button: %d",arm_joint7_button);
 
-   n_.param("arm_left_right_step",arm_left_right_step,0.1);
-   n_.param("arm_up_down_step",arm_up_down_step,0.1);
+	ROS_INFO("init::axis_vx: %d",axis_vx);
+	ROS_INFO("init::axis_vy: %d",axis_vy);
+	ROS_INFO("init::axis_vw: %d",axis_vw);
+	ROS_INFO("init::up_down: %d",up_down);
+	ROS_INFO("init::left_right: %d",left_right);
 
+	joy_sub_ = n_.subscribe("joy",10,&TeleopCOB::joy_cb,this);
+	joint_states_sub_ = n_.subscribe("/joint_states",10,&TeleopCOB::joint_states_cb,this);
+	torso_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(TORSO_TOPIC,1);
+	tray_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(TRAY_TOPIC,1);
+	vel_pub_ = n_.advertise<geometry_msgs::Twist>(BASE_TOPIC,1);   
+	arm_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(ARM_TOPIC,1);
+}
 
-   //test here!
-   std::cout<<"init::lower_neck_button:"<<lower_neck_button<<endl;
-   std::cout<<"init::upper_neck_button:"<<upper_neck_button<<endl;
+void TeleopCOB::setInitValues()
+{
+	req_tray = joint_init_values_[0];
+	req_tray_vel = 0.0;
+	req_lower_pan = joint_init_values_[1];
+	req_lower_pan_vel = 0.0;
+	req_lower_tilt = joint_init_values_[2];
+	req_lower_tilt_vel = 0.0;
+	req_upper_pan = joint_init_values_[3];
+	req_upper_pan_vel = 0.0;
+	req_upper_tilt = joint_init_values_[4];
+	req_upper_tilt_vel = 0.0;
+	req_j1 = joint_init_values_[5];
+	req_j1_vel = 0.0;
+	req_j2 = joint_init_values_[6];
+	req_j2_vel = 0.0;
+	req_j3 = joint_init_values_[7];
+	req_j3_vel = 0.0;
+	req_j4 = joint_init_values_[8];
+	req_j4_vel = 0.0;
+	req_j5 = joint_init_values_[9];
+	req_j5_vel = 0.0;
+	req_j6 = joint_init_values_[10];
+	req_j6_vel = 0.0;
+	req_j7 = joint_init_values_[11];
+	req_j7_vel = 0.0;
+	
+	for (int i = 0; i<joint_names_.size(); i++ )
+	{
+		ROS_INFO("joint_name = %s, joint_init_value = %f",joint_names_[i].c_str(),joint_init_values_[i]);
+	}
+	
+	got_init_values_ = true;
+}
 
-   std::cout<<"init::tray_button:"<<tray_button<<endl;
-
-   std::cout<<"init::axis_vx:"<<axis_vx<<endl;
-   std::cout<<"init::axis_vy:"<<axis_vy<<endl;
-   std::cout<<"init::axis_vw:"<<axis_vw<<endl;
-
-   std::cout<<"init::arm_joint12_button:"<<arm_joint12_button<<endl;
-   std::cout<<"init::arm_joint34_button:"<<arm_joint34_button<<endl;
-   std::cout<<"init::arm_joint56_button:"<<arm_joint56_button<<endl;
-   std::cout<<"init::arm_joint7_button:"<<arm_joint7_button<<endl;
-
-   std::cout<<"init::up_down:"<<up_down<<endl;
-   std::cout<<"init::left_right:"<<left_right<<endl;
-
-   joy_sub_ = n_.subscribe("joy",10,&TeleopCOB::joy_cb,this);
-   torso_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(TORSO_TOPIC,1);
-   tray_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(TRAY_TOPIC,1);
-   vel_pub_ = n_.advertise<geometry_msgs::Twist>("cmd_vel",1);   
-   arm_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>(ARM_TOPIC,1);
+void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_states_msg)
+{
+	if (!got_init_values_)
+	{
+		for (int j = 0; j<joint_names_.size(); j++ )
+		{
+			for (int i = 0; i<joint_states_msg->name.size(); i++ )
+			{
+				if (joint_states_msg->name[i] == joint_names_[j])
+				{	
+					joint_init_values_[j] = joint_states_msg->position[i];
+					ROS_DEBUG("joint %s found. init value = %f",joint_names_[j].c_str(),joint_init_values_[j]);
+					break;
+				}
+				else
+				{
+					ROS_DEBUG("joint %s not found",joint_names_[j].c_str());
+				}
+			}
+		}
+		
+		setInitValues();
+	}
 }
 
 void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
@@ -210,7 +285,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_lower_tilt_vel = 0.0;
       //test
-      std::cout<<"cb::lower neck tilt velocity:"<<req_lower_tilt_vel<<endl;
+      ROS_DEBUG("cb::lower neck tilt velocity: %f",req_lower_tilt_vel);
       //pan
       if(left_right>=0 && left_right<(int)joy_msg->axes.size() && joy_msg->axes[left_right]<0.0)
          req_lower_pan_vel = (int)joy_msg->buttons[lower_neck_button]*lower_pan_step;
@@ -219,7 +294,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_lower_pan_vel = 0.0;
       //test
-      std::cout<<"cb::lower neck pan velocity:"<<req_lower_pan_vel<<endl;
+      ROS_DEBUG("cb::lower neck pan velocity: %f",req_lower_pan_vel);
    }
    else
    {
@@ -238,7 +313,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_upper_tilt_vel = 0.0;
       //test
-      std::cout<<"cb::upper neck tilt velocity:"<<req_upper_tilt_vel<<endl;
+      ROS_DEBUG("cb::upper neck tilt velocity: %f",req_upper_tilt_vel);
       //pan
       if(left_right>=0 && left_right<(int)joy_msg->axes.size() && joy_msg->axes[left_right]<0.0)
          req_upper_pan_vel = (int)joy_msg->buttons[upper_neck_button]*upper_pan_step;
@@ -247,7 +322,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_upper_pan_vel = 0.0;
       //test
-      std::cout<<"cb::upper neck pan velocity:"<<req_upper_pan_vel<<endl;
+      ROS_DEBUG("cb::upper neck pan velocity: %f",req_upper_pan_vel);
    }
    else
    {
@@ -265,8 +340,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_tray_vel = 0.0;
 
-      std::cout<<"cb::tray_button:"<<tray_button<<endl;
-      std::cout<<"cb::joy_msg->buttons[tray_button]:"<<joy_msg->buttons[tray_button]<<endl;
+      ROS_DEBUG("cb::tray velocity: %f",req_tray_vel);
    }
    else
    {
@@ -301,7 +375,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_j1_vel = 0.0;
       //test
-      std::cout<<"cb::arm joint1 velocity:"<<req_j1_vel<<endl;
+      ROS_DEBUG("cb::arm joint1 velocity: %f",req_j1_vel);
 
       //joint 2 up or down
       if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]>0.0)
@@ -311,7 +385,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_j2_vel = 0.0;
       //test
-      std::cout<<"cb::arm joint2 velocity:"<<req_j2_vel<<endl;
+      ROS_DEBUG("cb::arm joint2 velocity: %f",req_j2_vel);
 
    }
    else
@@ -331,7 +405,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_j3_vel = 0.0;
       //test
-      std::cout<<"cb::arm joint3 velocity:"<<req_j3_vel<<endl;
+      ROS_DEBUG("cb::arm joint3 velocity: %f",req_j3_vel);
 
       //joint 4 up or down
       if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]>0.0)
@@ -341,7 +415,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_j4_vel = 0.0;
       //test
-      std::cout<<"cb::arm joint4 velocity:"<<req_j4_vel<<endl;
+      ROS_DEBUG("cb::arm joint4 velocity: %f",req_j4_vel);
 
    }
    else
@@ -361,7 +435,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_j5_vel = 0.0;
       //test
-      std::cout<<"cb::arm joint5 velocity:"<<req_j5_vel<<endl;
+      ROS_DEBUG("cb::arm joint5 velocity: %f",req_j5_vel);
 
       //joint 6 up or down
       if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]>0.0)
@@ -371,7 +445,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_j6_vel = 0.0;
       //test
-      std::cout<<"cb::arm joint6 velocity:"<<req_j6_vel<<endl;
+      ROS_DEBUG("cb::arm joint6 velocity: %f",req_j6_vel);
 
    }
    else
@@ -392,7 +466,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
       else
          req_j7_vel = 0.0;
       //test
-      std::cout<<"cb::arm joint7 velocity:"<<req_j7_vel<<endl;
+      ROS_DEBUG("cb::arm joint7 velocity: %f",req_j7_vel);
 
    }
    else
@@ -402,8 +476,24 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 
 }//joy_cb
 
-void TeleopCOB::send_cmd_vel()
+void TeleopCOB::update()
 {
+	// set initial values
+	if(!got_init_values_)
+	{
+		if (time_for_init_ < 5.0) // wait for 5 sec, then set init values to 0.0
+		{
+			ROS_DEBUG("still waiting for initial values, time_for_init_ = %f",time_for_init_);
+			time_for_init_ = time_for_init_ + 1.0/PUBLISH_FREQ;
+			return;
+		}
+		else
+		{
+			ROS_WARN("Timeout waiting for /joint_states message. Setting all init values to 0.0");
+			setInitValues();
+		}
+	}
+
   //torso
   {
    double dt = 1.0/double(PUBLISH_FREQ);
@@ -417,8 +507,6 @@ void TeleopCOB::send_cmd_vel()
    traj.joint_names.push_back("torso_upper_neck_pan_joint");
    traj.points.resize(1);
    //test here
-   //fprintf(stdout,"req_lower_tilt_vel::%f",req_lower_tilt_vel);
-   //std::cout<<"req_lower_pan_vel::"<<req_lower_pan_vel<<endl;
    traj.points[0].positions.push_back(req_lower_tilt + req_lower_tilt_vel*horizon);
    traj.points[0].velocities.push_back(req_lower_tilt_vel); //lower_neck_tilt
    traj.points[0].positions.push_back(req_lower_pan + req_lower_pan_vel*horizon);
@@ -527,7 +615,7 @@ int main(int argc,char **argv)
    while(teleop_cob.n_.ok())
    {
      ros::spinOnce();
-     teleop_cob.send_cmd_vel();
+     teleop_cob.update();
      pub_rate.sleep();
    }
 
