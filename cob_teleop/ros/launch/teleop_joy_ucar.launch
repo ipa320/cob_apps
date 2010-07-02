@@ -13,21 +13,18 @@
   </node>
 
   <!-- start base_drive_chain and locate IniFiles -->
-  <node pkg="cob_base_drive_chain" type="cob_base_drive_chain_node" name="base_drive_chain" ns="base_driver" respawn="false" output="screen">
-    <!-- remap topics and services -->
-    <!-- set parameters to parameter server -->
-    <param name="IniDirectory" value="$(find cob_platform)/ros/bin/Platform/IniFiles/"/>
-  </node>
+  <node pkg="cob_base_drive_chain" type="cob_base_drive_chain_node" name="base_drive_chain" ns="base_driver" respawn="false" output="screen"/>
+  <!-- set parameters to parameter server -->
+  <param name="base_driver/IniDirectory" value="$(find cob_platform)/ros/bin/Platform/IniFiles/"/>
 
   <!-- start Relaysboard node -->
-  <node pkg="cob_relayboard" type="cob_relayboard_node" name="relayboard" ns="base_driver" output="screen">
-    <!-- set parameters to parameter server -->
-	<param name="ComPort" value="/dev/ttyUSB0"/> <!-- assign ComPort from which relaybord is read -->
-  </node>
+  <node pkg="cob_relayboard" type="cob_relayboard_node" name="relayboard" ns="base_driver" output="screen"/>
+  <!-- set parameters to parameter server --> <!-- assign ComPort from which relaybord is read -->
+  <param name="base_driver/ComPort" value="/dev/ttyUSB0"/>
 
  <!-- joy node -->
   <node respawn="false" pkg="joy" type="joy" name="joystick">
-    <param name="dev" type="string" value="/dev/input/js0"/>
+    <param name="dev" type="string" value="/dev/input/js1"/>
     <param name="deadzone" value="0.12"/>
   </node>
 
@@ -36,7 +33,7 @@
   <param name="axis_linear_y" value="0" type="int"/>
   <param name="axis_angular_z" value="2" type="int"/>
   <param name="scale_linear" value="0.5" type="double"/>
-  <param name="scale_angular" value="0.1" type="double"/>
+  <param name="scale_angular" value="1.5" type="double"/>
 
  <!-- cob3 teleop platform node -->
   <node pkg="cob_teleop" type="cob_teleop_platform_joy" name="teleop_platform"/>
