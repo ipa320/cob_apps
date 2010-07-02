@@ -13,5 +13,8 @@
   <depend package="joy"/>
   <depend package="ps3joy"/>
   <depend package="cob_platform"/>
+  <depend package="cob_undercarriage_ctrl"/>
+  <depend package="cob_relayboard"/>
+  <depend package="cob_base_drive_chain"/>
 
 </package>
