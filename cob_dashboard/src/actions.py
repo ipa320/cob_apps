@@ -60,6 +60,52 @@ from cob_actions.msg import *
 
 from parameters import *
 
+class base:
+	def Stop(self):
+		rospy.loginfo("base: Stop")
+		
+		try:
+			rospy.wait_for_service('base_controller/Stop',5)
+		except rospy.ROSException, e:
+			rospy.logerr("base service server not ready, aborting...")
+			return
+			
+		try:
+			base_stop = rospy.ServiceProxy('base_controller/Stop', Trigger)
+			resp = base_stop()
+			print resp
+		except rospy.ServiceException, e:
+			print "base service call failed: %s"%e
+	
+	def Init(self):
+		rospy.loginfo("base: Init")
+		
+		try:
+			rospy.wait_for_service('base_controller/Init',5)
+		except rospy.ROSException, e:
+			rospy.logerr("base service server not ready, aborting...")
+			return
+			
+		try:
+			base_srvCall = rospy.ServiceProxy('base_controller/Init', Trigger)
+			resp = base_srvCall()
+			print resp
+		except rospy.ServiceException, e:
+			print "base service call failed: %s"%e
+			
+		try:
+			rospy.wait_for_service('base_driver/Init',5)
+		except rospy.ROSException, e:
+			rospy.logerr("base service server not ready, aborting...")
+			return
+			
+		try:
+			base_srvCall = rospy.ServiceProxy('base_driver/Init', Trigger)
+			resp = base_srvCall()
+			print resp
+		except rospy.ServiceException, e:
+			print "base service call failed: %s"%e
+
 class torso:
 	def Stop(self):
 		rospy.loginfo("torso: Stop")
