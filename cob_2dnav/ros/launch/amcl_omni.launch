@@ -2,6 +2,7 @@
 <launch>
 <node pkg="amcl" type="amcl" name="amcl">
   <!-- Publish scans from best pose at a max of 10 Hz -->
+  <remap from="scan" to="scan_front"/>
   <param name="odom_model_type" value="omni"/>
   <param name="transform_tolerance" value="0.2" />
   <param name="gui_publish_rate" value="-1.0"/>
