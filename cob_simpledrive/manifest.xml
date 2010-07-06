@@ -4,12 +4,11 @@
      drive_identification
 
   </description>
-  <author>cpc-pk</author>
+  <author>Christian Connette, email:christian.connette@ipa.fhg.de</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/drive_identification</url>
   
-
   <depend package="roscpp"/>
   <depend package="cob_base_drive_chain"/>
   <depend package="cob_srvs"/>
@@ -17,5 +16,3 @@
   <depend package="cob_utilities"/>
 
 </package>
-
-

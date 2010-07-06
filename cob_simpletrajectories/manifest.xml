@@ -4,14 +4,13 @@
      cob_simpletrajectories
 
   </description>
-  <author>Alexander Bubeck</author>
-  <license>BSD</license>
+  <author>Alexander Bubeck, email:alexander.bubeck@ipa.fhg.de</author>
+  <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_simpletrajectories</url>
+  
   <depend package="roscpp"/>
-<depend package="kdl"/>
-<depend package="visualization_msgs"/>
+  <depend package="kdl"/>
+  <depend package="visualization_msgs"/>
 
 </package>
-
-
