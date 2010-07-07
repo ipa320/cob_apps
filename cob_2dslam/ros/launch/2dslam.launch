@@ -8,11 +8,11 @@
 	<node pkg="cob_tf_broadcaster" type="cob_tf_broadcaster" name="cob_tf_broadcaster" respawn="false" output="screen" />
 
 	<!-- teleoperate platform with joystick -->
-	<include file="$(find cob_teleop)/ros/launch/teleop_cob.launch" />
+	<include file="$(find cob_teleop)/ros/launch/teleop_joy.launch" />
 
 	<!-- dynamic map generation -->
 	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-		<remap from="scan" to="scan"/>
+		<remap from="scan" to="scan_front"/>
 		<param name="maxUrange" type="int" value="8"/>
 		<param name="xmin" type="int" value="-20"/>
 		<param name="ymin" type="int" value="-20"/>

@@ -1,0 +1,6 @@
+float64 radius
+float64 movingAngle
+float64 time
+bool 	direction
+float64 delay
+---
