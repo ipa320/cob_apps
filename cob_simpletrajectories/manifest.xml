@@ -9,8 +9,11 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_simpletrajectories</url>
   <depend package="roscpp"/>
-<depend package="kdl"/>
-<depend package="visualization_msgs"/>
+  <depend package="kdl"/>
+  <depend package="visualization_msgs"/>
+  <depend package="pr2_controllers_msgs"/>
+  <depend package="tf_conversions"/>
+  <depend package="cob_mmcontroller"/>
 
 </package>
 
