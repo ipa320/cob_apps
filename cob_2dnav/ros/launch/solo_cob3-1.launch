@@ -13,11 +13,11 @@
   <include file="$(find cob_hokuyo)/ros/launch/cob_hokuyo.launch" />
 
   <!-- start tof_camera and cob_point_cloud_publisher -->
-  <include file="$(find cob_camera_sensors)/ros/launch/cob3-1_tof.launch" />
-  <include file="$(find cob_point_cloud_publisher)/ros/launch/point_cloud_publisher.launch" />
+  <!--include file="$(find cob_camera_sensors)/ros/launch/cob3-1_tof.launch" /-->
+  <!--include file="$(find cob_point_cloud_publisher)/ros/launch/point_cloud_publisher.launch" /-->
   
   <!-- get the odometry -->
   <!-- start teleoperated platform -->
-  <include file="$(find cob_teleop)/ros/launch/teleop_joy.launch" />
+  <!--include file="$(find cob_teleop)/ros/launch/teleop_joy_ucar.launch" /-->
  
 </launch>

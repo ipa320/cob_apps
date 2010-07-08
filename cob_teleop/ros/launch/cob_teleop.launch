@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<launch>
+
+	<!-- start cob teleop node -->
+	<node pkg="cob_teleop" type="cob_teleop" name="cob_teleop" output="screen">
+
+		<!--remap from="cmd_vel" to="base_controller/command" /-->
+
+	</node>
+
+	<!-- run joystick -->
+	<include file="$(find cob_joy)/ros/launch/$(env ROBOT).launch" />
+
+</launch>

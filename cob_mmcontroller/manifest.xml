@@ -4,10 +4,11 @@
      cob_mmcontroller
 
   </description>
-  <author>Alexander Bubeck</author>
-  <license>BSD</license>
+  <author>Alexander Bubeck, email:alexander.bubeck@ipa.fhg.de</author>
+  <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_mmcontroller</url>
+  
   <depend package="roscpp"/>
   <depend package="geometry_msgs"/>
   <depend package="trajectory_msgs"/>
@@ -18,5 +19,3 @@
   <depend package="kdl"/>
 
 </package>
-
-

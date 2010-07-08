@@ -4,15 +4,14 @@
      cob_tactiletools
 
   </description>
-  <author>bagside</author>
+  <author>Alexander Bubeck, email:alexander.bubeck@ipa.fhg.de</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_tactiletools</url>
+  
   <depend package="rospy"/>
   <depend package="cob_msgs"/>
   <depend package="cob_srvs"/>
   <depend package="std_msgs"/>
 
 </package>
-
-

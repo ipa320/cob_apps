@@ -54,6 +54,7 @@
 from actions import *
 from parameters import *
 
+base=base()
 torso=torso()
 tray=tray()
 arm=arm()
@@ -61,6 +62,10 @@ lbr=lbr()
 sdh=sdh()
 
 panels = [  
+  ( "base", [ 
+#	( "stop", base.Stop, ()),
+	( "init", base.Init, ()),
+	]),
   ( "torso", [ 
 	( "stop", torso.Stop, ()),
 	( "init", torso.Init, ()),

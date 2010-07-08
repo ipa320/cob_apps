@@ -135,8 +135,8 @@ def main_quit(obh, obb):
 
 try:
     window = gtk.Window()
-    winwidth = 500
-    winheight = 700
+    winwidth = 200
+    winheight = 300
     window.set_size_request(winwidth,winheight)
     window.set_title("TactileSensorData")
     testv = 0
@@ -152,11 +152,11 @@ try:
     sc5.set_size_request((winwidth/3)-10, (winheight/2)-5)
     sc6 = Screen()
     sc6.set_size_request((winwidth/3)-10, (winheight/2)-5)
-    hbox1=gtk.HBox(False ,10 )
+    hbox1=gtk.HBox(False ,1 )
     hbox1.pack_start(sc1,False, True, 0)
     hbox1.pack_start(sc2,False, True, 0)
     hbox1.pack_start(sc3,False, True, 0)
-    hbox2=gtk.HBox(False,10)
+    hbox2=gtk.HBox(False,1)
     hbox2.pack_start(sc4,False, True, 0)
     hbox2.pack_start(sc5,False, True, 0)
     hbox2.pack_start(sc6,False, True, 0)
