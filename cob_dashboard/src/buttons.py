@@ -104,6 +104,10 @@ panels = [
 	( "graspTOtablet", arm.MoveTraj, (armParameter.graspTOtablet,)),
 	( "tabletTOfolded", arm.MoveTraj, (armParameter.tabletTOfolded,)),
 	]),
+  ( "lbr", [ 
+	( "home", lbr.MoveTraj, (lbrParameter.home,)),
+	( "folded", lbr.MoveTraj, (lbrParameter.folded,)),
+	]),
 #  ( "sdh", [ 
 #  	( "stop", sdh.Stop, ()),
 #	( "init", sdh.Init, ()),
