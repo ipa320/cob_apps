@@ -55,7 +55,7 @@
 #include <ros/ros.h>
 #include <cob_simpletrajectories/MoveRelLin.h>
 #include <cob_simpletrajectories/MoveDoorHandle.h>
-#include <cob_mmcontroller/MoveTrajectory.h>
+//#include <cob_mmcontroller/MoveTrajectory.h>
 #include <visualization_msgs/Marker.h>
 #include <pr2_controllers_msgs/JointTrajectoryControllerState.h>
 
@@ -89,7 +89,7 @@ private:
 
   ros::ServiceServer srvServer_MoveRelLin_;
   ros::ServiceServer srvServer_MoveDoorHandle_;
-  ros::ServiceClient srvClient_MoveTrajectory;
+//  ros::ServiceClient srvClient_MoveTrajectory;
   ros::Publisher marker_pub;
   ros::Subscriber topicSub_ControllerState_;
 
@@ -123,7 +123,7 @@ SimpleTrajectories::SimpleTrajectories()
   srvServer_MoveDoorHandle_ = nh_.advertiseService("MoveDoorHandle", &SimpleTrajectories::srvCallback_MoveDoorHandle, this);
   marker_pub = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 10);
   topicSub_ControllerState_ = nh_.subscribe("controller_state", 1, &SimpleTrajectories::topicCallback_ControllerState, this);
-  srvClient_MoveTrajectory  = nh_.serviceClient<cob_mmcontroller::MoveTrajectory>("MMController/MoveTrajectory");
+//  srvClient_MoveTrajectory  = nh_.serviceClient<cob_mmcontroller::MoveTrajectory>("MMController/MoveTrajectory");
 
   //dhParameterArm
 
@@ -222,12 +222,12 @@ bool SimpleTrajectories::srvCallback_MoveDoorHandle(cob_simpletrajectories::Move
   marker_pub.publish(points);
 
 
-  cob_mmcontroller::MoveTrajectory srv;
+/*  cob_mmcontroller::MoveTrajectory srv;
   srv.request.header.stamp = ros::Time::now();
   srv.request.timeres_ms = Time_Resolution * 1000;
   srv.request.poses = TrajPoses;
   srvClient_MoveTrajectory .call(srv);
-
+*/
   return true;
 }
 
