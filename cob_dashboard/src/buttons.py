@@ -107,6 +107,9 @@ panels = [
   ( "lbr", [ 
 	( "home", lbr.MoveTraj, (lbrParameter.home,)),
 	( "folded", lbr.MoveTraj, (lbrParameter.folded,)),
+	( "pregrasp", lbr.MoveTraj, (lbrParameter.pregrasp,)),
+	( "grasp", lbr.MoveTraj, (lbrParameter.grasp,)),
+	( "overTablet", lbr.MoveTraj, (lbrParameter.overTablet,)),
 	]),
 #  ( "sdh", [ 
 #  	( "stop", sdh.Stop, ()),
