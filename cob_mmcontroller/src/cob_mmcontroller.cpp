@@ -6,7 +6,6 @@
 #include <trajectory_msgs/JointTrajectory.h>
 #include <geometry_msgs/Twist.h>
 #include <pr2_controllers_msgs/JointTrajectoryControllerState.h>
-#include <cob_mmcontroller/MoveTrajectory.h>
 #include <kdl/chain.hpp>
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
@@ -64,7 +63,7 @@ public:
   bool srvCallback_Init(cob_srvs::Trigger::Request &req, cob_srvs::Trigger::Response &res );
   bool srvCallback_Pause(cob_srvs::Trigger::Request &req, cob_srvs::Trigger::Response &res );
   bool srvCallback_Stop(cob_srvs::Trigger::Request &req, cob_srvs::Trigger::Response &res );
-  bool srvCallback_Trajectory(cob_mmcontroller::MoveTrajectory::Request &req, cob_mmcontroller::MoveTrajectory::Response &res );
+ // bool srvCallback_Trajectory(cob_mmcontroller::MoveTrajectory::Request &req, cob_mmcontroller::MoveTrajectory::Response &res );
     
   bool m_bInitialized;
   
@@ -75,7 +74,7 @@ cob_mmcontroller::cob_mmcontroller()
   topicPub_armcmd_ = nh_.advertise<trajectory_msgs::JointTrajectory>("command", 1);
   topicSub_cartvel_ = nh_.subscribe("cartvel_command", 1, &cob_mmcontroller::topicCallback_CartVel, this);
   topicSub_ControllerState_ = nh_.subscribe("controller_state", 1, &cob_mmcontroller::topicCallback_ControllerState, this);
-  srvServer_Trajectoy_ = nh_.advertiseService("MMController/MoveTrajectory", &cob_mmcontroller::srvCallback_Trajectory, this);
+ // srvServer_Trajectoy_ = nh_.advertiseService("MMController/MoveTrajectory", &cob_mmcontroller::srvCallback_Trajectory, this);
   srvServer_Init_ = nh_.advertiseService("MMController/Init", &cob_mmcontroller::srvCallback_Init, this);
   srvServer_Pause_ = nh_.advertiseService("MMController/Pause", &cob_mmcontroller::srvCallback_Pause, this);
   srvServer_Stop_ = nh_.advertiseService("MMController/Stop", &cob_mmcontroller::srvCallback_Stop, this);
@@ -179,12 +178,12 @@ bool cob_mmcontroller::srvCallback_Stop(cob_srvs::Trigger::Request &req, cob_srv
 {
   return true;
 }
-
+/*
 bool cob_mmcontroller::srvCallback_Trajectory(cob_mmcontroller::MoveTrajectory::Request &req, cob_mmcontroller::MoveTrajectory::Response &res )
 {
 	return true;
 }
-
+*/
 int main(int argc, char ** argv)
 {
   ros::init(argc, argv, "cob_mmcontroller");
