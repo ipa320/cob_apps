@@ -249,7 +249,7 @@ class armParameter:
 
 class lbrParameter:
 	action_goal_topic = 'lbr_controller/joint_trajectory_action'
-	joint_names = ["arm_1_joint","arm_2_joint","arm_3_joint","arm_4_joint","arm_5_joint","arm_6_joint","arm_7_joint"]
+	joint_names = ["lbr_1_joint","lbr_2_joint","lbr_3_joint","lbr_4_joint","lbr_5_joint","lbr_6_joint","lbr_7_joint"]
 
 	home = JointTrajectory()
 	home.joint_names = joint_names

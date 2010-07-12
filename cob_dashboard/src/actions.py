@@ -270,11 +270,8 @@ class arm:
 		goal.trajectory = traj
 		goal.trajectory.header.stamp = rospy.Time.now()
 		self.client.send_goal(goal)
-		
-	def MoveArm3(self,name,name2):
-		print "arm: MoveArm3"
-		print name
-		print name2
+
+
 
 class lbr:
 	def Stop(self):
@@ -286,6 +283,21 @@ class lbr:
 		rospy.loginfo("lbr: MoveTraj")
 		pub = rospy.Publisher('/Trajectory', JointTrajectory)
 		pub.publish(traj)
+
+		# publish through action lib for simulation
+		self.client = actionlib.SimpleActionClient(lbrParameter.action_goal_topic, JointTrajectoryAction)
+		rospy.logdebug("waiting for lbr action server to start")
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			rospy.logerr("lbr action server not ready within timeout, aborting...")
+			return
+		else:
+			rospy.logdebug("lbr action server ready")
+		#print traj
+		
+		goal = JointTrajectoryGoal()
+		goal.trajectory = traj
+		goal.trajectory.header.stamp = rospy.Time.now()
+		self.client.send_goal(goal)
 	
 class sdh:
 	def Stop(self):
