@@ -55,8 +55,9 @@
 #include <ros/ros.h>
 #include <cob_simpletrajectories/MoveRelLin.h>
 #include <cob_simpletrajectories/MoveDoorHandle.h>
-//#include <cob_simpletrajectories/TrajectoryCmd.h>
+//#include <cob_mmcontroller/MoveTrajectory.h>
 #include <visualization_msgs/Marker.h>
+#include <pr2_controllers_msgs/JointTrajectoryControllerState.h>
 
 // KDL includes
 #include <kdl/chain.hpp>
@@ -74,8 +75,9 @@
 #include <kdl/velocityprofile_trap.hpp>
 #include <kdl/trajectory_segment.hpp>
 
+#include <tf_conversions/tf_kdl.h>
 
-
+#define Time_Resolution 0.5
 
 class SimpleTrajectories
 {
@@ -87,10 +89,15 @@ private:
 
   ros::ServiceServer srvServer_MoveRelLin_;
   ros::ServiceServer srvServer_MoveDoorHandle_;
-  ros::ServiceClient srvClient_MoveTrajectory;
+//  ros::ServiceClient srvClient_MoveTrajectory;
   ros::Publisher marker_pub;
+  ros::Subscriber topicSub_ControllerState_;
 
   std::vector<geometry_msgs::Point> TrajPoints;
+  std::vector<geometry_msgs::Pose> TrajPoses;
+
+  std::vector<double> m_CurrentConfig;
+  std::vector<double> m_CurrentVels;
 
 
   KDL::Trajectory_Segment * m_SyncMM_Trajectory ;
@@ -101,16 +108,42 @@ private:
   bool srvCallback_MoveRelLin(cob_simpletrajectories::MoveRelLin::Request &req, cob_simpletrajectories::MoveRelLin::Response &res );
   bool srvCallback_MoveDoorHandle(cob_simpletrajectories::MoveDoorHandle::Request &req, cob_simpletrajectories::MoveDoorHandle::Response &res );
 
+  void topicCallback_ControllerState(const pr2_controllers_msgs::JointTrajectoryControllerState::ConstPtr& msg);
+
   KDL::Frame GlobalToKDL(KDL::Frame in);
   KDL::Frame KDLToGlobal(KDL::Frame in);
   
+  KDL::Chain m_chain;
+
 };
 
 SimpleTrajectories::SimpleTrajectories()
 {
   srvServer_MoveRelLin_ = nh_.advertiseService("MoveRelLin", &SimpleTrajectories::srvCallback_MoveRelLin, this);
   srvServer_MoveDoorHandle_ = nh_.advertiseService("MoveDoorHandle", &SimpleTrajectories::srvCallback_MoveDoorHandle, this);
-  marker_pub = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+  marker_pub = nh_.advertise<visualization_msgs::Marker>("/visualization_marker", 10);
+  topicSub_ControllerState_ = nh_.subscribe("controller_state", 1, &SimpleTrajectories::topicCallback_ControllerState, this);
+//  srvClient_MoveTrajectory  = nh_.serviceClient<cob_mmcontroller::MoveTrajectory>("MMController/MoveTrajectory");
+
+  //dhParameterArm
+
+  m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.250    , 0.0     )));
+  m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
+  m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.408    , 0.0     )));
+  m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
+  m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0, -0.316    , 0.0     )));
+  m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
+  m_chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI,  -0.327    , 0.0     )));
+
+  m_CurrentConfig.resize(m_chain.getNrOfJoints());
+  m_CurrentVels.resize(m_chain.getNrOfJoints());
+
+}
+
+void SimpleTrajectories::topicCallback_ControllerState(const pr2_controllers_msgs::JointTrajectoryControllerState::ConstPtr& msg)
+{
+  m_CurrentConfig = msg->actual.positions;
+  m_CurrentVels = msg->actual.velocities;
 
 }
 
@@ -126,14 +159,44 @@ bool SimpleTrajectories::srvCallback_MoveRelLin(cob_simpletrajectories::MoveRelL
   points.action = visualization_msgs::Marker::ADD;
   points.pose.orientation.w = 1.0;
   points.id = 0;
-  points.type = visualization_msgs::Marker::POINTS;
+  points.type = visualization_msgs::Marker::LINE_STRIP;
   points.scale.x = 0.01;
   points.scale.y = 0.01;
+  points.scale.z = 0.01;
   points.color.g = 1.0f;
   points.color.a = 1.0;
+  points.lifetime = ros::Duration();
   
   points.points = TrajPoints;
   marker_pub.publish(points);
+
+  //test
+  uint32_t shape = visualization_msgs::Marker::CUBE;
+  visualization_msgs::Marker marker;
+     marker.header.frame_id = "/base_link";
+     marker.header.stamp = ros::Time::now();
+     marker.ns = "basic_shapes";
+     marker.id = 0;
+     marker.type = shape;
+     marker.action = visualization_msgs::Marker::ADD;
+     marker.pose.position.x = 0;
+     marker.pose.position.y = 0;
+     marker.pose.position.z = 0;
+     marker.pose.orientation.x = 0.0;
+     marker.pose.orientation.y = 0.0;
+     marker.pose.orientation.z = 0.0;
+     marker.pose.orientation.w = 1.0;
+     marker.scale.x = 1.0;
+     marker.scale.y = 1.0;
+     marker.scale.z = 1.0;
+     marker.color.r = 0.0f;
+     marker.color.g = 1.0f;
+     marker.color.b = 0.0f;
+     marker.color.a = 1.0;
+     marker.lifetime = ros::Duration();
+     //marker_pub.publish(marker);
+
+
 
   return true;
 }
@@ -158,6 +221,13 @@ bool SimpleTrajectories::srvCallback_MoveDoorHandle(cob_simpletrajectories::Move
   points.points = TrajPoints;
   marker_pub.publish(points);
 
+
+/*  cob_mmcontroller::MoveTrajectory srv;
+  srv.request.header.stamp = ros::Time::now();
+  srv.request.timeres_ms = Time_Resolution * 1000;
+  srv.request.poses = TrajPoses;
+  srvClient_MoveTrajectory .call(srv);
+*/
   return true;
 }
 
@@ -165,27 +235,17 @@ int SimpleTrajectories::moveRelLin(double x, double y, double z, double timeS)
 {
   double r,p,yaw;
 
-  //dhParameterArm
-  KDL::Chain chain;
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.250    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.408    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0, -0.316    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI,  -0.327    , 0.0     )));
 
-
-  KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(chain);
+  KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(m_chain);
 
   // read current position of Jointsvel
   KDL::Frame cartpos;
-  unsigned int nj = chain.getNrOfJoints();
+  unsigned int nj = m_chain.getNrOfJoints();
   KDL::JntArray jointpositions = KDL::JntArray(nj);
   
-  //TODO: jointpositions = getJointPos(nj);
+
   for(int i = 0; i<7; i++)
-    jointpositions(i) = 0.0;
+    jointpositions(i) = m_CurrentConfig[i];
  
 
   fksolver.JntToCart(jointpositions,cartpos);
@@ -202,7 +262,7 @@ int SimpleTrajectories::moveRelLin(double x, double y, double z, double timeS)
   double m_SyncMM_Trajectory_TIME = timeS;
   m_SyncMM_Trajectory = new KDL::Trajectory_Segment(myPath, myVelProfile, m_SyncMM_Trajectory_TIME); //duration
   
-  double resolution = 0.5;
+  double resolution = Time_Resolution;
   for (double i = 0.0; i < m_SyncMM_Trajectory_TIME; i+=resolution)
     {
       KDL::Frame pathpos = KDLToGlobal(m_SyncMM_Trajectory->Pos(i));
@@ -210,7 +270,11 @@ int SimpleTrajectories::moveRelLin(double x, double y, double z, double timeS)
       p.x = pathpos.p.x();
       p.y = pathpos.p.y();
       p.z = pathpos.p.z();
+
+      geometry_msgs::Pose pos;
+      tf::PoseKDLToMsg(pathpos, pos);
       TrajPoints.push_back(p);
+      TrajPoses.push_back(pos);
     }
 
 
@@ -223,25 +287,16 @@ int SimpleTrajectories::moveDoorHandle(double radius, double movingAngle, double
 {
   double m_dDelay = delay;
 
-  KDL::Chain chain;
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.250    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0,  -0.408    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  -M_PI/2.0, -0.316    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI/2.0,  0.0    , 0.0     )));
-  chain.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ),KDL::Frame().DH( 0.0,  M_PI,  -0.327    , 0.0     )));
 
-  KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(chain);
+  KDL::ChainFkSolverPos_recursive fksolver = KDL::ChainFkSolverPos_recursive(m_chain);
 
   // read current position of Jointsvel
   KDL::Frame cartpos;
-  unsigned int nj = chain.getNrOfJoints();
+  unsigned int nj = m_chain.getNrOfJoints();
   KDL::JntArray jointpositions = KDL::JntArray(nj);
 
-  //TODO: jointpositions = getJointPos(nj);
   for(int i = 0; i<7; i++)
-    jointpositions(i) = 0.0;
+    jointpositions(i) = m_CurrentConfig[i];
 
   fksolver.JntToCart(jointpositions,cartpos);
 
