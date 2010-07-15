@@ -390,7 +390,8 @@ class lbrParameter:
 	cupTOtablet.points.append(point)
 	
 class sdhParameter:
-	action_goal_topic = 'sdh/JointCommand'
+	#action_goal_topic = 'sdh/JointCommand'
+	action_goal_topic = 'sdh_controller/joint_trajectory_action'
     #-->[not_used, joint_thumb1_thumb2, joint_thumb2_thumb3, joint_palm_finger11, joint_finger11_finger12, joint_finger12_finger13, not_used, joint_finger21_finger22, joint_finger22_finger23]
 	joint_names = ["joint_palm_thumb1", "joint_thumb1_thumb2", "joint_thumb2_thumb3", "joint_palm_finger11", "joint_finger11_finger12", "joint_finger12_finger13", "joint_palm_finger21", "joint_finger21_finger22", "joint_finger22_finger23"]
 
