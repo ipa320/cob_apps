@@ -268,14 +268,14 @@ class lbrParameter:
 	pregrasp = JointTrajectory()
 	pregrasp.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-1.46, -2.10, -1.79, -1.42, -2.41, -0.91, 2.54]
+	point.positions=[-1.48, -2.09, -1.72, -1.50, -2.43, -0.72, 2.56]
 	point.time_from_start=rospy.Duration(3)
 	pregrasp.points.append(point)
 
 	grasp = JointTrajectory()
 	grasp.joint_names = joint_names
 	point=JointTrajectoryPoint()
-	point.positions=[-0.82, -2.01, -1.23, -1.00, -2.62, -0.62, 2.78]
+	point.positions=[-0.84, -1.99, -1.19, -1.01, -2.56, -0.46, 2.73]
 	point.time_from_start=rospy.Duration(3)
 	grasp.points.append(point)
 
