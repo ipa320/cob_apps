@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/cob_mmcontroller</url>
   
   <depend package="roscpp"/>
+  <depend package="rospy"/>
   <depend package="geometry_msgs"/>
   <depend package="trajectory_msgs"/>
   <depend package="cob_srvs"/>
