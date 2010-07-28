@@ -1,19 +1,22 @@
 <package>
-  <description brief="cob_dashboard">
+  <description brief="cob_script_server">
 
-     This package provides a simple GUI for operating Care-O-bot.
+     cob_script_server
 
   </description>
   <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
-  <url>http://www.ros.org/wiki/cob_dashboard</url>
-
+  <url>http://ros.org/wiki/cob_script_server</url>
+  
   <depend package="rospy"/>
   <depend package="actionlib"/>
-  <depend package="pr2_controllers_msgs"/>
+  <depend package="tf"/>
+  <depend package="cob_msgs"/>
   <depend package="cob_srvs"/>
   <depend package="cob_actions"/>
-  <depend package="cob_script_server"/>
+  <depend package="cob_goco"/>
+  <depend package="trajectory_msgs"/>
+  <depend package="pr2_controllers_msgs"/>
 
 </package>

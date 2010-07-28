@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- send parameters to parameter server -->
+  <rosparam command="load" ns="script_server" file="$(find cob_script_server)/launch/script_server.yaml"/>
+
+  <!-- start powercube_chain -->
+  <node pkg="cob_script_server" type="script_server.py" ns="script_server" name="script_server" cwd="node" respawn="false" output="screen" />
+
+</launch>

@@ -275,13 +275,38 @@ class arm:
 
 class lbr:
 	def Stop(self):
-		rospy.logerr("Can't stop lbr, stop not implemented...")
+		rospy.loginfo("lbr_controller: Stop")
+		
+		try:
+			rospy.wait_for_service('lbr_controller/Stop',5)
+		except rospy.ROSException, e:
+			rospy.logerr("lbr service server not ready, aborting...")
+			return
+			
+		try:
+			lbr_stop = rospy.ServiceProxy('lbr_controller/Stop', Trigger)
+			resp = lbr_stop()
+			print resp
+		except rospy.ServiceException, e:
+			print "lbr service call failed: %s"%e
 	def Init(self):
-		rospy.logerr("Can't initialize lbr automatically, please init manually...")
-		print ("login via telnet: telnet 192.168.42.146")
+		rospy.loginfo("lbr_controller: Init")
+		try:
+			rospy.wait_for_service('lbr_controller/Init',5)
+		except rospy.ROSException, e:
+			rospy.logerr("lbr service server not ready, aborting...")
+			return
+			
+		try:
+			lbr_srvCall = rospy.ServiceProxy('lbr_controller/Init', Trigger)
+			resp = lbr_srvCall()
+			print resp
+		except rospy.ServiceException, e:
+			print "lbr service call failed: %s"%e	
+		
 	def MoveTraj(self,traj):
 		rospy.loginfo("lbr: MoveTraj")
-		pub = rospy.Publisher('/Trajectory', JointTrajectory)
+		pub = rospy.Publisher('lbr_controller/command', JointTrajectory)
 		pub.publish(traj)
 
 		# publish through action lib for simulation
@@ -301,38 +326,38 @@ class lbr:
 	
 class sdh:
 	def Stop(self):
-		rospy.loginfo("sdh: Stop")
+		rospy.loginfo("sdh_controller: Stop")
 		
 		try:
-			rospy.wait_for_service('sdh/Stop',5)
+			rospy.wait_for_service('sdh_controller/Stop',5)
 		except rospy.ROSException, e:
 			rospy.logerr("sdh service server not ready, aborting...")
 			return
 			
 		try:
-			sdh_stop = rospy.ServiceProxy('sdh/Stop', Trigger)
+			sdh_stop = rospy.ServiceProxy('sdh_controller/Stop', Trigger)
 			resp = sdh_stop()
 			print resp
 		except rospy.ServiceException, e:
 			print "sdh service call failed: %s"%e
 	
 	def Init(self):
-		rospy.loginfo("sdh: Init")
+		rospy.loginfo("sdh_controller: Init")
 		
 		try:
-			rospy.wait_for_service('sdh/Init',5)
+			rospy.wait_for_service('sdh_controller/Init',5)
 		except rospy.ROSException, e:
 			rospy.logerr("sdh service server not ready, aborting...")
 			return
 			
 		try:
-			sdh_srvCall = rospy.ServiceProxy('sdh/Init', Trigger)
+			sdh_srvCall = rospy.ServiceProxy('sdh_controller/Init', Trigger)
 			resp = sdh_srvCall()
 			print resp
 		except rospy.ServiceException, e:
 			print "sdh service call failed: %s"%e	
 	def MoveCommand(self,command):
-		rospy.loginfo("sdh: MoveCommand")
+		rospy.loginfo("sdh_controller: MoveCommand")
 		
 		self.client = actionlib.SimpleActionClient(sdhParameter.action_goal_topic, JointCommandAction)
 		rospy.logdebug("waiting for sdh action server to start")
@@ -348,7 +373,7 @@ class sdh:
 		self.client.send_goal(goal)
 		
 	def MoveTraj(self,traj):
-		rospy.loginfo("sdh: MoveTraj")
+		rospy.loginfo("sdh_controller: MoveTraj")
 		
 		self.client = actionlib.SimpleActionClient(sdhTrajParameter.action_goal_topic, JointTrajectoryAction)
 		rospy.logdebug("waiting for sdh action server to start")
