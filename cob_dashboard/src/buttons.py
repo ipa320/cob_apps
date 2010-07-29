@@ -60,6 +60,7 @@ tray=tray()
 arm=arm()
 lbr=lbr()
 sdh=sdh()
+head=head()
 
 panels = [  
   ( "base", [ 
@@ -131,5 +132,14 @@ panels = [
 	( "cylOpen", sdh.MoveTraj, (sdhTrajParameter.cylOpen,)),
 	( "spherClose", sdh.MoveTraj, (sdhTrajParameter.spherClose,)),
 	( "spherOpen", sdh.MoveTraj, (sdhTrajParameter.spherOpen,)),
+	]),
+  ( "head", [ 
+  	( "stop", head.Stop, ()),
+	( "init", head.Init, ()),
+	( "recover", head.Recover, ()),
+	( "home", head.MoveTraj, (headTrajParameter.home,)),
+	( "front", head.MoveTraj, (headTrajParameter.front,)),
+	( "back", head.MoveTraj, (headTrajParameter.back,)),
+	( "test", head.MoveTraj, (headTrajParameter.test,)),
 	])
   ]

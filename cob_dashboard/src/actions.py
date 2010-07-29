@@ -351,3 +351,85 @@ class sdh:
 		goal.trajectory = traj
 		goal.trajectory.header.stamp = rospy.Time.now()
 		self.client.send_goal(goal)
+		
+class head:
+	def Stop(self):
+		rospy.loginfo("head: Stop")
+	
+		try:
+			rospy.wait_for_service('head_controller/Stop',5)
+		except rospy.ROSException, e:
+			rospy.logerr("head service server not ready, aborting...")
+			return
+		
+		try:
+			head_stop = rospy.ServiceProxy('head_controller/Stop', Trigger)
+			resp = head_stop()
+			print resp
+		except rospy.ServiceException, e:
+			print "head service call failed: %s"%e
+
+	def Init(self):
+		rospy.loginfo("head: Init")
+	
+		try:
+			rospy.wait_for_service('head_controller/Init',5)
+		except rospy.ROSException, e:
+			rospy.logerr("head service server not ready, aborting...")
+			return
+		
+		try:
+			head_srvCall = rospy.ServiceProxy('head_controller/Init', Trigger)
+			resp = head_srvCall()
+			print resp
+		except rospy.ServiceException, e:
+			print "head service call failed: %s"%e	
+
+	def Recover(self):
+		rospy.loginfo("head: Recover")
+	
+		try:
+			rospy.wait_for_service('head_controller/Recover',5)
+		except rospy.ROSException, e:
+			rospy.logerr("head service server not ready, aborting...")
+			return
+		
+		try:
+			head_srvCall = rospy.ServiceProxy('head_controller/Recover', Trigger)
+			resp = head_srvCall()
+			print resp
+		except rospy.ServiceException, e:
+			print "head service call failed: %s"%e	
+	
+	def MoveCommand(self,command):
+		rospy.loginfo("head: MoveCommand")
+	
+		self.client = actionlib.SimpleActionClient(headParameter.action_goal_topic, JointCommandAction)
+		rospy.logdebug("waiting for head action server to start")
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			rospy.logerr("head action server not ready within timeout, aborting...")
+			return
+		else:
+			rospy.logdebug("head action server ready")
+		#print command
+	
+		goal = JointCommandGoal()
+		goal.command = command
+		self.client.send_goal(goal)
+	
+	def MoveTraj(self,traj):
+		rospy.loginfo("head: MoveTraj")
+	
+		self.client = actionlib.SimpleActionClient(headTrajParameter.action_goal_topic, JointTrajectoryAction)
+		rospy.logdebug("waiting for head action server to start")
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			rospy.logerr("head action server not ready within timeout, aborting...")
+			return
+		else:
+			rospy.logdebug("head action server ready")
+		#print traj
+	
+		goal = JointTrajectoryGoal()
+		goal.trajectory = traj
+		goal.trajectory.header.stamp = rospy.Time.now()
+		self.client.send_goal(goal)
