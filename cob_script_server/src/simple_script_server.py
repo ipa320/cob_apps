@@ -12,26 +12,11 @@ from cob_srvs.srv import *
 from trajectory_msgs.msg import *
 from pr2_controllers_msgs.msg import *
 
-from script_utils import *
-
 class simple_script_server:
 	def __init__(self):
-		print "---init"
 		self.ns_global_prefix = "/script_server"
 
 #------------------- Init section -------------------#
-	def InitTray(self):
-		self.Init("/tray_controller")
-		
-	def InitTorso(self):
-		self.Init("/torso_controller")
-			
-	def InitArm(self):
-		self.Init("/arm_controller")
-	
-	def InitSdh(self):
-		self.Init("/sdh_controller")
-	
 	def Init(self,component_name):
 		rospy.loginfo("Waiting for %s_controller init...", component_name)
 		service_name = component_name + "_controller/Init"
@@ -49,20 +34,11 @@ class simple_script_server:
 		return True
 
 #------------------- Move section -------------------#
-	def MoveTorso(self,param_name):
-		return self.Move("torso",param_name)
-		
-	def MoveTray(self,param_name):
-		return self.Move("tray",param_name)
-
-	def MoveArm(self,param_name):
-		return self.Move("arm",param_name)
-		
-	def MoveSdh(self,param_name):
-		return self.Move("sdh",param_name)
-		
-	def Move(self,component_name,param_name):
-		rospy.loginfo("---Move %s to %s",component_name,param_name)
+	def Move(self,component_name,parameter_name,blocking=True):
+		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+		ah = action_handle()
+		ah.component_name = component_name
+		ah.parameter_name = parameter_name
 		
 		# selecting component
 		if component_name == "tray":
@@ -75,34 +51,39 @@ class simple_script_server:
 			joint_names = ["sdh_thumb_2_joint", "sdh_thumb_3_joint", "sdh_finger_11_joint", "sdh_finger_12_joint", "sdh_finger_13_joint", "sdh_finger_21_joint", "sdh_finger_22_joint", "sdh_finger_23_joint"]
 		else:
 			rospy.logerr("component %s not kown to script_server",component_name)
-			return 1
+			ah.error_code = 1
+			return ah
 		
 		# get joint values from parameter server
-		if type(param_name) is str:
-			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + param_name):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + param_name)
-				return 2
-			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + param_name)
+		if type(parameter_name) is str:
+			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
+				ah.error_code = 2
+				return ah
+			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
 		else:
-			param = param_name
+			param = parameter_name
 		
 		# check trajectory parameters
 		if not type(param) is list: # check outer list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
-				return 3
+				ah.error_code = 3
+				return ah
 		else:
 			for i in param:
 				#print i,"type1 = ", type(i)
 				if not type(i) is list: # check inner list
 					rospy.logerr("no valid parameter for %s: not a list of lists, aborting...",component_name)
 					print "parameter is:",param
-					return 3
+					ah.error_code = 3
+					return ah
 				else:
 					if not len(i) == len(joint_names): # check dimension
 						rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(i))
 						print "parameter is:",param
-						return 3
+						ah.error_code = 3
+						return ah
 					else:
 						for j in i:
 							#print j,"type2 = ", type(j)
@@ -110,7 +91,8 @@ class simple_script_server:
 								print type(j)
 								rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 								print "parameter is:",param
-								return 3
+								ah.error_code = 3
+								return ah
 							else:
 								rospy.logdebug("accepted parameter %f for %s",j,component_name)
 		
@@ -137,7 +119,8 @@ class simple_script_server:
 		if not self.client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
-			return 4
+			ah.error_code = 4
+			return ah
 		else:
 			rospy.logdebug("%s action server ready",action_server_name)
 
@@ -147,35 +130,30 @@ class simple_script_server:
 		client_goal.trajectory = traj
 		#print client_goal
 		self.client.send_goal(client_goal)
+		ah.error_code = 0 # full success
+		ah.client = self.client
 
-		# wait for action server to offer a result
-		if not rospy.has_param(self.ns_global_prefix + "/duration_factor"):
-			rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/duration_factor")
-			return 2
-		duration = rospy.get_param("/script_server/duration_factor")*client_goal.trajectory.points[-1].time_from_start.to_sec()
-		if not self.client.wait_for_result(rospy.Duration(duration)):
-			# error: action was not finished whithin timout
-			rospy.logerr("%s sent no result whithin timeout, aborting...",action_server_name)
-			#self.client.cancel_all_goals()
-			return 5
+		if blocking:
+			ah.wait()
 		else:
-			rospy.logdebug("%s action sent a result",action_server_name)
-		return 0 # full success
+			rospy.logdebug("actionlib client not waiting for result, continuing...")
 		
+		return ah
+			
 #------------------- LED section -------------------#
-	def SetLight(self,param_name):
-		rospy.loginfo("---Set light to %s",param_name)
+	def SetLight(self,parameter_name):
+		rospy.loginfo("Set light to %s",parameter_name)
 		pub = rospy.Publisher('light_controller/command', Light)
 		time.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
 		
 		# get joint values from parameter server
-		if type(param_name) is str:
-			if not rospy.has_param(self.ns_global_prefix + "/light/" + param_name):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/light/" + param_name)
+		if type(parameter_name) is str:
+			if not rospy.has_param(self.ns_global_prefix + "/light/" + parameter_name):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/light/" + parameter_name)
 				return 2
-			param = rospy.get_param(self.ns_global_prefix + "/light/" + param_name)
+			param = rospy.get_param(self.ns_global_prefix + "/light/" + parameter_name)
 		else:
-			param = param_name
+			param = parameter_name
 			
 		# check color parameters
 		if not type(param) is list: # check outer list
@@ -201,8 +179,8 @@ class simple_script_server:
 		# convert to light message
 		color = Light()
 		color.header.stamp = rospy.Time.now()
-		if type(param_name) is str:
-			color.name.data = param_name
+		if type(parameter_name) is str:
+			color.name.data = parameter_name
 		else:
 			color.name.data = "unspecified"
 		color.r = param[0]
@@ -215,6 +193,10 @@ class simple_script_server:
 		return 0 # full success
 
 #------------------- General section -------------------#
+	def sleep(self,duration):
+		rospy.loginfo("Wait for %f sec",duration)
+		time.sleep(duration)
+
 	def check_pause(self):
 		""" check if pause is globally set. If yes, enter a wait loop until
 		the parameter is reset """
@@ -231,13 +213,32 @@ class simple_script_server:
 			return 1
 		else:
 			return 0
-			
-#------------------- Combined section -------------------#
-	def MoveLED(self, component_name, parameter_name):
-		self.SetLight("red")
-		return_value = self.Move(component_name, parameter_name)
-		self.SetLight("green")
-		return return_value
+
+#------------------- action_handle section -------------------#	
+class action_handle:
+	def __init__(self):
+		self.error_code = -1
+		self.component_name = None
+		self.parameter_name = None
+	
+	def wait(self,duration=None):
+		if self.error_code == 0:			
+			if duration is None:
+				rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)
+				self.client.wait_for_result()
+			else:
+				rospy.loginfo("Wait for <<%s>> reached <<%s>> (max %f secs)...",self.component_name, self.parameter_name,duration)
+				if not self.client.wait_for_result(rospy.Duration(duration)):
+					rospy.logerr("Timeout while waiting for <<%s>> to reach <<%s>>. Continuing...",self.component_name, self.parameter_name)
+					error_code = 10
+					return
+			rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
+		else:
+			rospy.logwarn("Execution of action was aborted, wait not possible. Continuing...")
+		return self.error_code
+	
+	def get_error_code(self):
+		return self.error_code
 			
 if __name__ == '__main__':
 	rospy.init_node('simple_script_server')
