@@ -239,9 +239,3 @@ class action_handle:
 	
 	def get_error_code(self):
 		return self.error_code
-			
-if __name__ == '__main__':
-	rospy.init_node('simple_script_server')
-	simple_script_server()
-	rospy.loginfo("simple_script_server is running")
-	rospy.spin()
