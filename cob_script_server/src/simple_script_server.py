@@ -8,7 +8,7 @@ import rospy
 import actionlib
 from cob_msgs.msg import *
 from cob_srvs.srv import *
-from cob_actions.msg import *
+#from cob_actions.msg import *
 from trajectory_msgs.msg import *
 from pr2_controllers_msgs.msg import *
 
