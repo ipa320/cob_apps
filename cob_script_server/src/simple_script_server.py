@@ -40,6 +40,24 @@ class simple_script_server:
 		return True
 
 #------------------- Move section -------------------#
+	def MoveCartRel(self,component_name):
+		service_name = component_name + "_controller/move_cart_rel"
+		try:
+			rospy.wait_for_service(service_name,rospy.get_param('server_timeout',1))
+		except rospy.ROSException, e:
+			print "Service not available: %s"%e
+			return False
+		try:
+			move_cart = rospy.ServiceProxy(service_name,MoveCart)
+			pose = MoveCartRequest()
+			pose.goal_pose.pose.position.z = 0.3
+			
+			print move_cart(pose)
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			return False
+		return True
+
 	def Move(self,component_name,parameter_name,blocking=True):
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		if component_name == "base":
