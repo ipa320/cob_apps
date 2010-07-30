@@ -10,11 +10,15 @@ from cob_msgs.msg import *
 from cob_srvs.srv import *
 #from cob_actions.msg import *
 from trajectory_msgs.msg import *
+from geometry_msgs.msg import *
 from pr2_controllers_msgs.msg import *
+from move_base_msgs.msg import *
+from tf.transformations import *
 
 class simple_script_server:
 	def __init__(self):
 		self.ns_global_prefix = "/script_server"
+		time.sleep(1)
 
 #------------------- Init section -------------------#
 	def Init(self,component_name):
@@ -36,6 +40,96 @@ class simple_script_server:
 #------------------- Move section -------------------#
 	def Move(self,component_name,parameter_name,blocking=True):
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+		if component_name == "base":
+			return self.MoveBase(component_name,parameter_name,blocking)
+		else:
+			return self.MoveTraj(component_name,parameter_name,blocking)
+
+	def MoveBase(self,component_name,parameter_name,blocking):
+		ah = action_handle()
+		ah.component_name = component_name
+		ah.parameter_name = parameter_name
+		
+		# get joint values from parameter server
+		if type(parameter_name) is str:
+			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
+				ah.error_code = 2
+				return ah
+			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
+		else:
+			param = parameter_name
+		
+		# check trajectory parameters
+		if not type(param) is list: # check outer list
+				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
+				print "parameter is:",param
+				ah.error_code = 3
+				return ah
+		else:
+			#print i,"type1 = ", type(i)
+			DOF = 3
+			if not len(param) == DOF: # check dimension
+				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,DOF,len(param))
+				print "parameter is:",param
+				ah.error_code = 3
+				return ah
+			else:
+				for i in param:
+					#print i,"type2 = ", type(i)
+					if not ((type(i) is float) or (type(i) is int)): # check type
+						print type(i)
+						rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
+						print "parameter is:",param
+						ah.error_code = 3
+						return ah
+					else:
+						rospy.logdebug("accepted parameter %f for %s",i,component_name)
+
+		# convert to pose message
+		pose = PoseStamped()
+		pose.header.stamp = rospy.Time.now()
+		pose.header.frame_id = "/map"
+		pose.pose.position.x = param[0]
+		pose.pose.position.y = param[1]
+		pose.pose.position.z = 0.0
+		q = quaternion_from_euler(0, 0, param[2])
+		pose.pose.orientation.x = q[0]
+		pose.pose.orientation.y = q[1]
+		pose.pose.orientation.z = q[2]
+		pose.pose.orientation.w = q[3]
+		
+		# call action server
+		action_server_name = "move_base"
+		rospy.logdebug("calling %s action server",action_server_name)
+		self.client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
+		# trying to connect to server
+		rospy.logdebug("waiting for %s action server to start",action_server_name)
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			# error: server did not respond
+			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
+			ah.error_code = 4
+			return ah
+		else:
+			rospy.logdebug("%s action server ready",action_server_name)
+
+		# sending goal
+		self.check_pause()
+		client_goal = MoveBaseGoal()
+		client_goal.target_pose = pose
+		#print client_goal
+		self.client.send_goal(client_goal)
+		ah.error_code = 0 # full success
+		ah.client = self.client
+
+		if blocking:
+			ah.wait()
+		else:
+			rospy.logdebug("actionlib client not waiting for result, continuing...")
+		
+		return ah
+
+	def MoveTraj(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
 		ah.parameter_name = parameter_name
