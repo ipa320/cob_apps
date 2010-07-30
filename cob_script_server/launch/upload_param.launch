@@ -8,5 +8,6 @@
 	<rosparam command="load" ns="arm" file="$(find cob_script_server)/launch/arm.yaml"/>
 	<rosparam command="load" ns="sdh" file="$(find cob_script_server)/launch/sdh.yaml"/>
 	<rosparam command="load" ns="light" file="$(find cob_script_server)/launch/light.yaml"/>
+	<rosparam command="load" ns="sound" file="$(find cob_script_server)/launch/sound.yaml"/>
 
 </launch>

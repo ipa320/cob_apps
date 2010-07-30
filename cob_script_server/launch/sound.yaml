@@ -1,0 +1,5 @@
+mode: FEST_EN
+wav_de_path: ~/
+
+sentence1: "Hello, my name is Care-O-bot"
+speech_en/sentence1: "Hello, my name is Care-O-bot"

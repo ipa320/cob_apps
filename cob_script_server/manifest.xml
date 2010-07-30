@@ -20,5 +20,6 @@
   <depend package="geometry_msgs"/>
   <depend package="pr2_controllers_msgs"/>
   <depend package="move_base_msgs"/>
+  <depend package="sound_play"/>
 
 </package>

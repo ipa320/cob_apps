@@ -23,6 +23,8 @@ class GetDrink:
 	def run(self): 
 		
 		print "start"
+		self.sss.Speak("sentence1","WAV_DE")
+		self.sss.Speak("sentence1","FEST_EN")
 		
 		# init poses
 		self.sss.Move("base","pos1",False)
