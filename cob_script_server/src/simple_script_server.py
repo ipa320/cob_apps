@@ -198,7 +198,7 @@ class simple_script_server:
 
 
 #-------------------- Sound section --------------------#
-	def Speak(self,parameter_name,mode="DEFAULT")
+	def Speak(self,parameter_name,mode="DEFAULT"):
 		""" Speak sound specified by 'parameter_name' either via TTS or by playing a WAV-File
 		Possible modes are:
 			DEFAULT - use mode set by a global parameter (default)
@@ -220,7 +220,7 @@ class simple_script_server:
 			mode = rospy.get_param(self.ns_global_prefix + "/sound/speech_mode")
 		
 		# play sound depending on the mode that was chosen
-		elif mode == "WAV_DE":
+		if mode == "WAV_DE":
 			rospy.loginfo("Playing German WAV file %s",param_name)
 			
 			# get path for German WAV files
@@ -250,60 +250,96 @@ class simple_script_server:
 			
 		elif mode == "FEST_EN":
 			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_en/"+parameter_name)
+			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_en/"+parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 				ah.error_code = 2
 				return ah 
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-			if not type(text_string) == str:
-				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
-				ah.error_code = 3
-				return ah
-			rospy.loginfo("Using English Festival Voice for speaking '%s'",text_string)
 			
 			# send text string to TTS system
-			soundhandle.say(text_string)
-			return 0
+			return Speak_Str(text_string,mode)
 	
-		elif mode == "CEPS_EN"):
+		elif mode == "CEPS_EN":
 			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_en/"+parameter_name)
+			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_en/"+parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 				ah.error_code = 2
 				return ah 
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-			if not type(text_string) == str:
-				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
-				ah.error_code = 3
-				return ah
-			rospy.loginfo("Using English Cepstral Voice David for speaking '%s'",text_string)
 			
 			# send text string to TTS system
-			returnVal = os.system("swift -n \"Matthias\" -e \"utf-8\" \"" + str + "\"")
-			return 0
+			return Speak_Str(text_string,mode)
 
-		elif mode == "CEPS_DE"):
+		elif mode == "CEPS_DE":
 			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_de/"+parameter_name)
+			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_de/"+parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
 				ah.error_code = 2
 				return ah 
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
-			if not type(text_string) == str:
-				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
-				ah.error_code = 3
-				return ah
-			rospy.loginfo("Using German Cepstral Voice Matthias for speaking '%s'",text_string)
 			
 			# send text string to TTS system
-			returnVal = os.system("swift -n \"Matthias\"-e \"utf-8\" \"" + str + "\"")
-			return 0
+			return Speak_Str(text_string,mode)
 
 		elif mode == "MUTE":
 			rospy.loginfo("Playing sound %s",param_name)
+			return 0
 
 		else:
 			rospy.lorerr("ROS has no sound mode %s!",mode)
+			ah.error_code = 2
+			return ah
+
+	def Speak_Str(self,text,mode):
+		""" Speak the string 'text' via the TTS system specified by mode
+		Possible modes are:
+			FEST_EN	- use Text-to-speech with the English Festival voice
+			CEPS_EN	- use Text-to-speech with the English Cepstral voice David
+			CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
+			MUTE	- play no sound at all
+		"""
+
+		# play sound depending on the mode that was chosen
+		if mode == "FEST_EN":
+			if not type(text) == str:
+				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
+				ah.error_code = 3
+				return ah
+			rospy.loginfo("Using English Festival Voice for speaking '%s'",text)
+		
+			# send text string to TTS system
+			soundhandle.say(text)
+			return 0
+
+		elif mode == "CEPS_EN":
+			if not type(text) == str:
+				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
+				ah.error_code = 3
+				return ah
+			rospy.loginfo("Using English Cepstral Voice David for speaking '%s'",text)
+		
+			# send text string to TTS system
+			returnVal = os.system("swift -n \"David\" -e \"utf-8\" \"" + str + "\"")
+			if returnVal != 0:
+				rospy.logerror("Calling Cepstral TTS system returned failure. Check if Cepstral voice \"David\" is set up properly!")
+				ah.error_code = 4
+				return ah
+			return returnVal
+
+		elif mode == "CEPS_DE":
+			if not type(text) == str:
+				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
+				ah.error_code = 3
+				return ah
+			rospy.loginfo("Using German Cepstral Voice Matthias for speaking '%s'",text)
+		
+			# send text string to TTS system
+			returnVal = os.system("swift -n \"Matthias\" -e \"utf-8\" \"" + str + "\"")
+			if returnVal != 0:
+				rospy.logerror("Calling Cepstral TTS system returned failure. Check if Cepstral voice \"Matthias\" is set up properly!")
+				ah.error_code = 4
+				return ah
+			return returnVal
 
 #------------------- General section -------------------#
 	def sleep(self,duration):
