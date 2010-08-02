@@ -251,10 +251,10 @@ class simple_script_server:
 			req.goal_pose.pose.position.y = position[1]
 			req.goal_pose.pose.position.z = position[2]
 			q = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
-			req.goal_pose.pose.orientation.x = 0 #q[0] TODO: adding quaternions makes no sense
-			req.goal_pose.pose.orientation.y = 0 #q[1]
-			req.goal_pose.pose.orientation.z = 0 #q[2]
-			req.goal_pose.pose.orientation.w = 0 #q[3]
+			req.goal_pose.pose.orientation.x = q[0]
+			req.goal_pose.pose.orientation.y = q[1]
+			req.goal_pose.pose.orientation.z = q[2]
+			req.goal_pose.pose.orientation.w = q[3]
 			print req
 			print move_cart(req)
 		except rospy.ServiceException, e:
