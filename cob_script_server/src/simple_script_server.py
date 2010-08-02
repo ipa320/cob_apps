@@ -40,24 +40,6 @@ class simple_script_server:
 		return True
 
 #------------------- Move section -------------------#
-	def MoveCartRel(self,component_name):
-		service_name = component_name + "_controller/move_cart_rel"
-		try:
-			rospy.wait_for_service(service_name,rospy.get_param('server_timeout',1))
-		except rospy.ROSException, e:
-			print "Service not available: %s"%e
-			return False
-		try:
-			move_cart = rospy.ServiceProxy(service_name,MoveCart)
-			pose = MoveCartRequest()
-			pose.goal_pose.pose.position.z = 0.3
-			
-			print move_cart(pose)
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			return False
-		return True
-
 	def Move(self,component_name,parameter_name,blocking=True):
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		if component_name == "base":
@@ -253,6 +235,32 @@ class simple_script_server:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
 		
 		return ah
+		
+	def MoveCartRel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
+		service_name = component_name + "_controller/move_cart_rel"
+		try:
+			rospy.wait_for_service(service_name,rospy.get_param('server_timeout',1))
+		except rospy.ROSException, e:
+			print "Service not available: %s"%e
+			return False
+		try:
+			move_cart = rospy.ServiceProxy(service_name,MoveCart)
+			req = MoveCartRequest()
+			req.goal_pose.header.stamp = rospy.Time.now() 	
+			req.goal_pose.pose.position.x = position[0]
+			req.goal_pose.pose.position.y = position[1]
+			req.goal_pose.pose.position.z = position[2]
+			q = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
+			req.goal_pose.pose.orientation.x = 0 #q[0] TODO: adding quaternions makes no sense
+			req.goal_pose.pose.orientation.y = 0 #q[1]
+			req.goal_pose.pose.orientation.z = 0 #q[2]
+			req.goal_pose.pose.orientation.w = 0 #q[3]
+			print req
+			print move_cart(req)
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			return False
+		return True
 			
 #------------------- LED section -------------------#
 	def SetLight(self,parameter_name):
