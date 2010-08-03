@@ -25,41 +25,48 @@ class GetDrink:
 		print "start"
 		
 		# init poses
-		self.sss.Move("base","pos1",False)
 		self.sss.Move("tray","down",False)
 		self.sss.Move("torso","home",False)
 		self.sss.Move("sdh","home",False)
 		self.sss.Move("arm","folded")
+#		self.sss.Move("base","home")
 
 		#test
-		self.sss.Move("arm","pregrasp")
-		self.sss.MoveCartRel("arm", [0.0, 0.0, 0.1], [0.0, 0.0, 0.0])
-
+#		self.sss.Move("arm","pregrasp")
+#		self.sss.MoveCartRel("arm", [0.0, 0.0, 0.0], [0.0, 0.0, 90.0/180.0*3.1415926])
 #		self.sss.Speak("sentence1","WAV_DE")
 #		self.sss.Speak("sentence1","FEST_EN")
 
 		#grasp
-		self.sss.Move("base","pos2",False)
+#		self.sss.Move("base","kitchen")
 		handle01 = self.sss.Move("arm","pregrasp",False)
 		self.sss.Move("sdh","cylopen")
 		handle01.wait()
-		self.sss.Move("arm","grasp")
+		#self.sss.Move("arm","grasp")
+		self.sss.MoveCartRel("arm", [-0.2, 0.0, 0.0], [0.0, 0.0, 0.0])
 		self.sss.Move("sdh","cylclosed")
 
 		#place on tablet
-		self.sss.Move("base","pos3",False)
-		handle02 = self.sss.Move("arm","grasp-to-tablet",False)
+		handle01 = self.sss.Move("arm","grasp-to-tablet",False)
 		self.sss.Move("tray","up",False)
-		handle02.wait()
-		print handle02.get_error_code()
+		handle01.wait()
+#		print handle01.get_error_code()
 		self.sss.Move("sdh","cylopen")
 		
 		#move back to save poses
-		self.sss.Move("base","pos4",False)
 		handle03 = self.sss.Move("arm","tablet-to-folded",False)
-		self.sss.sleep(5.23)
+		self.sss.sleep(3)
 		self.sss.Move("sdh","home",False)
 		handle03.wait()
+		
+		#deliver
+#		self.sss.Move("base","order")
+		self.sss.Move("torso","nod")
+		self.sss.sleep(3)
+		
+		#drive back to home
+		self.sss.Move("tray","down",False)
+#		self.sss.Move("base","home")
 		
 		print "finished"
 		

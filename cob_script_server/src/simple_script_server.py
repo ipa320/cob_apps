@@ -125,6 +125,7 @@ class simple_script_server:
 		ah.client = self.client
 
 		if blocking:
+			rospy.logdebug("actionlib client waiting for result...")
 			ah.wait()
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
@@ -230,6 +231,7 @@ class simple_script_server:
 		ah.client = self.client
 
 		if blocking:
+			rospy.logdebug("actionlib client waiting for result...")
 			ah.wait()
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
@@ -255,8 +257,8 @@ class simple_script_server:
 			req.goal_pose.pose.orientation.y = q[1]
 			req.goal_pose.pose.orientation.z = q[2]
 			req.goal_pose.pose.orientation.w = q[3]
-			print req
-			print move_cart(req)
+			#print req
+			move_cart(req)
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
 			return False
