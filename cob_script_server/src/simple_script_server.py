@@ -24,7 +24,8 @@ class simple_script_server:
 
 #------------------- Init section -------------------#
 	def Init(self,component_name):
-		rospy.loginfo("Waiting for %s_controller init...", component_name)
+		rospy.loginfo("Initialize <<%s>>", component_name)
+		rospy.loginfo("Waiting for <<%s>> to be initialized...", component_name)
 		service_name = component_name + "_controller/Init"
 		try:
 			rospy.wait_for_service(service_name,rospy.get_param('server_timeout',1))
@@ -33,10 +34,12 @@ class simple_script_server:
 			return False
 		try:
 			init = rospy.ServiceProxy(service_name,Trigger)
-			print init()
+			#print init()
+			init()
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
 			return False
+		rospy.loginfo("...<<%s>> is initialized", component_name)
 		return True
 
 #------------------- Move section -------------------#
