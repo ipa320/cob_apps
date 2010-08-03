@@ -4,6 +4,7 @@ import time
 
 import roslib
 roslib.load_manifest('cob_script_server')
+roslib.load_manifest('sound_play')
 import rospy
 import actionlib
 from cob_msgs.msg import *
@@ -16,11 +17,11 @@ from move_base_msgs.msg import *
 from tf.transformations import *
 from sound_play.libsoundplay import SoundClient
 
+
 class simple_script_server:
 	def __init__(self):
 		self.ns_global_prefix = "/script_server"
-		time.sleep(1)
-		self.soundhandle = SoundClient()
+		soundhandle = SoundClient()
 
 #------------------- Init section -------------------#
 	def Init(self,component_name):
@@ -42,96 +43,6 @@ class simple_script_server:
 #------------------- Move section -------------------#
 	def Move(self,component_name,parameter_name,blocking=True):
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
-		if component_name == "base":
-			return self.MoveBase(component_name,parameter_name,blocking)
-		else:
-			return self.MoveTraj(component_name,parameter_name,blocking)
-
-	def MoveBase(self,component_name,parameter_name,blocking):
-		ah = action_handle()
-		ah.component_name = component_name
-		ah.parameter_name = parameter_name
-		
-		# get joint values from parameter server
-		if type(parameter_name) is str:
-			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
-				ah.error_code = 2
-				return ah
-			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
-		else:
-			param = parameter_name
-		
-		# check trajectory parameters
-		if not type(param) is list: # check outer list
-				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
-				print "parameter is:",param
-				ah.error_code = 3
-				return ah
-		else:
-			#print i,"type1 = ", type(i)
-			DOF = 3
-			if not len(param) == DOF: # check dimension
-				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,DOF,len(param))
-				print "parameter is:",param
-				ah.error_code = 3
-				return ah
-			else:
-				for i in param:
-					#print i,"type2 = ", type(i)
-					if not ((type(i) is float) or (type(i) is int)): # check type
-						print type(i)
-						rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
-						print "parameter is:",param
-						ah.error_code = 3
-						return ah
-					else:
-						rospy.logdebug("accepted parameter %f for %s",i,component_name)
-
-		# convert to pose message
-		pose = PoseStamped()
-		pose.header.stamp = rospy.Time.now()
-		pose.header.frame_id = "/map"
-		pose.pose.position.x = param[0]
-		pose.pose.position.y = param[1]
-		pose.pose.position.z = 0.0
-		q = quaternion_from_euler(0, 0, param[2])
-		pose.pose.orientation.x = q[0]
-		pose.pose.orientation.y = q[1]
-		pose.pose.orientation.z = q[2]
-		pose.pose.orientation.w = q[3]
-		
-		# call action server
-		action_server_name = "move_base"
-		rospy.logdebug("calling %s action server",action_server_name)
-		self.client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
-		# trying to connect to server
-		rospy.logdebug("waiting for %s action server to start",action_server_name)
-		if not self.client.wait_for_server(rospy.Duration(5)):
-			# error: server did not respond
-			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
-			ah.error_code = 4
-			return ah
-		else:
-			rospy.logdebug("%s action server ready",action_server_name)
-
-		# sending goal
-		self.check_pause()
-		client_goal = MoveBaseGoal()
-		client_goal.target_pose = pose
-		#print client_goal
-		self.client.send_goal(client_goal)
-		ah.error_code = 0 # full success
-		ah.client = self.client
-
-		if blocking:
-			ah.wait()
-		else:
-			rospy.logdebug("actionlib client not waiting for result, continuing...")
-		
-		return ah
-
-	def MoveTraj(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
 		ah.parameter_name = parameter_name
@@ -235,32 +146,6 @@ class simple_script_server:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
 		
 		return ah
-		
-	def MoveCartRel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
-		service_name = component_name + "_controller/move_cart_rel"
-		try:
-			rospy.wait_for_service(service_name,rospy.get_param('server_timeout',1))
-		except rospy.ROSException, e:
-			print "Service not available: %s"%e
-			return False
-		try:
-			move_cart = rospy.ServiceProxy(service_name,MoveCart)
-			req = MoveCartRequest()
-			req.goal_pose.header.stamp = rospy.Time.now() 	
-			req.goal_pose.pose.position.x = position[0]
-			req.goal_pose.pose.position.y = position[1]
-			req.goal_pose.pose.position.z = position[2]
-			q = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
-			req.goal_pose.pose.orientation.x = 0 #q[0] TODO: adding quaternions makes no sense
-			req.goal_pose.pose.orientation.y = 0 #q[1]
-			req.goal_pose.pose.orientation.z = 0 #q[2]
-			req.goal_pose.pose.orientation.w = 0 #q[3]
-			print req
-			print move_cart(req)
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			return False
-		return True
 			
 #------------------- LED section -------------------#
 	def SetLight(self,parameter_name):
@@ -327,23 +212,24 @@ class simple_script_server:
 			CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
 			MUTE	- play no sound at all
 		"""
+		rospy.loginfo("Speak <<%s>> in mode <<%s>>",parameter_name,mode)
 		ah = action_handle()
 		ah.parameter_name = parameter_name
 		
 		# get mode from global parameter if necessary
 		if mode == "DEFAULT":
-			if not rospy.has_param(self.ns_global_prefix + "/sound/mode"):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/mode")
+			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_mode"):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_mode")
 				ah.error_code = 2
 				return ah
-			mode = rospy.get_param(self.ns_global_prefix + "/sound/mode")
+			mode = rospy.get_param(self.ns_global_prefix + "/sound/speech_mode")
 		
 		# play sound depending on the mode that was chosen
-		elif mode == "WAV_DE":
-			rospy.loginfo("Playing German WAV file %s",parameter_name)
+		if mode == "WAV_DE":
+			rospy.loginfo("Playing German WAV file %s",param_name)
 			
 			# get path for German WAV files
-			if not rospy.has_param(self.ns_global_prefix + "/sound/wav_de_path"):
+			if not rospy.has_param(self.ns_global_prefex + "/sound/wav_de_path"):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/wav_de_path")
 				ah.error_code = 2
 				return ah
@@ -355,10 +241,10 @@ class simple_script_server:
 			return ah 
 			
 		elif mode == "WAV_EN":
-			rospy.loginfo("Playing English WAV file %s",parameter_name)
+			rospy.loginfo("Playing English WAV file %s",param_name)
 			
 			# get path for English WAV files
-			if not rospy.has_param(self.ns_global_prefix + "/sound/wav_en_path"):
+			if not rospy.has_param(self.ns_global_prefex + "/sound/wav_en_path"):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/wav_en_path")
 				ah.error_code = 2
 				return ah
@@ -371,7 +257,7 @@ class simple_script_server:
 			
 		elif mode == "FEST_EN":
 			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name):
+			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_en/"+parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 				ah.error_code = 2
 				return ah 
@@ -389,7 +275,7 @@ class simple_script_server:
 	
 		elif mode == "CEPS_EN":
 			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name):
+			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_en/"+parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 				ah.error_code = 2
 				return ah 
@@ -401,13 +287,11 @@ class simple_script_server:
 			rospy.loginfo("Using English Cepstral Voice David for speaking '%s'",text_string)
 			
 			# send text string to TTS system
-			returnVal = os.system("swift -n \"David\" -e \"utf-8\" \"" + str + "\"")
-			ah.error_code = 0
-			return ah 
+			return Speak_Str(text_string,mode)
 
 		elif mode == "CEPS_DE":
 			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_de/"+parameter_name):
+			if not rospy.has_param(self.ns_global_prefex + "/sound/speech_de/"+parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
 				ah.error_code = 2
 				return ah 
@@ -419,18 +303,67 @@ class simple_script_server:
 			rospy.loginfo("Using German Cepstral Voice Matthias for speaking '%s'",text_string)
 			
 			# send text string to TTS system
-			returnVal = os.system("swift -n \"Matthias\"-e \"utf-8\" \"" + str + "\"")
-			ah.error_code = 0
-			return ah 
+			return Speak_Str(text_string,mode)
 
 		elif mode == "MUTE":
-			rospy.loginfo("Playing sound %s",parameter_name)
+			rospy.loginfo("Playing sound %s",param_name)
+			return 0
 
 		else:
-			rospy.logerr("ROS has no sound mode %s!",mode)
+			rospy.lorerr("ROS has no sound mode %s!",mode)
+			ah.error_code = 2
 			return ah
-			
-		rospy.loginfo("Speak <<%s>> in mode <<%s>>",parameter_name,mode)
+
+	def Speak_Str(self,text,mode):
+		""" Speak the string 'text' via the TTS system specified by mode
+		Possible modes are:
+			FEST_EN	- use Text-to-speech with the English Festival voice
+			CEPS_EN	- use Text-to-speech with the English Cepstral voice David
+			CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
+			MUTE	- play no sound at all
+		"""
+
+		# play sound depending on the mode that was chosen
+		if mode == "FEST_EN":
+			if not type(text) == str:
+				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
+				ah.error_code = 3
+				return ah
+			rospy.loginfo("Using English Festival Voice for speaking '%s'",text)
+		
+			# send text string to TTS system
+			soundhandle.say(text)
+			return 0
+
+		elif mode == "CEPS_EN":
+			if not type(text) == str:
+				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
+				ah.error_code = 3
+				return ah
+			rospy.loginfo("Using English Cepstral Voice David for speaking '%s'",text)
+		
+			# send text string to TTS system
+			returnVal = os.system("swift -n \"David\" -e \"utf-8\" \"" + str + "\"")
+			if returnVal != 0:
+				rospy.logerror("Calling Cepstral TTS system returned failure. Check if Cepstral voice \"David\" is set up properly!")
+				ah.error_code = 4
+				return ah
+			return returnVal
+
+		elif mode == "CEPS_DE":
+			if not type(text) == str:
+				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
+				ah.error_code = 3
+				return ah
+			rospy.loginfo("Using German Cepstral Voice Matthias for speaking '%s'",text)
+		
+			# send text string to TTS system
+			returnVal = os.system("swift -n \"Matthias\" -e \"utf-8\" \"" + str + "\"")
+			if returnVal != 0:
+				rospy.logerror("Calling Cepstral TTS system returned failure. Check if Cepstral voice \"Matthias\" is set up properly!")
+				ah.error_code = 4
+				return ah
+			return returnVal
 
 #------------------- General section -------------------#
 	def sleep(self,duration):
