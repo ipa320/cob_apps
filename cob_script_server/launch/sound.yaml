@@ -1,5 +1,8 @@
-mode: FEST_EN
-wav_de_path: ~/
+speech_mode: FEST_EN
+wav_de_path: /home/taj/wav_de/
+wav_en_path: /home/taj/wav_en/
+temp_wav_file: /home/taj/wav_de/swift_temp.wav
 
-sentence1: "Hello, my name is Care-O-bot"
 speech_en/sentence1: "Hello, my name is Care-O-bot"
+speech_de/sentence1: "Hallo, mein Name ist Care-O-bot"
+
