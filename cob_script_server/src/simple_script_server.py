@@ -336,7 +336,7 @@ class simple_script_server:
 			CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
 			MUTE	- play no sound at all
 		"""
-		rospy.loginfo("Speak <<%s>> in mode <<%s>>",parameter_name,mode)
+		rospy.logdebug("Speak <<%s>> in mode <<%s>>",parameter_name,mode)
 		ah = action_handle()
 		ah.parameter_name = parameter_name
 		
@@ -353,7 +353,7 @@ class simple_script_server:
 			rospy.loginfo("Playing German WAV file %s",parameter_name)
 			
 			# get path for German WAV files
-			if not rospy.has_param(self.ns_global_prefex + "/sound/wav_de_path"):
+			if not rospy.has_param(self.ns_global_prefix + "/sound/wav_de_path"):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/wav_de_path")
 				ah.error_code = 2
 				return ah
@@ -377,10 +377,10 @@ class simple_script_server:
 			return ah 
 			
 		elif mode == "WAV_EN":
-			rospy.loginfo("Playing English WAV file %s",param_name)
+			rospy.loginfo("Playing English WAV file %s",parameter_name)
 			
 			# get path for English WAV files
-			if not rospy.has_param(self.ns_global_prefex + "/sound/wav_en_path"):
+			if not rospy.has_param(self.ns_global_prefix + "/sound/wav_en_path"):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/wav_en_path")
 				ah.error_code = 2
 				return ah
@@ -410,11 +410,6 @@ class simple_script_server:
 				ah.error_code = 2
 				return ah 
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-			if not type(text_string) == str:
-				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
-				ah.error_code = 3
-				return ah
-			rospy.loginfo("Using English Festival Voice for speaking '%s'",text_string)
 			
 			# send text string to TTS system
 			ah.error_code = self.Speak_Str(text_string,mode)
@@ -427,11 +422,6 @@ class simple_script_server:
 				ah.error_code = 2
 				return ah 
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-			if not type(text_string) == str:
-				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
-				ah.error_code = 3
-				return ah
-			rospy.loginfo("Using English Cepstral Voice David for speaking '%s'",text_string)
 			
 			# send text string to TTS system
 			ah.error_code = self.Speak_Str(text_string,mode)
@@ -444,11 +434,6 @@ class simple_script_server:
 				ah.error_code = 2
 				return ah 
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
-			if not type(text_string) == str:
-				rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
-				ah.error_code = 3
-				return ah
-			rospy.loginfo("Using German Cepstral Voice Matthias for speaking '%s'",text_string)
 			
 			# send text string to TTS system
 			ah.error_code = self.Speak_Str(text_string,mode)

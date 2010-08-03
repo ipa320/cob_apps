@@ -1,4 +1,4 @@
-mode: FEST_EN
+speech_mode: FEST_EN
 wav_de_path: /home/taj/wav_de/
 wav_en_path: /home/taj/wav_en/
 temp_wav_file: /home/taj/wav_de/swift_temp.wav
