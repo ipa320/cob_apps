@@ -22,73 +22,44 @@ class GetDrink:
 		
 	def run(self): 
 		
-		rospy.loginfo("Testing Sound modes...")
-		for i in range(1):
-			rospy.loginfo("Speaking with default mode")
-			self.sss.Speak("sentence1")
-
-			rospy.loginfo("Speaking Cepstral English")
-			self.sss.Speak("sentence1","CEPS_EN")
-
-			rospy.loginfo("Speaking Cepstral German")
-			self.sss.Speak("sentence1","CEPS_DE")
-
-			rospy.loginfo("Speaking WAV German")
-			self.sss.Speak("sentence1","WAV_DE")
-
-			rospy.loginfo("Speaking WAV English")
-			self.sss.Speak("sentence1","WAV_EN")
-
-			rospy.loginfo("Speaking Festival English")
-			self.sss.Speak("sentence1","FEST_EN")
-
-			rospy.loginfo("Setting sound to 'mute'")
-			self.sss.Speak("sentence1","MUTE")
-
-			rospy.loginfo("Selecting invalid mode")
-			self.sss.Speak("sentence1","BLOBB")
-
-			time.sleep(2)
-			rospy.loginfo("\n\n")
-
-		#for i in range(10):
-		#	print "start"
-		#	self.sss.Speak_Str("Festival Englisch","FEST_EN")
-		#	time.sleep(0.5)
-		#	self.sss.Speak_Str("Cepstral Deutsch","CEPS_DE")
-		#	time.sleep(0.5)
-		#	self.sss.Speak_Str("Cepstral Englisch","CEPS_EN")
-		#	time.sleep(3)
-		
+		print "start"
 		
 		# init poses
-#		self.sss.Move("base","pos1",False)
-#		self.sss.Move("tray","down",False)
-#		self.sss.Move("sdh","home",False)
-#		self.sss.Move("arm","folded")
+		self.sss.Move("base","pos1",False)
+		self.sss.Move("tray","down",False)
+		self.sss.Move("torso","home",False)
+		self.sss.Move("sdh","home",False)
+		self.sss.Move("arm","folded")
+
+		#test
+		self.sss.Move("arm","pregrasp")
+		self.sss.MoveCartRel("arm", [0.0, 0.0, 0.1], [0.0, 0.0, 0.0])
+
+#		self.sss.Speak("sentence1","WAV_DE")
+#		self.sss.Speak("sentence1","FEST_EN")
 
 		#grasp
-#		self.sss.Move("base","pos2",False)
-#		handle01 = self.sss.Move("arm","pregrasp",False)
-#		self.sss.Move("sdh","cylopen")
-#		handle01.wait()
-#		self.sss.Move("arm","grasp")
-#		self.sss.Move("sdh","cylclosed")
+		self.sss.Move("base","pos2",False)
+		handle01 = self.sss.Move("arm","pregrasp",False)
+		self.sss.Move("sdh","cylopen")
+		handle01.wait()
+		self.sss.Move("arm","grasp")
+		self.sss.Move("sdh","cylclosed")
 
 		#place on tablet
-#		self.sss.Move("base","pos3",False)
-#		handle02 = self.sss.Move("arm","grasp-to-tablet",False)
-#		self.sss.Move("tray","up",False)
-#		handle02.wait()
-#		print handle02.get_error_code()
-#		self.sss.Move("sdh","cylopen")
+		self.sss.Move("base","pos3",False)
+		handle02 = self.sss.Move("arm","grasp-to-tablet",False)
+		self.sss.Move("tray","up",False)
+		handle02.wait()
+		print handle02.get_error_code()
+		self.sss.Move("sdh","cylopen")
 		
 		#move back to save poses
-#		self.sss.Move("base","pos4",False)
-#		handle03 = self.sss.Move("arm","tablet-to-folded",False)
-#		self.sss.sleep(5.23)
-#		self.sss.Move("sdh","home",False)
-#		handle03.wait()
+		self.sss.Move("base","pos4",False)
+		handle03 = self.sss.Move("arm","tablet-to-folded",False)
+		self.sss.sleep(5.23)
+		self.sss.Move("sdh","home",False)
+		handle03.wait()
 		
 		print "finished"
 		
