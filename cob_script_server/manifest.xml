@@ -17,6 +17,9 @@
   <depend package="cob_actions"/>
   <depend package="cob_goco"/>
   <depend package="trajectory_msgs"/>
+  <depend package="geometry_msgs"/>
   <depend package="pr2_controllers_msgs"/>
+  <depend package="move_base_msgs"/>
+  <depend package="sound_play"/>
 
 </package>

@@ -1,10 +1,17 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- send parameters to parameter server -->
-  <rosparam command="load" ns="script_server" file="$(find cob_script_server)/launch/script_server.yaml"/>
+	<group ns="script_server">
 
-  <!-- start powercube_chain -->
-  <node pkg="cob_script_server" type="script_server.py" ns="script_server" name="script_server" cwd="node" respawn="false" output="screen" />
+		<!-- upload parameters to parameter server -->
+		<include file="$(find cob_script_server)/launch/upload_param.launch"/>
+		<param name="pause" value="false" type="bool" />
+
+		<!-- start script_server -->
+		<node pkg="cob_script_server" type="script_server.py" name="script_server" cwd="node" respawn="false" output="screen" />
+	</group>
+
+	<!-- start soundplay server -->
+	<!--node pkg="sound_play" type="soundplay_node.py" name="sound_play" cwd="node" respawn="false" output="screen" /-->
 
 </launch>
