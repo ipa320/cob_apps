@@ -1,8 +1,39 @@
-speech_mode: FEST_EN
-wav_de_path: /home/taj/wav_de/
-wav_en_path: /home/taj/wav_en/
-temp_wav_file: /home/taj/wav_de/swift_temp.wav
+speech_mode: WAV_DE
+wav_de_path: /home/cob/svn/cob/Files/Audio/WiMi/
+wav_en_path: /home/cob/svn/cob/Files/Audio/WiMi/
+temp_wav_file: /home/fmw/wav/swift_temp.wav
 
-speech_en/sentence1: "Hello, my name is Care-O-bot"
-speech_de/sentence1: "Hallo, mein Name ist Care-O-bot"
+rand/introduce: ["Sent01","Sent02","Sent03"]
+rand/offer: ["Sent04","Sent05","Sent06","Sent07","Sent08","Sent09"]
+rand/taken: ["Sent10","Sent11","Sent12","Sent13"]
+rand/pathblocked: ["Sent14","Sent15","Sent16","Sent17","Sent18"]
+rand/load: ["Sent21","Sent22","Sent23","Sent24"]
+rand/enterRoom: ["Sent25","Sent26"]
+speech_de/Sent00: "Hallo, ich bin CareObot 3."
+speech_de/Sent01: "In dieser Woche biete ich hier Getränke an."
+speech_de/Sent02: "Ich habe die Aufgabe, Sie mit Getränken zu versorgen."
+speech_de/Sent03: "In dieser Woche unterstütze ich die Pflegekräfte bei Ihrer Arbeit."
+speech_de/Sent04: "Hallo. Darf ich jemandem etwas zu Trinken anbieten?"
+speech_de/Sent05: "Hallo. Möchte jemand einen Becher Wasser? Bitte greifen Sie zu!"
+speech_de/Sent06: "Hallo. Kann ich Ihnen etwas zu Trinken anbieten?"
+speech_de/Sent07: "Da bin ich wieder. Und ich habe etwas zu Trinken dabei. Sie können es einfach von meinem Tablett herunternehmen."
+speech_de/Sent08: "Ich habe hier einen Becher Wasser. Wenn Sie ihn haben möchten nehmen Sie ihn einfach von meinem Tablett."
+speech_de/Sent09: "Darf ich Ihnen etwas Wasser anbieten? Bitte greifen Sie zu!"
+speech_de/Sent10: "Danke, dass Sie mir etwas abgenommen haben."
+speech_de/Sent11: "Bittesehr."
+speech_de/Sent12: "Nett, dass Sie etwas genommen haben!"
+speech_de/Sent13: "Bitteschön!"
+speech_de/Sent14: "Entschuldingung. Dürfte ich mal vorbei?"
+speech_de/Sent15: "Entschuldigen Sie, ich muss hier durch!"
+speech_de/Sent16: "Könnten Sie wohl einen Schritt zur Seite treten? Ich muss hier durch!"
+speech_de/Sent17: "Hallo! Könnten Sie mich bitte vorbeilassen?"
+speech_de/Sent18: "Tut mir leid, Sie zu stören. Dürfte ich mal vorbei?"
+speech_de/Sent19: "Ich kann nicht losfahren. Mein Weg ist blockiert."
+speech_de/Sent20: "Ich geb's auf!"
+speech_de/Sent21: "Bitte stellen Sie ein Getränk auf mein Tablett."
+speech_de/Sent22: "Sellen Sie jetzt ein Getränk auf mein Tablett."
+speech_de/Sent23: "Ich kann das Getränk nun entgegennehmen."
+speech_de/Sent24: "Ich bin bereit"
+speech_de/Sent25: "Hallo"
+speech_de/Sent26: "Da bin ich wieder."
 

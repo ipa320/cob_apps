@@ -18,7 +18,7 @@ class GetDrink:
 		self.sss.Init("arm")
 		self.sss.Init("sdh")
 
-	def Initialize(self):
+	def initialize(self):
 		# Move all components to starting positions
 		self.sss.Move("tray","down",False)
 		self.sss.Move("sdh","home",False)
@@ -27,8 +27,7 @@ class GetDrink:
 		self.sss.SetLight("green")
 		
 		
-	def run(self): 
-		
+	def grasp_from_cooler(self): 
 		rospy.loginfo("Grasping water from cooler...")
 
 		# start grasping, assuming that Care-O-bot stands right in front of the water cooler
@@ -37,7 +36,7 @@ class GetDrink:
 		handle01.wait()
 
 		# lay finger on cooler button and get water
-		self.sss.Move("arm","coolerbuttonup")
+		self.sss.Move("arm","coolerbutton")
 		self.sss.Move("sdh","coolerbuttondown")
 		self.sss.sleep(5)
 		self.sss.Move("sdh","coolerbuttonup")
@@ -62,8 +61,70 @@ class GetDrink:
 
 		# draw hand back and fold arm
 		self.sss.Move("arm","tablet-to-folded")
+		return 0
+	
+	def drive_to_cooler(self):
+		rospy.loginfo("Driving to water cooler ...")
+
+		# get watercooler position from parameters
+		position_param = "script_sever/base/watercooler"
+		if not rospy.has_param(position_param):
+			rospy.lorerr("parameter %s does not exist on ROS Parameter Server, aborting...",position_param)
+			return -2
+		else:
+			position = rospy.get_param(position_param)
+			handle01 = self.sss.Move("torso","back",False)
+			self.util.movePlatformiWait(position)
+			handle01.wait()
+		return 0
+
+	def deliver_drink
+		rospy.loginfo("Delivering drink ...")
 		
+		# drive to delivery position at the table
+		position_param = "script_sever/base/table"
+		if not rospy.has_param(position_param):
+			rospy.lorerr("parameter %s does not exist on ROS Parameter Server, aborting...",position_param)
+			return -2
+		else:
+			position = rospy.get_param(position_param)
+			handle01 = self.sss.Move("torso","front",False)
+			self.util.movePlatformiWait(position)
+			handle01.wait()
+
+		# offer drink
+		handle01 = self.sss.Move("torso","left",False)
+		### Speak
+		handle01.wait()
+		self.sss.Move("torso","right")
+		self.sss.Move("torso","front")
 		
+		# check if drink has been taken and thank user
+		taken_param = "/deliver_drink/drink_has_been_taken"
+		if not rospy.has_param(taken_param):
+			rospy.lorerr("parameter %s does not exist on ROS Parameter Server, aborting...",taken_param)
+			return -2
+		else:
+			for timeout in range(0,10)
+				if rospy.get_param(taken_param):
+					handle01 = self.sss.Move("torso","bow",False)
+					### Speak
+					handle01.wait()
+				self.sss.Sleep(0.5)
+				
+		# back away and fold tablet if possible
+		position_param = "script_sever/base/backaway"
+		if not rospy.has_param(position_param):
+			rospy.lorerr("parameter %s does not exist on ROS Parameter Server, aborting...",position_param)
+			return -2
+		else:
+			position = rospy.get_param(position_param)
+			self.util.movePlatformiWait(position)
+		if rospy.get_param(taken_param):
+			self.sss.Move("tablet","down",False)
+		return 0
+		
+
 if __name__ == "__main__":
 	SCRIPT = GetDrink()
 	SCRIPT.Initialize()

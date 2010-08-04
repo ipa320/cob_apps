@@ -72,5 +72,5 @@ class GetDrink:
 		
 if __name__ == "__main__":
 	SCRIPT = GetDrink()
-	#SCRIPT.Initialize()
+	SCRIPT.Initialize()
 	SCRIPT.run()
