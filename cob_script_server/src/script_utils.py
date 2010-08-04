@@ -13,7 +13,7 @@ class script_utils:
 		self.sss.Move("arm","folded")
 		
 	def MoveLED(self, component_name, parameter_name):
-		self.SetLight("red")
+		self.SetLight("yellow")
 		return_value = self.Move(component_name, parameter_name)
 		self.SetLight("green")
 		return return_value
