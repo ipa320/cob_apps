@@ -248,7 +248,7 @@ class armParameter:
 	tabletTOfolded.points.append(point)
 
 class lbrParameter:
-	action_goal_topic = 'lbr_controller/joint_trajectory_action'
+	action_goal_topic = 'arm_controller/joint_trajectory_action'
 	joint_names = ["lbr_1_joint","lbr_2_joint","lbr_3_joint","lbr_4_joint","lbr_5_joint","lbr_6_joint","lbr_7_joint"]
 
 	home = JointTrajectory()
