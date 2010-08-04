@@ -4,7 +4,7 @@
 	<group ns="script_server">
 
 		<!-- upload parameters to parameter server -->
-		<include file="$(find cob_script_server)/launch/upload_param.launch"/>
+		<include file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
 		<param name="pause" value="false" type="bool" />
 
 		<!-- start script_server -->
