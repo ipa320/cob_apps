@@ -2,6 +2,7 @@
 
 import time
 import os
+import sys
 
 import roslib
 roslib.load_manifest('cob_script_server')
@@ -415,7 +416,7 @@ class simple_script_server:
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 			
 			# send text string to TTS system
-			ah.error_code = self.Speak_Str(text_string,mode)
+			ah.error_code = self.SpeakStr(text_string,mode)
 			return ah
 	
 		elif mode == "CEPS_EN":
@@ -427,7 +428,7 @@ class simple_script_server:
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 			
 			# send text string to TTS system
-			ah.error_code = self.Speak_Str(text_string,mode)
+			ah.error_code = self.SpeakStr(text_string,mode)
 			return ah
 
 		elif mode == "CEPS_DE":
@@ -439,7 +440,7 @@ class simple_script_server:
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
 			
 			# send text string to TTS system
-			ah.error_code = self.Speak_Str(text_string,mode)
+			ah.error_code = self.SpeakStr(text_string,mode)
 			return ah
 
 		elif mode == "MUTE":
@@ -452,7 +453,7 @@ class simple_script_server:
 			ah.error_code = 2
 			return ah
 
-	def Speak_Str(self,text,mode):
+	def SpeakStr(self,text,mode):
 		""" Speak the string 'text' via the TTS system specified by mode
 		Possible modes are:
 			FEST_EN	- use Text-to-speech with the English Festival voice
@@ -536,6 +537,14 @@ class simple_script_server:
 	def sleep(self,duration):
 		rospy.loginfo("Wait for %f sec",duration)
 		time.sleep(duration)
+
+	def wait_for_input(self):
+		rospy.loginfo("Wait for user input...")
+		retVal = sys.stdin.readline()
+		rospy.loginfo("Got string >%s<",retVal)
+		return retVal
+		#key = input()
+		#return key
 
 	def check_pause(self):
 		""" check if pause is globally set. If yes, enter a wait loop until
