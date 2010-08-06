@@ -40,7 +40,7 @@ class simple_script_server:
 	def Recover(self,component_name):
 		Trigger(component_name,"recover")
 
-	def Trigger(self,component_name,service_name):
+	def Trigger(self,component_name,service_name,blocking=True):
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
 		rospy.loginfo("Waiting for <<%s>> to <<%s>>...", component_name, service_name)
 		service_full_name = "/" + component_name + "_controller/" + service_name
