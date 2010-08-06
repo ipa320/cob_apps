@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- upload parameters-->
+	<rosparam command="load" ns="knoeppkes/buttons" file="$(find cob_knoeppkes)/launch/buttons.yaml"/>
+	
+	<!-- start script_server -->
+	<include file="$(find cob_script_server)/launch/script_server.launch" />
+	
+	<!-- start knoeppkes -->
+	<node pkg="cob_knoeppkes" type="knoeppkes.py" name="knoeppkes_node" ns="knoeppkes" cwd="node" respawn="false" output="screen" />
+	
+</launch>
