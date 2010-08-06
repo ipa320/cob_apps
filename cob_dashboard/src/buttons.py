@@ -10,7 +10,10 @@ class buttons:
 		self.CreatePanel()
 
 	def CreatePanel(self):
-		param_prefix = "/knoeppkes/buttons"
+		param_prefix = "/dashboard/buttons"
+		if not rospy.has_param(param_prefix):
+			rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",param_prefix)
+			return False
 		group_param = rospy.get_param(param_prefix)
 		#print group_param
 		group_param = self.SortDict(group_param)
@@ -28,7 +31,7 @@ class buttons:
 				elif button[1] == "Mode":
 					buttons.append(self.CreateButton(button[0],self.sss.SetOperationMode,button[2],button[3]))
 				else:
-					rospy.logerr("Function not known to knoeppkes")
+					rospy.logerr("Function not known to dashboard")
 					return False
 			group = (group[0],buttons)
 			self.panels.append(group)

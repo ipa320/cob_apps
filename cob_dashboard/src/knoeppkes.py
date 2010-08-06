@@ -4,8 +4,6 @@
 from Tkinter import *
 import roslib
 roslib.load_manifest('cob_dashboard')
-roslib.load_manifest('cob_knoeppkes')
-roslib.load_manifest('cob_script_server')
 from buttons import *
 import thread
 
