@@ -379,9 +379,9 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 
       //joint 2 up or down
       if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]>0.0)
-         req_j2_vel = -1*(int)joy_msg->buttons[arm_joint12_button]*arm_up_down_step;
-      else if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]<0.0)
          req_j2_vel = (int)joy_msg->buttons[arm_joint12_button]*arm_up_down_step;
+      else if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]<0.0)
+         req_j2_vel = -1*(int)joy_msg->buttons[arm_joint12_button]*arm_up_down_step;
       else
          req_j2_vel = 0.0;
       //test
@@ -409,9 +409,9 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 
       //joint 4 up or down
       if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]>0.0)
-         req_j4_vel = -1*(int)joy_msg->buttons[arm_joint34_button]*arm_up_down_step;
-      else if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]<0.0)
          req_j4_vel = (int)joy_msg->buttons[arm_joint34_button]*arm_up_down_step;
+      else if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]<0.0)
+         req_j4_vel = -1*(int)joy_msg->buttons[arm_joint34_button]*arm_up_down_step;
       else
          req_j4_vel = 0.0;
       //test
@@ -439,9 +439,9 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 
       //joint 6 up or down
       if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]>0.0)
-         req_j6_vel = -1*(int)joy_msg->buttons[arm_joint56_button]*arm_up_down_step;
-      else if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]<0.0)
          req_j6_vel = (int)joy_msg->buttons[arm_joint56_button]*arm_up_down_step;
+      else if(up_down>=0 && up_down<(int)joy_msg->axes.size() && joy_msg->axes[up_down]<0.0)
+         req_j6_vel = -1*(int)joy_msg->buttons[arm_joint56_button]*arm_up_down_step;
       else
          req_j6_vel = 0.0;
       //test
