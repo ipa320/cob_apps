@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- upload parameters-->
+	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/buttons.yaml"/>
+	
+	<!-- start script_server -->
+	<include file="$(find cob_script_server)/launch/script_server.launch" />
+	
+	<!-- start dashboard -->
+	<node pkg="cob_dashboard" type="knoeppkes.py" name="dashboard_node" ns="dashboard" cwd="node" respawn="false" output="screen" />
+	
+</launch>

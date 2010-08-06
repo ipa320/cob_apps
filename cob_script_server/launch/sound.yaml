@@ -1,6 +1,6 @@
 speech_mode: WAV_DE
-wav_de_path: /home/cob/svn/cob/Files/Audio/WiMi/
-wav_en_path: /home/cob/svn/cob/Files/Audio/WiMi/
+wav_de_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
+wav_en_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
 temp_wav_file: /home/fmw/wav/swift_temp.wav
 
 rand/introduce: ["Sent01","Sent02","Sent03"]

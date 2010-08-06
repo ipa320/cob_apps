@@ -2,6 +2,7 @@
 
 import time
 import os
+import sys
 
 import roslib
 roslib.load_manifest('cob_script_server')
@@ -31,22 +32,31 @@ class simple_script_server:
 
 #------------------- Init section -------------------#
 	def Init(self,component_name):
-		rospy.loginfo("Initialize <<%s>>", component_name)
-		rospy.loginfo("Waiting for <<%s>> to be initialized...", component_name)
-		service_name = component_name + "_controller/Init"
+		Trigger(component_name,"init")
+
+	def Stop(self,component_name):
+		Trigger(component_name,"stop")
+
+	def Recover(self,component_name):
+		Trigger(component_name,"recover")
+
+	def Trigger(self,component_name,service_name):
+		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
+		rospy.loginfo("Waiting for <<%s>> to <<%s>>...", component_name, service_name)
+		service_full_name = "/" + component_name + "_controller/" + service_name
 		try:
-			rospy.wait_for_service(service_name,rospy.get_param('server_timeout',1))
+			rospy.wait_for_service(service_full_name,rospy.get_param('server_timeout',3))
 		except rospy.ROSException, e:
 			print "Service not available: %s"%e
 			return False
 		try:
-			init = rospy.ServiceProxy(service_name,Trigger)
+			init = rospy.ServiceProxy(service_full_name,Trigger)
 			#print init()
 			init()
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
 			return False
-		rospy.loginfo("...<<%s>> is initialized", component_name)
+		rospy.loginfo("...<<%s>> is <<%s>>", component_name, service_name)
 		return True
 
 #------------------- Move section -------------------#
@@ -273,6 +283,10 @@ class simple_script_server:
 			print "Service call failed: %s"%e
 			return False
 		return True
+		
+	def SetOperationMode(self,component_name,mode):
+		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
+		rospy.set_param(component_name + "_controller/OperationMode",mode)
 			
 #------------------- LED section -------------------#
 	def SetLight(self,parameter_name):
@@ -415,7 +429,7 @@ class simple_script_server:
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 			
 			# send text string to TTS system
-			ah.error_code = self.Speak_Str(text_string,mode)
+			ah.error_code = self.SpeakStr(text_string,mode)
 			return ah
 	
 		elif mode == "CEPS_EN":
@@ -427,7 +441,7 @@ class simple_script_server:
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
 			
 			# send text string to TTS system
-			ah.error_code = self.Speak_Str(text_string,mode)
+			ah.error_code = self.SpeakStr(text_string,mode)
 			return ah
 
 		elif mode == "CEPS_DE":
@@ -439,7 +453,7 @@ class simple_script_server:
 			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
 			
 			# send text string to TTS system
-			ah.error_code = self.Speak_Str(text_string,mode)
+			ah.error_code = self.SpeakStr(text_string,mode)
 			return ah
 
 		elif mode == "MUTE":
@@ -452,7 +466,7 @@ class simple_script_server:
 			ah.error_code = 2
 			return ah
 
-	def Speak_Str(self,text,mode):
+	def SpeakStr(self,text,mode):
 		""" Speak the string 'text' via the TTS system specified by mode
 		Possible modes are:
 			FEST_EN	- use Text-to-speech with the English Festival voice
@@ -536,6 +550,14 @@ class simple_script_server:
 	def sleep(self,duration):
 		rospy.loginfo("Wait for %f sec",duration)
 		time.sleep(duration)
+
+	def wait_for_input(self):
+		rospy.loginfo("Wait for user input...")
+		retVal = sys.stdin.readline()
+		rospy.loginfo("Got string >%s<",retVal)
+		return retVal
+		#key = input()
+		#return key
 
 	def check_pause(self):
 		""" check if pause is globally set. If yes, enter a wait loop until
