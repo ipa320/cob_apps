@@ -2,7 +2,7 @@
 <launch>
 
 	<!-- upload parameters-->
-	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/buttons.yaml"/>
+	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/$(env ROBOT).yaml"/>
 	
 	<!-- start script_server -->
 	<include file="$(find cob_script_server)/launch/script_server.launch" />

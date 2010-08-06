@@ -38,7 +38,7 @@ class buttons:
 	
 	def CreateButton(self,button_name,function,component_name,parameter_name):
 		#button = ([(button_name,function,(component_name,parameter_name)),])
-		button = (button_name,function,(component_name,parameter_name))
+		button = (button_name,function,(component_name,parameter_name,False))
 		return button
 		
 	def SortDict(self,dictionary):
