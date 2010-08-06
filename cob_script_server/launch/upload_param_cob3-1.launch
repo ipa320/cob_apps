@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- send parameters to parameter server -->
+	<rosparam command="load" ns="base" file="$(find cob_script_server)/launch/base.yaml"/>
+	<rosparam command="load" ns="tray" file="$(find cob_script_server)/launch/tray.yaml"/>
+	<rosparam command="load" ns="torso" file="$(find cob_script_server)/launch/torso.yaml"/>
+	<rosparam command="load" ns="arm" file="$(find cob_script_server)/launch/lbr.yaml"/>
+	<rosparam command="load" ns="sdh" file="$(find cob_script_server)/launch/sdh.yaml"/>
+	<rosparam command="load" ns="light" file="$(find cob_script_server)/launch/light.yaml"/>
+	<rosparam command="load" ns="sound" file="$(find cob_script_server)/launch/sound.yaml"/>
+
+</launch>
