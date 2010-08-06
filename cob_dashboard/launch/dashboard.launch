@@ -2,12 +2,12 @@
 <launch>
 
 	<!-- upload parameters-->
-	<rosparam command="load" ns="knoeppkes/buttons" file="$(find cob_knoeppkes)/launch/buttons.yaml"/>
+	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/buttons.yaml"/>
 	
 	<!-- start script_server -->
 	<include file="$(find cob_script_server)/launch/script_server.launch" />
 	
-	<!-- start knoeppkes -->
-	<node pkg="cob_knoeppkes" type="knoeppkes.py" name="knoeppkes_node" ns="knoeppkes" cwd="node" respawn="false" output="screen" />
+	<!-- start dashboard -->
+	<node pkg="cob_dashboard" type="knoeppkes.py" name="dashboard_node" ns="dashboard" cwd="node" respawn="false" output="screen" />
 	
 </launch>
