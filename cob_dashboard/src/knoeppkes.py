@@ -12,7 +12,7 @@ import roslib
 import os 
 
 def start(func, args):
-  print "starting", func
+#  print "starting", func
 #	func(*args)
   thread.start_new_thread(func,args)
 
