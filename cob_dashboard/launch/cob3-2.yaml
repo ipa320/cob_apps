@@ -38,7 +38,6 @@
   [init,Trigger,arm,init],
   [recover,Trigger,arm,recover],
   [enable joystick,Mode,arm,velocity],
-  [home,Move,arm,home],
   [graspTOtablet,Move,arm,graspTOtablet],
   [tabletTOfolded,Move,arm,tabletTOfolded]]
 5 sdh:

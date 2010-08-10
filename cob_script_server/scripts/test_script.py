@@ -24,12 +24,13 @@ class GetDrink:
 		print "start"
 		
 		# init poses
-		self.sss.Move("tray","down",False)
+		handle01 = self.sss.Move("arm","folded",False)
 		self.sss.Move("torso","home",False)
 		self.sss.Move("sdh","home",False)
-		self.sss.Move("arm","folded")
+		self.sss.Move("tray","down")
+		handle01.wait()
 #		self.sss.Move("base","home")
-		self.sss.wait_for_input()
+#		self.sss.wait_for_input()
 
 		#test
 #		self.sss.Move("arm","home")
@@ -47,7 +48,7 @@ class GetDrink:
 		self.sss.Move("sdh","cylclosed")
 
 		#place on tablet
-		self.sss.wait_for_input()
+#		self.sss.wait_for_input()
 		handle01 = self.sss.Move("arm","grasp-to-tablet",False)
 		self.sss.Move("tray","up",False)
 		handle01.wait()
