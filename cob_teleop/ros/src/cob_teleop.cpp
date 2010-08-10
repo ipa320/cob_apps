@@ -184,8 +184,8 @@ void TeleopCOB::init()
 	n_.param("arm_left_right_step",arm_left_right_step,0.1); // rad/sec
 	n_.param("arm_up_down_step",arm_up_down_step,0.1); // rad/sec
 
-	n_.param("max_vx", max_vx, 0.3); // m/sec
-	n_.param("max_vy", max_vy, 0.3); // m/sec
+	n_.param("max_vx", max_vx, 0.2); // m/sec
+	n_.param("max_vy", max_vy, 0.2); // m/sec
 	n_.param("max_vw", max_vw, 0.2); // rad/sec
 
 	// output for debugging
