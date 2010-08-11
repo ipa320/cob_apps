@@ -284,9 +284,9 @@ class simple_script_server:
 			return False
 		return True
 		
-	def SetOperationMode(self,component_name,mode):
+	def SetOperationMode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
-		rospy.set_param(component_name + "_controller/OperationMode",mode)
+		rospy.set_param("/" + component_name + "_controller/OperationMode",mode)
 			
 #------------------- LED section -------------------#
 	def SetLight(self,parameter_name):

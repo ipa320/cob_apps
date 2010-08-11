@@ -109,6 +109,9 @@ class TeleopCOB
 
 		//signs
 		int up_down,left_right;   //sign for movements of upper_neck and tray
+		
+		int deadman_button;
+		bool joy_active;
 
 
 		ros::NodeHandle n_;
@@ -138,6 +141,7 @@ TeleopCOB::TeleopCOB()
 {
 	got_init_values_ = false;
 	time_for_init_ = 0.0;
+	joy_active = false;
 	joint_names_.push_back("torso_tray_joint");
 	joint_names_.push_back("torso_lower_neck_pan_joint");
 	joint_names_.push_back("torso_lower_neck_tilt_joint");
@@ -165,6 +169,7 @@ void TeleopCOB::init()
 	n_.param("arm_joint34_button",arm_joint34_button,1); //button 1
 	n_.param("arm_joint56_button",arm_joint56_button,2); //button 2
 	n_.param("arm_joint7_button",arm_joint7_button,3); //button 3
+	n_.param("deadman_button",deadman_button,7);
 
 	// assign axis
 	n_.param("axis_vx",axis_vx,1);
@@ -273,6 +278,17 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 
 void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 {
+	if(deadman_button>=0 && joy_msg->buttons[deadman_button]==1)
+	{
+		ROS_DEBUG("joystick is active");
+		joy_active = true;
+	}	
+	else
+	{
+		ROS_DEBUG("joystick is not active");
+		joy_active = false;
+	}
+	
    //torso
    //lower neck 
    if(lower_neck_button>=0 && lower_neck_button<(int)joy_msg->buttons.size() && joy_msg->buttons[lower_neck_button]==1)
@@ -494,113 +510,119 @@ void TeleopCOB::update()
 		}
 	}
 
-  //torso
-  {
-   double dt = 1.0/double(PUBLISH_FREQ);
-   double horizon = 3.0*dt;
+	  //torso
+	  {
+	   double dt = 1.0/double(PUBLISH_FREQ);
+	   double horizon = 3.0*dt;
 
-   trajectory_msgs::JointTrajectory traj;
-   traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
-   traj.joint_names.push_back("torso_lower_neck_pan_joint");
-   traj.joint_names.push_back("torso_lower_neck_tilt_joint");
-   traj.joint_names.push_back("torso_upper_neck_pan_joint");
-   traj.joint_names.push_back("torso_upper_neck_tilt_joint");
-   traj.points.resize(1);
+	   trajectory_msgs::JointTrajectory traj;
+	   traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
+	   traj.joint_names.push_back("torso_lower_neck_pan_joint");
+	   traj.joint_names.push_back("torso_lower_neck_tilt_joint");
+	   traj.joint_names.push_back("torso_upper_neck_pan_joint");
+	   traj.joint_names.push_back("torso_upper_neck_tilt_joint");
+	   traj.points.resize(1);
 
-   traj.points[0].positions.push_back(req_lower_pan + req_lower_pan_vel*horizon);
-   traj.points[0].velocities.push_back(req_lower_pan_vel);  //lower_neck_pan
-   traj.points[0].positions.push_back(req_lower_tilt + req_lower_tilt_vel*horizon);
-   traj.points[0].velocities.push_back(req_lower_tilt_vel); //lower_neck_tilt
-   traj.points[0].positions.push_back(req_upper_pan + req_upper_pan_vel*horizon);
-   traj.points[0].velocities.push_back(req_upper_pan_vel);  //upper_neck_pan
-   traj.points[0].positions.push_back(req_upper_tilt + req_upper_tilt_vel*horizon);
-   traj.points[0].velocities.push_back(req_upper_tilt_vel); //upper_neck_tilt
-   traj.points[0].time_from_start = ros::Duration(horizon);
+	   traj.points[0].positions.push_back(req_lower_pan + req_lower_pan_vel*horizon);
+	   traj.points[0].velocities.push_back(req_lower_pan_vel);  //lower_neck_pan
+	   traj.points[0].positions.push_back(req_lower_tilt + req_lower_tilt_vel*horizon);
+	   traj.points[0].velocities.push_back(req_lower_tilt_vel); //lower_neck_tilt
+	   traj.points[0].positions.push_back(req_upper_pan + req_upper_pan_vel*horizon);
+	   traj.points[0].velocities.push_back(req_upper_pan_vel);  //upper_neck_pan
+	   traj.points[0].positions.push_back(req_upper_tilt + req_upper_tilt_vel*horizon);
+	   traj.points[0].velocities.push_back(req_upper_tilt_vel); //upper_neck_tilt
+	   traj.points[0].time_from_start = ros::Duration(horizon);
 
-   torso_pub_.publish(traj);
- 
-   //update current position 
-   req_lower_tilt += req_lower_tilt_vel*dt;
-   req_lower_pan += req_lower_pan_vel*dt;
-   req_upper_tilt += req_upper_tilt_vel*dt;
-   req_upper_pan += req_upper_pan_vel*dt;
-  } //torso
- 
-  //tray
-  {
-   double dt = 1.0/double(PUBLISH_FREQ);
-   double horizon = 3.0*dt;
+	   torso_pub_.publish(traj);
+	 
+	   //update current position 
+	   req_lower_tilt += req_lower_tilt_vel*dt;
+	   req_lower_pan += req_lower_pan_vel*dt;
+	   req_upper_tilt += req_upper_tilt_vel*dt;
+	   req_upper_pan += req_upper_pan_vel*dt;
+	  } //torso
+	 
+	  //tray
+	  {
+	   double dt = 1.0/double(PUBLISH_FREQ);
+	   double horizon = 3.0*dt;
 
-   trajectory_msgs::JointTrajectory traj;
-   traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
-   traj.joint_names.push_back("torso_tray_joint");
-   traj.points.resize(1);
-   traj.points[0].positions.push_back(req_tray + req_tray_vel*horizon);
-   traj.points[0].velocities.push_back(req_tray_vel); 
-   traj.points[0].time_from_start = ros::Duration(horizon);
+	   trajectory_msgs::JointTrajectory traj;
+	   traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
+	   traj.joint_names.push_back("torso_tray_joint");
+	   traj.points.resize(1);
+	   traj.points[0].positions.push_back(req_tray + req_tray_vel*horizon);
+	   traj.points[0].velocities.push_back(req_tray_vel); 
+	   traj.points[0].time_from_start = ros::Duration(horizon);
 
-   tray_pub_.publish(traj);
- 
-   //update current position 
-   req_tray += req_tray_vel*dt;
-  }
+	   tray_pub_.publish(traj);
+	 
+	   //update current position 
+	   req_tray += req_tray_vel*dt;
+	  }
 
-  //base
-  cmd.linear.x = req_vx;
-  cmd.linear.y = req_vy;
-  cmd.angular.z = req_vw;
-  vel_pub_.publish(cmd);
+	  //arm
+	  {
+	   double dt = 1.0/double(PUBLISH_FREQ);
+	   double horizon = 3.0*dt;
 
-  //arm
-  {
-   double dt = 1.0/double(PUBLISH_FREQ);
-   double horizon = 3.0*dt;
+	   trajectory_msgs::JointTrajectory traj;
+	   traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
+	   traj.joint_names.push_back("arm_1_joint");
+	   traj.joint_names.push_back("arm_2_joint");
+	   traj.joint_names.push_back("arm_3_joint");
+	   traj.joint_names.push_back("arm_4_joint");
+	   traj.joint_names.push_back("arm_5_joint");
+	   traj.joint_names.push_back("arm_6_joint");
+	   traj.joint_names.push_back("arm_7_joint");
 
-   trajectory_msgs::JointTrajectory traj;
-   traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
-   traj.joint_names.push_back("arm_1_joint");
-   traj.joint_names.push_back("arm_2_joint");
-   traj.joint_names.push_back("arm_3_joint");
-   traj.joint_names.push_back("arm_4_joint");
-   traj.joint_names.push_back("arm_5_joint");
-   traj.joint_names.push_back("arm_6_joint");
-   traj.joint_names.push_back("arm_7_joint");
+	   traj.points.resize(1);
+	   traj.points[0].positions.push_back(req_j1 + req_j1_vel*horizon);
+	   traj.points[0].velocities.push_back(req_j1_vel);  //joint1
 
-   traj.points.resize(1);
-   traj.points[0].positions.push_back(req_j1 + req_j1_vel*horizon);
-   traj.points[0].velocities.push_back(req_j1_vel);  //joint1
+	   traj.points[0].positions.push_back(req_j2 + req_j2_vel*horizon);
+	   traj.points[0].velocities.push_back(req_j2_vel); //joint2
 
-   traj.points[0].positions.push_back(req_j2 + req_j2_vel*horizon);
-   traj.points[0].velocities.push_back(req_j2_vel); //joint2
+	   traj.points[0].positions.push_back(req_j3 + req_j3_vel*horizon);
+	   traj.points[0].velocities.push_back(req_j3_vel); //joint3
 
-   traj.points[0].positions.push_back(req_j3 + req_j3_vel*horizon);
-   traj.points[0].velocities.push_back(req_j3_vel); //joint3
+	   traj.points[0].positions.push_back(req_j4 + req_j4_vel*horizon);
+	   traj.points[0].velocities.push_back(req_j4_vel); //joint4
 
-   traj.points[0].positions.push_back(req_j4 + req_j4_vel*horizon);
-   traj.points[0].velocities.push_back(req_j4_vel); //joint4
+	   traj.points[0].positions.push_back(req_j5 + req_j5_vel*horizon);
+	   traj.points[0].velocities.push_back(req_j5_vel); //joint5
 
-   traj.points[0].positions.push_back(req_j5 + req_j5_vel*horizon);
-   traj.points[0].velocities.push_back(req_j5_vel); //joint5
+	   traj.points[0].positions.push_back(req_j6 + req_j6_vel*horizon);
+	   traj.points[0].velocities.push_back(req_j6_vel); //joint6
 
-   traj.points[0].positions.push_back(req_j6 + req_j6_vel*horizon);
-   traj.points[0].velocities.push_back(req_j6_vel); //joint6
-
-   traj.points[0].positions.push_back(req_j7 + req_j7_vel*horizon);
-   traj.points[0].velocities.push_back(req_j7_vel); //joint7
-   
-   traj.points[0].time_from_start = ros::Duration(horizon);
-   arm_pub_.publish(traj);
- 
-   //update current position 
-   req_j1 += req_j1_vel*dt;
-   req_j2 += req_j2_vel*dt;
-   req_j3 += req_j3_vel*dt;
-   req_j4 += req_j4_vel*dt;
-   req_j5 += req_j5_vel*dt;
-   req_j6 += req_j6_vel*dt;
-   req_j7 += req_j7_vel*dt;
-  } //arm
-
+	   traj.points[0].positions.push_back(req_j7 + req_j7_vel*horizon);
+	   traj.points[0].velocities.push_back(req_j7_vel); //joint7
+	   
+	   traj.points[0].time_from_start = ros::Duration(horizon);
+	   arm_pub_.publish(traj);
+	 
+	   //update current position 
+	   req_j1 += req_j1_vel*dt;
+	   req_j2 += req_j2_vel*dt;
+	   req_j3 += req_j3_vel*dt;
+	   req_j4 += req_j4_vel*dt;
+	   req_j5 += req_j5_vel*dt;
+	   req_j6 += req_j6_vel*dt;
+	   req_j7 += req_j7_vel*dt;
+	  } //arm
+	
+	if (joy_active)
+	{
+	  //base
+	  cmd.linear.x = req_vx;
+	  cmd.linear.y = req_vy;
+	  cmd.angular.z = req_vw;
+	  vel_pub_.publish(cmd);
+	}
+	else
+	{
+		ROS_DEBUG("not sending new command because joystick is not active");
+	}
 }
 
 TeleopCOB::~TeleopCOB() {}

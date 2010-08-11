@@ -9,8 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_apps</url>
   <depend stack="cob_common" /> <!-- cob_utilities, cob_msgs, cob_actions, cob_machine, cob_srvs -->
-  <depend stack="cob_driver" /> <!-- cob_relayboard, cob_platform, cob_sick_s300, cob_arm, cob_hokuyo, cob_tf_broadcaster, cob_tray, cob_joy, cob_camera_sensors, cob_sdh, cob_camera_axis, cob_base_drive_chain, cob_point_cloud_publisher, cob_torso -->
-  <depend stack="cob_navigation" /> <!-- cob_undercarriage_ctrl -->
+  <depend stack="cob_driver" /> <!-- cob_relayboard, cob_platform, cob_sick_s300, cob_arm, cob_hokuyo, cob_tf_broadcaster, cob_tray, cob_joy, cob_undercarriage_ctrl, cob_camera_sensors, cob_sdh, cob_camera_axis, cob_base_drive_chain, cob_point_cloud_publisher, cob_torso -->
   <depend stack="cob_simulation" /> <!-- cob_gazebo -->
   <depend stack="common" /> <!-- actionlib -->
   <depend stack="common_msgs" /> <!-- sensor_msgs, geometry_msgs -->
