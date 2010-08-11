@@ -32,14 +32,17 @@
   [pregrasp,Move,arm,pregrasp],
   [intermediateback,Move,arm,intermediateback],
   [intermediatefront,Move,arm,intermediatefront],
-  [overtablet,Move,arm,overtablet]]
+  [overtablet,Move,arm,overtablet],
+  [wavein,Move,arm,wavein],
+  [waveout,Move,arm,waveout]]
 4 arm traj:
   [[stop,Trigger,arm,stop],
   [init,Trigger,arm,init],
   [recover,Trigger,arm,recover],
   [enable joystick,Mode,arm,velocity],
-  [graspTOtablet,Move,arm,graspTOtablet],
-  [tabletTOfolded,Move,arm,tabletTOfolded]]
+  [grasp-to-tablet,Move,arm,grasp-to-tablet],
+  [tablet-to-folded,Move,arm,tablet-to-folded],
+  [wave,Move,arm,wave]]
 5 sdh:
   [[stop,Trigger,sdh,stop],
   [init,Trigger,sdh,init],
