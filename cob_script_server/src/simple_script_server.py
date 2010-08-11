@@ -122,7 +122,7 @@ class simple_script_server:
 		pose.pose.orientation.w = q[3]
 		
 		# call action server
-		action_server_name = "move_base"
+		action_server_name = "/move_base"
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
 		# trying to connect to server
