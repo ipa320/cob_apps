@@ -480,8 +480,9 @@ class simple_script_server:
 			return 3
 
 		# get parameter for temporary wav file
-		if not rospy.has_param(self.ns_global_prefix +"/sound/temp_wav_file"):
-			rospy.logerr("parameter temp_wav_file does not exist on ROS Parameter Server, aborting")
+		param_name = self.ns_global_prefix +"/sound/temp_wav_file"
+		if not rospy.has_param(param_name):
+			rospy.logerr("parameter <<%s>> does not exist on ROS Parameter Server, aborting...",param_name)
 			return 2
 		temp_wav_file = rospy.get_param(self.ns_global_prefix +"/sound/temp_wav_file")
 

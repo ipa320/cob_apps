@@ -1,7 +1,4 @@
 speech_mode: FEST_EN
-wav_de_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
-wav_en_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
-temp_wav_file: /home/fmw/wav/swift_temp.wav
 
 rand/introduce: ["Sent01","Sent02","Sent03"]
 rand/offer: ["Sent04","Sent05","Sent06","Sent07","Sent08","Sent09"]
@@ -36,5 +33,10 @@ speech_de/Sent23: "Ich kann das Getränk nun entgegennehmen."
 speech_de/Sent24: "Ich bin bereit"
 speech_de/Sent25: "Hallo"
 speech_de/Sent26: "Da bin ich wieder."
-speech_en/Sent00: "Hello, I am CareOBot 3."
+speech_en/hello: "Hello, I am care-o-bot!"
 
+# For grasp tutorial
+speech_en/grasp_tutorial_01: "Hello, my name is Care-O-bot!"
+speech_en/grasp_tutorial_02: "I will get you something to drink."
+speech_en/grasp_tutorial_03: "Here is your drink!"
+wav_de_path: "/home/taj/git/care-o-bot/cob_apps/cob_script_server/common_files/wav_de/"
