@@ -22,7 +22,7 @@ class GetDrink:
 	def run(self): 
 		
 		print "start"
-		
+		self.sss.SpeakStr("Hallo","FEST_EN")
 		# init poses
 		handle01 = self.sss.Move("arm","folded",False)
 		self.sss.Move("torso","home",False)

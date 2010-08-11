@@ -1,7 +1,4 @@
-speech_mode: WAV_DE
-#wav_de_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
-wav_en_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
-temp_wav_file: /home/fmw/wav/swift_temp.wav
+speech_mode: FEST_EN
 
 rand/introduce: ["Sent01","Sent02","Sent03"]
 rand/offer: ["Sent04","Sent05","Sent06","Sent07","Sent08","Sent09"]
@@ -36,6 +33,7 @@ speech_de/Sent23: "Ich kann das Getränk nun entgegennehmen."
 speech_de/Sent24: "Ich bin bereit"
 speech_de/Sent25: "Hallo"
 speech_de/Sent26: "Da bin ich wieder."
+speech_en/hello: "Hello, I am care-o-bot!"
 
 # For grasp tutorial
 speech_en/grasp_tutorial_01: "Hello, my name is Care-O-bot!"
