@@ -42,9 +42,9 @@ class MyClass:
 
 	self.sss.Move("sdh","cylopen")
 
-	self.sss.Move("arm","folded")
+	self.sss.Move("arm","tablet-to-folded")
 
 if __name__ == "__main__":
     SCRIPT = MyClass()
-    SCRIPT.Initialize()
+    #SCRIPT.Initialize()
     SCRIPT.GraspObject()
