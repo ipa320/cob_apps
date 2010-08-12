@@ -5,7 +5,10 @@
 
 0 base:
   [[stop,Trigger,base,stop],
-  [init,Trigger,base,init]]
+  [init,Trigger,base,init],
+  [resa1,Move,base,resa1],
+  [resa2,Move,base,resa2],
+  [resa3,Move,base,resa3]]
 1 torso:
   [[stop,Trigger,torso,stop],
   [init,Trigger,torso,init],
@@ -35,7 +38,9 @@
   [pregrasp,Move,arm,pregrasp],
   [intermediateback,Move,arm,intermediateback],
   [intermediatefront,Move,arm,intermediatefront],
-  [overtablet,Move,arm,overtablet]]
+  [overtablet,Move,arm,overtablet],
+  [resa1,Move,arm,resa1],
+  [resa2,Move,arm,resa2]]
 4 arm traj:
   [[stop,Trigger,arm,stop],
   [init,Trigger,arm,init],
