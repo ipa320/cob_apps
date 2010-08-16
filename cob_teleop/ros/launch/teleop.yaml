@@ -1,4 +1,7 @@
-#buttons
+# common params
+run_factor: 2.0
+
+# buttons
 lower_neck_button: 6
 upper_neck_button: 4
 tray_button: 3
@@ -7,7 +10,7 @@ arm_joint34_button: 1
 arm_joint56_button: 2
 arm_joint7_button: 3
 deadman_button: 5
-turbo_button: 7
+run_button: 7
 
 # axes
 axis_vx: 1
