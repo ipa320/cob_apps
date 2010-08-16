@@ -78,7 +78,9 @@ class TeleopCOB
 
 		//base
 		double req_vx_,req_vy_,req_vth_;
+		double vx_old_,vy_old_,vth_old_;
 		double max_vx_,max_vy_,max_vth_;
+		double max_ax_,max_ay_,max_ath_;
 		int axis_vx_,axis_vy_,axis_vth_;
 
 		//arm
@@ -191,23 +193,26 @@ void TeleopCOB::init()
 	n_.param("arm_up_down_step",arm_up_down_step_,0.1); // rad/sec
 
 	n_.param("max_vx", max_vx_, 0.3); // m/sec
+	n_.param("max_ax", max_ax_, 0.5); // m/sec^2
 	n_.param("max_vy", max_vy_, 0.2); // m/sec
+	n_.param("max_ay", max_ay_, 0.5); // m/sec^2
 	n_.param("max_vth", max_vth_, 0.2); // rad/sec
+	n_.param("max_ath", max_ath_, 0.5); // rad/sec^2
 
 	// output for debugging
-	ROS_INFO("init::lower_neck_button: %d",lower_neck_button_);
-	ROS_INFO("init::upper_neck_button: %d",upper_neck_button_);
-	ROS_INFO("init::tray_button: %d",tray_button_);
-	ROS_INFO("init::arm_joint12_button: %d",arm_joint12_button_);
-	ROS_INFO("init::arm_joint34_button: %d",arm_joint34_button_);
-	ROS_INFO("init::arm_joint56_button: %d",arm_joint56_button_);
-	ROS_INFO("init::arm_joint7_button: %d",arm_joint7_button_);
+	ROS_DEBUG("init::lower_neck_button: %d",lower_neck_button_);
+	ROS_DEBUG("init::upper_neck_button: %d",upper_neck_button_);
+	ROS_DEBUG("init::tray_button: %d",tray_button_);
+	ROS_DEBUG("init::arm_joint12_button: %d",arm_joint12_button_);
+	ROS_DEBUG("init::arm_joint34_button: %d",arm_joint34_button_);
+	ROS_DEBUG("init::arm_joint56_button: %d",arm_joint56_button_);
+	ROS_DEBUG("init::arm_joint7_button: %d",arm_joint7_button_);
 
-	ROS_INFO("init::axis_vx: %d",axis_vx_);
-	ROS_INFO("init::axis_vy: %d",axis_vy_);
-	ROS_INFO("init::axis_vth: %d",axis_vth_);
-	ROS_INFO("init::up_down: %d",up_down_);
-	ROS_INFO("init::left_right: %d",left_right_);
+	ROS_DEBUG("init::axis_vx: %d",axis_vx_);
+	ROS_DEBUG("init::axis_vy: %d",axis_vy_);
+	ROS_DEBUG("init::axis_vth: %d",axis_vth_);
+	ROS_DEBUG("init::up_down: %d",up_down_);
+	ROS_DEBUG("init::left_right: %d",left_right_);
 
 	joy_sub_ = n_.subscribe("/joy",1,&TeleopCOB::joy_cb,this);
 	joint_states_sub_ = n_.subscribe("/joint_states",1,&TeleopCOB::joint_states_cb,this);
@@ -246,7 +251,7 @@ void TeleopCOB::setInitValues()
 	
 	for (int i = 0; i<joint_names_.size(); i++ )
 	{
-		ROS_INFO("joint_name = %s, joint_init_value = %f",joint_names_[i].c_str(),joint_init_values_[i]);
+		ROS_DEBUG("joint_name = %s, joint_init_value = %f",joint_names_[i].c_str(),joint_init_values_[i]);
 	}
 	
 	got_init_values_ = true;
@@ -256,7 +261,7 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 {
 	if (!got_init_values_ && stopped_ && joy_active_)
 	{
-		ROS_INFO("joint_states_cb: getting init values");
+		ROS_DEBUG("joint_states_cb: getting init values");
 		for (int j = 0; j<joint_names_.size(); j++ )
 		{
 			for (int i = 0; i<joint_states_msg->name.size(); i++ )
@@ -285,7 +290,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 	{
 		if (!joy_active_)
 		{
-			ROS_DEBUG("joystick is active");
+			ROS_INFO("joystick is active");
 			joy_active_ = true;
 			got_init_values_ = false;
 		}
@@ -533,7 +538,7 @@ void TeleopCOB::update()
 	{
 		if (time_for_init_ < 5.0) // wait for 5 sec, then set init values to 0.0
 		{
-			ROS_INFO("still waiting for initial values, time_for_init_ = %f",time_for_init_);
+			ROS_DEBUG("still waiting for initial values, time_for_init_ = %f",time_for_init_);
 			time_for_init_ = time_for_init_ + 1.0/PUBLISH_FREQ;
 			return;
 		}
@@ -647,10 +652,59 @@ void TeleopCOB::update_arm()
 
 void TeleopCOB::update_base()
 {
+	double dt = 1.0/double(PUBLISH_FREQ);
+	double vx,vy,vth = 0.0;
+	
+	// filter vx with ramp
+	if ((req_vx_ - vx_old_)/dt > max_ax_)
+	{
+		vx = vx_old_ + max_ax_*dt;
+	}
+	else if ((req_vx_ - vx_old_)/dt < -max_ax_)
+	{
+		vx = vx_old_ - max_ax_*dt;
+	}
+	else
+	{
+		vx = req_vx_;
+	}
+	vx_old_ = vx;
+	
+	// filter vy with ramp
+	if ((req_vy_ - vy_old_)/dt > max_ay_)
+	{
+		vy = vy_old_ + max_ay_*dt;
+	}
+	else if ((req_vy_ - vy_old_)/dt < -max_ay_)
+	{
+		vy = vy_old_ - max_ay_*dt;
+	}
+	else
+	{
+		vy = req_vy_;
+	}
+	vy_old_ = vy;
+
+	// filter vth with ramp
+	if ((req_vth_ - vth_old_)/dt > max_ath_)
+	{
+		vth = vth_old_ + max_ath_*dt;
+	}
+	else if ((req_vth_ - vth_old_)/dt < -max_ath_)
+	{
+		vth = vth_old_ - max_ath_*dt;
+	}
+	else
+	{
+		vth = req_vth_;
+	}
+	vth_old_ = vth;
+
+	
 	geometry_msgs::Twist cmd;
-	cmd.linear.x = req_vx_;
-	cmd.linear.y = req_vy_;
-	cmd.angular.z = req_vth_;
+	cmd.linear.x = vx;
+	cmd.linear.y = vy;
+	cmd.angular.z = vth;
 
 	base_pub_.publish(cmd);
 }

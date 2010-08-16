@@ -28,5 +28,8 @@ tray_step: 0.15
 arm_left_right_step: 0.1
 arm_up_down_step: 0.1
 max_vx: 0.3
+max_ax: 0.5
 max_vy: 0.2
+max_ay: 0.5
 max_vth: 0.2
+max_ath: 0.5
