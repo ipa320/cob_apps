@@ -31,5 +31,5 @@ max_vx: 0.3
 max_ax: 0.5
 max_vy: 0.2
 max_ay: 0.5
-max_vth: 0.2
-max_ath: 0.5
+max_vth: 0.3
+max_ath: 0.7
