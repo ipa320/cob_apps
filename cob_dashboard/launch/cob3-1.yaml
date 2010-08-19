@@ -3,8 +3,18 @@
 #  [[button_name1,function_name1,component_name1,parameter_name2,
 #  [button_name2,function_name2,component_name2,parameter_name2]]
 
+0 base:
+  [[stop,Trigger,base,stop],
+  [init,Trigger,base,init],
+  [resa1,Move,base,resa1],
+  [resa2,Move,base,resa2],
+  [resa3,Move,base,resa3]]
 1 torso:
-  [[home,Move,torso,home],
+  [[stop,Trigger,torso,stop],
+  [init,Trigger,torso,init],
+  [recover,Trigger,torso,recover],
+  [enable joystick,Mode,torso,velocity],
+  [home,Move,torso,home],
   [front,Move,torso,front],
   [back,Move,torso,back],
   [left,Move,torso,left],
@@ -12,12 +22,31 @@
   [shake,Move,torso,shake],
   [nod,Move,torso,nod]]
 2 tray:
-  [[up,Move,tray,up],
+  [[stop,Trigger,tray,stop],
+  [init,Trigger,tray,init],
+  [recover,Trigger,tray,recover],
+  [enable joystick,Mode,tray,velocity],
+  [up,Move,tray,up],
   [down,Move,tray,down]]
 3 arm:
-  [[home,Move,arm,home],
-  [grasp,Move,arm,grasp]]
+  [[init,Trigger,arm,init],
+  [home,Move,arm,home],
+  [grasp2,Move,arm,grasp2],
+  [grasp3,Move,arm,grasp3]]
+4 arm traj:
+  [[grasp-to-tablet,Move,arm,grasp-to-tablet],
+  [tablet-to-folded,Move,arm,tablet-to-folded]]
 5 sdh:
-  [[home,Move,sdh,home],
+  [[stop,Trigger,sdh,stop],
+  [init,Trigger,sdh,init],
+  [recover,Trigger,sdh,recover],
+  [home,Move,sdh,home],
   [cyl. closed,Move,sdh,cylclosed],
-  [cyl. open,Move,sdh,cylopen]]
+  [cyl. open,Move,sdh,cylopen],
+  [stretched,Move,sdh,stretched]]
+6 eyes:
+  [[stop,Trigger,head,stop],
+  [init,Trigger,head,init],
+  [recover,Trigger,head,recover],
+  [front,Move,head,front],
+  [back,Move,head,back]]
