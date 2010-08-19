@@ -196,7 +196,7 @@ void TeleopCOB::init()
 	n_.param("max_ax", max_ax_, 0.5); // m/sec^2
 	n_.param("max_vy", max_vy_, 0.2); // m/sec
 	n_.param("max_ay", max_ay_, 0.5); // m/sec^2
-	n_.param("max_vth", max_vth_, 0.2); // rad/sec
+	n_.param("max_vth", max_vth_, 0.3); // rad/sec
 	n_.param("max_ath", max_ath_, 0.5); // rad/sec^2
 
 	// output for debugging
@@ -219,7 +219,7 @@ void TeleopCOB::init()
 	torso_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>("/torso_controller/command",1);
 	tray_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>("/tray_controller/command",1);
 	arm_pub_ = n_.advertise<trajectory_msgs::JointTrajectory>("/arm_controller/command",1);
-	base_pub_ = n_.advertise<geometry_msgs::Twist>("/base_controller/command",1);   
+	base_pub_ = n_.advertise<geometry_msgs::Twist>("/base_controller/command",1);
 }
 
 void TeleopCOB::setInitValues()
@@ -248,6 +248,8 @@ void TeleopCOB::setInitValues()
 	req_j6_vel_ = 0.0;
 	req_j7_ = joint_init_values_[11];
 	req_j7_vel_ = 0.0;
+	req_vx_ = req_vy_ = req_vth_ = 0.0;
+	vx_old_ = vy_old_ = vth_old_ = 0.0;
 	
 	for (int i = 0; i<joint_names_.size(); i++ )
 	{
@@ -519,9 +521,9 @@ void TeleopCOB::update()
 			req_j5_vel_ = 0.0;
 			req_j6_vel_ = 0.0;
 			req_j7_vel_ = 0.0;
-			req_vx_ = 0.0;
-			req_vy_ = 0.0;
-			req_vth_ = 0.0;
+			req_vx_ = vx_old_ = 0.0;
+			req_vy_ = vy_old_ = 0.0;
+			req_vth_ = vth_old_ = 0.0;
 
 			update_torso();
 			update_tray();
