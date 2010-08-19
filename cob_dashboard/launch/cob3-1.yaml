@@ -16,7 +16,11 @@
   [down,Move,tray,down]]
 3 arm:
   [[home,Move,arm,home],
-  [grasp,Move,arm,grasp]]
+  [folded,Move,arm,folded],
+  [pregrasp,Move,arm,pregrasp],
+  [grasp,Move,arm,grasp],
+  [overtablet,Move,arm,overtablet],
+  [tablet,Move,arm,tablet]]
 5 sdh:
   [[home,Move,sdh,home],
   [cyl. closed,Move,sdh,cylclosed],
