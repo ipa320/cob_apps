@@ -14,8 +14,8 @@ TrajectoryPlannerROS:
   y_vels: [-0.3, -0.1, 0.1, 0.3]    # The strafing velocities that a holonomic robot will consider in meters/sec 
 
 #Goal Tolerance Parameters
-  yaw_goal_tolerance: 0.05    # The tolerance in radians for the controller in yaw/rotation when achieving its goal 
-  xy_goal_tolerance: 0.10    # The tolerance in meters for the controller in the x & y distance when achieving a goal 
+  yaw_goal_tolerance: 0.15    # The tolerance in radians for the controller in yaw/rotation when achieving its goal 
+  xy_goal_tolerance: 0.20    # The tolerance in meters for the controller in the x & y distance when achieving a goal 
 
 #Forward Simulation Parameters
   sim_time: 3.0 #1.0   # The amount of time to forward-simulate trajectories in seconds 

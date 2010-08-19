@@ -1,7 +1,7 @@
 <package>
   <description brief="cob_teleop">
 
-     This Package enables remote of Care-O-bot controll via a joystick. Currently tray, torso, arm and base are supported.
+     This Package enables remote controll of Care-O-bot via a joystick. Currently tray, torso, arm and base are supported.
 
   </description>
   <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
@@ -12,15 +12,12 @@
   <depend package="roscpp"/>
   <depend package="geometry_msgs"/>
   <depend package="sensor_msgs"/>
-  <depend package="pr2_controllers_msgs"/>
   <depend package="trajectory_msgs"/>
   <depend package="cob_joy"/>
-  <depend package="cob_platform"/>
-  <depend package="cob_tray"/>
   <depend package="cob_torso"/>
+  <depend package="cob_tray"/>
   <depend package="cob_arm"/>
-  <depend package="cob_undercarriage_ctrl"/>
-  <depend package="cob_relayboard"/>
+  <depend package="cob_platform"/>
   <depend package="cob_base_drive_chain"/>
 
 </package>
