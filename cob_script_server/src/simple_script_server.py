@@ -320,31 +320,51 @@ class simple_script_server:
 		
 		return ah
 
-	def MoveCartRel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
-		service_name = component_name + "_controller/move_cart_rel"
-		try:
-			rospy.wait_for_service(service_name,rospy.get_param('server_timeout',1))
-		except rospy.ROSException, e:
-			print "Service not available: %s"%e
-			return False
-		try:
-			move_cart = rospy.ServiceProxy(service_name,MoveCart)
-			req = MoveCartRequest()
-			req.goal_pose.header.stamp = rospy.Time.now() 	
-			req.goal_pose.pose.position.x = position[0]
-			req.goal_pose.pose.position.y = position[1]
-			req.goal_pose.pose.position.z = position[2]
-			q = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
-			req.goal_pose.pose.orientation.x = q[0]
-			req.goal_pose.pose.orientation.y = q[1]
-			req.goal_pose.pose.orientation.z = q[2]
-			req.goal_pose.pose.orientation.w = q[3]
-			#print req
-			move_cart(req)
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			return False
-		return True
+	def move_cart_rel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
+
+		# convert to Pose message
+		pose = PoseStamped()
+		pose.header.stamp = rospy.Time.now() 	
+		pose.pose.position.x = position[0]
+		pose.pose.position.y = position[1]
+		pose.pose.position.z = position[2]
+		q = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
+		pose.pose.orientation.x = q[0]
+		pose.pose.orientation.y = q[1]
+		pose.pose.orientation.z = q[2]
+		pose.pose.orientation.w = q[3]
+		print pose
+		
+		# call action server
+		action_server_name = "/" + component_name + '_controller/move_cart_rel'
+		rospy.logdebug("calling %s action server",action_server_name)
+		self.client = actionlib.SimpleActionClient(action_server_name, MoveCartAction)
+		# trying to connect to server
+		rospy.logdebug("waiting for %s action server to start",action_server_name)
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			# error: server did not respond
+			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
+			ah.error_code = 4
+			return ah
+		else:
+			rospy.logdebug("%s action server ready",action_server_name)
+
+		# sending goal
+		self.check_pause()
+		client_goal = MoveCartGoal()
+		client_goal.trajectory = traj
+		#print client_goal
+		self.client.send_goal(client_goal)
+		ah.error_code = 0 # full success
+		ah.client = self.client
+
+		if blocking:
+			rospy.logdebug("actionlib client waiting for result...")
+			ah.wait()
+		else:
+			rospy.logdebug("actionlib client not waiting for result, continuing...")
+		
+		return ah
 		
 	def SetOperationMode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
