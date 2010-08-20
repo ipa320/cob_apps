@@ -20,6 +20,8 @@
   <depend package="pr2_controllers_msgs"/>
   <depend package="move_base_msgs"/>
   <depend package="sound_play"/>
-  
-   <rosdep name="pygraphviz"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+
+  <rosdep name="pygraphviz"/>
 </package>
