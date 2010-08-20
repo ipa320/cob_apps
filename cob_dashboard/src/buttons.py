@@ -24,14 +24,14 @@ class buttons:
 			buttons = []
 			for button in group[1]:
 				print button
-				if button[1] == "Move":
-					buttons.append(self.CreateButton(button[0],self.sss.Move,button[2],button[3]))
-				elif button[1] == "Trigger":
-					buttons.append(self.CreateButton(button[0],self.sss.Trigger,button[2],button[3]))
-				elif button[1] == "Mode":
-					buttons.append(self.CreateButton(button[0],self.sss.SetOperationMode,button[2],button[3]))
+				if button[1] == "move":
+					buttons.append(self.CreateButton(button[0],self.sss.move,button[2],button[3]))
+				elif button[1] == "trigger":
+					buttons.append(self.CreateButton(button[0],self.sss.trigger,button[2],button[3]))
+				elif button[1] == "mode":
+					buttons.append(self.CreateButton(button[0],self.sss.set_operation_mode,button[2],button[3]))
 				else:
-					rospy.logerr("Function not known to dashboard")
+					rospy.logerr("Function <<%s>> not known to dashboard",button[1])
 					return False
 			group = (group[0],buttons)
 			self.panels.append(group)

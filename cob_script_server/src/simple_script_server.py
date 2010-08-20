@@ -366,7 +366,7 @@ class simple_script_server:
 		
 		return ah
 		
-	def SetOperationMode(self,component_name,mode,blocking=False):
+	def set_operation_mode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
 		rospy.set_param("/" + component_name + "_controller/OperationMode",mode)
 			
