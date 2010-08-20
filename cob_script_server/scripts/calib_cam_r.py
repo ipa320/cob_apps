@@ -6,10 +6,12 @@ import roslib
 roslib.load_manifest('cob_script_server')
 import rospy
 import tf
+from tf.transformations import euler_from_quaternion
 from random import *
 import cv
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from math import *
 
 
 import simple_script_server
@@ -20,7 +22,7 @@ class CalibCam:
 		self.sss = simple_script_server.simple_script_server()
 		self.bridge = CvBridge()
 		self.image_sub = rospy.Subscriber("/stereo/right/image_color",Image,self.callback)
-		self.sss.Init("torso")
+		#self.sss.Init("torso")
 
 	def callback(self,data):
 		try:
@@ -28,27 +30,51 @@ class CalibCam:
 		except CvBridgeError, e:
   			print e
 
-		cv.ShowImage("Image window", self.cv_image)
-		cv.WaitKey(3)
+		#cv.ShowImage("Image window", self.cv_image)
+		#cv.WaitKey(3)
 
 	def run(self): 
 		
 		seed()
-		maxVal = 0.1
+		maxVal = 0.17
+		file_path = "/home/goa/"
 		listener = tf.TransformListener()
+		nr_images = 14
+
 		print "start"
+		# move components to initial position
+		self.sss.Move("arm","calib")
 		self.sss.Move("torso","home")
-		for i in range(1,9):
-			r1 = (random()-0.5)*2*maxVal;
-			r2 = (random()-0.5)*2*maxVal;
-			r3 = (random()-0.5)*2*maxVal;
-			r4 = (random()-0.5)*2*maxVal;
-			self.sss.Move("torso",[[r1,r2,r3,r4]])
-			self.sss.Sleep(1)
+		self.sss.Move("sdh","home")
+
+		self.sss.wait_for_input()
+		self.sss.Move("sdh","calib")
+		self.sss.wait_for_input()
+
+		# start calbration routine
+		for i in range(1,nr_images):
+			if i==1:
+				r1 = maxVal
+				r2 = maxVal
+			elif i==2:
+				r1 = -maxVal
+				r2 = maxVal
+			elif i==3:
+				r1 = maxVal
+				r2 = -maxVal
+			elif i==4:
+				r1 = -maxVal
+				r2 = -maxVal
+			else:	
+				r1 = (random()-0.5)*2*maxVal;
+				r2 = (random()-0.5)*2*maxVal;
+			self.sss.Move("torso",[[0.75*r1,0.75*r2,r1,r2]])
+			self.sss.sleep(1)
 			try:
-				(trans,rpy) = listener.lookupTransform('/base_link', '/head_color_camera_r_link', rospy.Time(0))
+				(trans,rot) = listener.lookupTransform('/base_link', '/head_color_camera_r_link', rospy.Time(0))
 			except (tf.LookupException, tf.ConnectivityException):
 				print "tf exception"
+			rpy = euler_from_quaternion(rot)
 			cyaw = cos(rpy[2])
 			syaw = sin(rpy[2])
 			cpitch = cos(rpy[1])
@@ -64,10 +90,13 @@ class CalibCam:
 			R31 = -spitch
 			R32 = cpitch*sroll
 			R33 = cpitch*croll
-			fout = open('calpic'+str(i)+'.coords','w')
+			fout = open(file_path+'calpic'+str(i)+'.coords','w')
 			fout.write(str(R11)+' '+str(R12)+' '+str(R13)+' '+str(trans[0])+'\n'+str(R21)+' '+str(R22)+' '+str(R23)+' '+str(trans[1])+'\n'+str(R31)+' '+str(R32)+' '+str(R33)+' '+str(trans[2]))
 			fout.close()
-			cv.SaveImage('calpic'+str(i)+'.png',self.cv_image)
+			self.sss.sleep(1)
+			cv.SaveImage(file_path+'calpic'+str(i)+'.png',self.cv_image)
+			self.sss.sleep(1)
+		self.sss.Move("torso","home")
 		print "finished"
 		
 if __name__ == "__main__":

@@ -55,7 +55,8 @@
   [recover,Trigger,sdh,recover],
   [home,Move,sdh,home],
   [cyl. closed,Move,sdh,cylclosed],
-  [cyl. open,Move,sdh,cylopen]]
+  [cyl. open,Move,sdh,cylopen],
+  [calib,Move,sdh,calib]]
 6 eyes:
   [[stop,Trigger,head,stop],
   [init,Trigger,head,init],
