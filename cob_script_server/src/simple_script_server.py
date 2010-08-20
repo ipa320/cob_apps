@@ -3,6 +3,7 @@
 import time
 import os
 import sys
+import types
 
 import roslib
 roslib.load_manifest('cob_script_server')
@@ -65,15 +66,20 @@ class simple_script_server:
 	def AppendGraph(self, function_name, component_name, parameter_name, blocking=True):
 		global graph
 		global graph_wait_list
-		graph.add_edge(self.last_node,  str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name)
+		if type(parameter_name) is types.StringType:
+			graphstring = str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name
+		else:
+			graphstring = str(self.function_counter)+"_"+function_name+"_"+component_name
+			
+		graph.add_edge(self.last_node,  graphstring)
 		for waiter in graph_wait_list:
-			graph.add_edge(waiter,  str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name)
+			graph.add_edge(waiter,  graphstring)
 		graph_wait_list=[]
 		ah = action_handle(simulation=True)
 		if blocking:
-			self.last_node = str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name
+			self.last_node = graphstring
 		else:
-			ah.parent_node = str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name
+			ah.parent_node = graphstring
 
 		self.function_counter += 1
 		return ah
