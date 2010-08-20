@@ -215,14 +215,14 @@ class simple_script_server:
 		
 		# convert to trajectory message
 		traj = JointTrajectory()
-		traj.header.stamp = rospy.Time.now()
+		traj.header.stamp = rospy.Time.now()+rospy.Duration(2)
 		traj.joint_names = joint_names
 		point_nr = 0
 		for i in param:
 			point_nr = point_nr + 1
 			point = JointTrajectoryPoint()
 			point.positions = i
-			point.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. TODO: read from parameter
+			point.time_from_start=rospy.Duration(5*point_nr) # this value is set to 3 sec per point. TODO: read from parameter
 			traj.points.append(point)
 		
 		# call action server
