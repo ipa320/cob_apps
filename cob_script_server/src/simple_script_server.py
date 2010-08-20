@@ -26,6 +26,8 @@ class ssscript:
 	def Start(self, name):
 		self.sss = simple_script_server()
 		rospy.init_node(name)
+		self.Initialize()
+		self.run()
 
 	def Initialize(self):
 		pass
@@ -77,22 +79,22 @@ class simple_script_server:
 		return ah
 
 #------------------- Init section -------------------#
-	def Init(self,component_name):
+	def init(self,component_name):
 		if(self.simulate):
 			return self.AppendGraph("Init", component_name, "")
-	      	Trigger(component_name,"init")
+	      	self.trigger(component_name,"init")
 
-	def Stop(self,component_name):
+	def stop(self,component_name):
 		if(self.simulate):
 			return self.AppendGraph("Stop", component_name, "")
-		Trigger(component_name,"stop")
+		self.trigger(component_name,"stop")
 
-	def Recover(self,component_name):
+	def recover(self,component_name):
 		if(self.simulate):
                         return self.AppendGraph("Recover", component_name, "")
-		Trigger(component_name,"recover")
+		self.trigger(component_name,"recover")
 
-	def Trigger(self,component_name,service_name,blocking=True):
+	def trigger(self,component_name,service_name,blocking=True):
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
 		rospy.loginfo("Waiting for <<%s>> to <<%s>>...", component_name, service_name)
 		service_full_name = "/" + component_name + "_controller/" + service_name
@@ -112,16 +114,16 @@ class simple_script_server:
 		return True
 
 #------------------- Move section -------------------#
-	def Move(self,component_name,parameter_name,blocking=True):
+	def move(self,component_name,parameter_name,blocking=True):
 		if(self.simulate):
                         return self.AppendGraph("Move", component_name, parameter_name, blocking)
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		if component_name == "base":
-			return self.MoveBase(component_name,parameter_name,blocking)
+			return self.move_base(component_name,parameter_name,blocking)
 		else:
-			return self.MoveTraj(component_name,parameter_name,blocking)
+			return self.move_traj(component_name,parameter_name,blocking)
 
-	def MoveBase(self,component_name,parameter_name,blocking):
+	def move_base(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
 		ah.parameter_name = parameter_name
@@ -206,7 +208,7 @@ class simple_script_server:
 		
 		return ah
 
-	def MoveTraj(self,component_name,parameter_name,blocking):
+	def move_traj(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
 		ah.parameter_name = parameter_name
