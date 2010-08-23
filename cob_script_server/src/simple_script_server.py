@@ -17,6 +17,7 @@ from geometry_msgs.msg import *
 from pr2_controllers_msgs.msg import *
 from move_base_msgs.msg import *
 from tf.transformations import *
+from std_msgs.msg import String
 from sound_play.libsoundplay import SoundClient
 import pygraphviz as pgv
 
@@ -27,6 +28,8 @@ class ssscript:
 	def Start(self, name):
 		self.sss = simple_script_server()
 		rospy.init_node(name)
+		self.graph_pub = rospy.Publisher("/script_server/graph", String)
+		self.parse()
 
 	def Initialize(self):
 		pass
@@ -36,10 +39,15 @@ class ssscript:
 
 	def parse(self):
 		global graph
+		rospy.init_node("graph_test")
+		self.graph_pub = rospy.Publisher("/script_server/graph", String)
 		self.sss = simple_script_server(simulate=True)
 		self.Initialize()
 		self.run()
 		self.graph = graph
+		s = String()
+		s.data = graph.string()
+		self.graph_pub.publish(s)
 
 
 class simple_script_server:
