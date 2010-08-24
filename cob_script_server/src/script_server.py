@@ -27,7 +27,6 @@
 #   Implementation of ROS node for script_server.
 #
 #################################################################
-# <a href="todo.html">Todo list</a>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:

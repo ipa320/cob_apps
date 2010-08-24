@@ -27,7 +27,6 @@
 #   Implementation of ROS node for script_server.
 #
 #################################################################
-# <a href="todo.html">Todo list</a>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -84,15 +83,12 @@ graph_wait_list=[]
 ## Script class from which all script inherit.
 #
 # Implements basic functionalities for all scripts.
-#
 class script:
 	## Dummy function for initialization
-	#
 	def Initialize(self):
 		pass
 
 	## Dummy function for main run function
-	#
 	def Run(self):
 		pass
 
@@ -101,7 +97,6 @@ class script:
 	# Creates a ROS node and calls Initialize() and Run().
 	#
 	# \param name Name of the ROS node.
-	#
 	def Start(self, name):
 		self.sss = simple_script_server()
 		rospy.init_node(name)
@@ -111,7 +106,6 @@ class script:
 	## Function to generate graph view of script.
 	#
 	# Starts the script in simulation mode and calls Initialize() and Run().
-	#
 	def Parse(self):
 		global graph
 		self.sss = simple_script_server(simulate=True)
@@ -122,7 +116,6 @@ class script:
 ## Simple script server class.
 #
 # Implements the python interface for the script server.
-#
 class simple_script_server:
 	# Decides wether do use the ROS sound_play package play sound and speech or to start the services
 	#	directly via command line. The command line version has the great advantage that it works!
@@ -169,7 +162,6 @@ class simple_script_server:
 	# Based on the component, the corresponding init service will be called.
 	#
 	# \param component_name Name of the component.
-	#
 	def init(self,component_name):
 		if(self.simulate):
 			return self.AppendGraph("Init", component_name, "")
@@ -180,7 +172,6 @@ class simple_script_server:
 	# Based on the component, the corresponding stop service will be called.
 	#
 	# \param component_name Name of the component.
-	#
 	def stop(self,component_name):
 		if(self.simulate):
 			return self.AppendGraph("Stop", component_name, "")
@@ -191,7 +182,6 @@ class simple_script_server:
 	# Based on the component, the corresponding recover service will be called.
 	#
 	# \param component_name Name of the component.
-	#
 	def recover(self,component_name):
 		if(self.simulate):
                         return self.AppendGraph("Recover", component_name, "")
@@ -204,7 +194,6 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
-	#
 	def trigger(self,component_name,service_name,blocking=True):
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
 		rospy.loginfo("Waiting for <<%s>> to <<%s>>...", component_name, service_name)
@@ -232,7 +221,6 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
-	#
 	def move(self,component_name,parameter_name,blocking=True):
 		if(self.simulate):
                         return self.AppendGraph("Move", component_name, parameter_name, blocking)
@@ -249,7 +237,6 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
-	#
 	def move_base(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
@@ -342,7 +329,6 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
-	#
 	def move_traj(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
@@ -502,7 +488,6 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param mode Name of the operation mode to set.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
-	#	
 	def set_operation_mode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
 		rospy.set_param("/" + component_name + "_controller/OperationMode",mode)
@@ -513,7 +498,6 @@ class simple_script_server:
 	# The color is given by a parameter on the parameter server.
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
-	#	
 	def set_light(self,parameter_name):
 		if(self.simulate):
                         return self.AppendGraph("LED", "", parameter_name)
@@ -566,7 +550,6 @@ class simple_script_server:
 		pub.publish(color)
 		
 		return 0 # full success
-
 
 #-------------------- Sound section --------------------#
 	def Speak(self,parameter_name,mode="DEFAULT"):
@@ -797,7 +780,6 @@ class simple_script_server:
 	# \param duration Duration in seconds for timeout.
 	# 
 	# \todo implement waiting for timeout
-	#
 	def wait_for_input(self,duration=0):
 		if(not self.simulate):
 			rospy.loginfo("Wait for user input...")
@@ -812,7 +794,6 @@ class simple_script_server:
 	# Check if pause is globally set. If yes, enter a wait loop until the parameter is reset.
 	# 
 	# \todo check if pause is working
-	#
 	def check_pause(self):
 		pause_was_active = False
 
@@ -832,10 +813,8 @@ class simple_script_server:
 ## Action handle class.
 #
 # The action handle is used to implement asynchronous behaviour within the script.
-#
 class action_handle:
 	## Initializes the action handle.
-	#
 	def __init__(self, simulation=False):
 		self.error_code = -1
 		self.component_name = None
@@ -848,7 +827,6 @@ class action_handle:
 	# If duration is specified, waits until action is finished or timeout is reached.
 	#
 	# \param duration Duration for timeout.
-	#	
 	def wait(self,duration=None):
 		global graph_wait_list
 		if(self.simulation):
@@ -871,6 +849,5 @@ class action_handle:
 		return self.error_code
 
 	## Gets the error code for a action execution.
-	#
 	def get_error_code(self):
 		return self.error_code
