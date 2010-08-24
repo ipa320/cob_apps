@@ -1,7 +1,7 @@
 <package>
   <description brief="cob_script_server">
 
-     cob_script_server
+     The cob_script_server package provides a simple interface to operate Care-O-bot. It can be used via the python API or the actionlib interface.
 
   </description>
   <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>

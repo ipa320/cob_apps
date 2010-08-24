@@ -7,9 +7,9 @@ import roslib
 roslib.load_manifest('cob_script_server')
 import rospy
 
-from simple_script_server import ssscript
+from simple_script_server import script
 
-class RandomMoves(ssscript):
+class RandomMoves(script):
 
 	def Initialize(self):
 		print "init"
@@ -18,7 +18,7 @@ class RandomMoves(ssscript):
 		#self.sss.init("torso")
 		#self.sss.init("arm")	
 
-	def run(self): 
+	def Run(self): 
 		seed()
 		maxVal = 0.1
 		print "start"

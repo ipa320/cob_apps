@@ -1,4 +1,62 @@
 #!/usr/bin/python
+#################################################################
+##\file
+#
+# \note
+#   Copyright (c) 2010 \n
+#   Fraunhofer Institute for Manufacturing Engineering
+#   and Automation (IPA) \n\n
+#
+#################################################################
+#
+# \note
+#   Project name: care-o-bot
+# \note
+#   ROS stack name: cob_apps
+# \note
+#   ROS package name: cob_script_server
+#
+# \author
+#   Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+# \author
+#   Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+#
+# \date Date of creation: Aug 2010
+#
+# \brief
+#   Implementation of ROS node for script_server.
+#
+#################################################################
+# <a href="todo.html">Todo list</a>
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#     - Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer. \n
+#     - Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution. \n
+#     - Neither the name of the Fraunhofer Institute for Manufacturing
+#       Engineering and Automation (IPA) nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission. \n
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License LGPL as 
+# published by the Free Software Foundation, either version 3 of the 
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Lesser General Public License LGPL for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public 
+# License LGPL along with this program. 
+# If not, see <http://www.gnu.org/licenses/>.
+#
+#################################################################
 
 import time
 import os
@@ -23,27 +81,48 @@ import pygraphviz as pgv
 graph=""
 graph_wait_list=[]
 
-class ssscript:
+## Script class from which all script inherit.
+#
+# Implements basic functionalities for all scripts.
+#
+class script:
+	## Dummy function for initialization
+	#
+	def Initialize(self):
+		pass
+
+	## Dummy function for main run function
+	#
+	def Run(self):
+		pass
+
+	## Function to start the script
+	#
+	# Creates a ROS node and calls Initialize() and Run().
+	#
+	# \param name Name of the ROS node.
+	#
 	def Start(self, name):
 		self.sss = simple_script_server()
 		rospy.init_node(name)
 		self.Initialize()
-		self.run()
-
-	def Initialize(self):
-		pass
-
-	def run(self):
-		pass
-
-	def parse(self):
+		self.Run()
+	
+	## Function to generate graph view of script.
+	#
+	# Starts the script in simulation mode and calls Initialize() and Run().
+	#
+	def Parse(self):
 		global graph
 		self.sss = simple_script_server(simulate=True)
 		self.Initialize()
-		self.run()
+		self.Run()
 		self.graph = graph
 
-
+## Simple script server class.
+#
+# Implements the python interface for the script server.
+#
 class simple_script_server:
 	# Decides wether do use the ROS sound_play package play sound and speech or to start the services
 	#	directly via command line. The command line version has the great advantage that it works!
@@ -85,21 +164,47 @@ class simple_script_server:
 		return ah
 
 #------------------- Init section -------------------#
+	## Initializes different components.
+	#
+	# Based on the component, the corresponding init service will be called.
+	#
+	# \param component_name Name of the component.
+	#
 	def init(self,component_name):
 		if(self.simulate):
 			return self.AppendGraph("Init", component_name, "")
 	      	self.trigger(component_name,"init")
 
+	## Stops different components.
+	#
+	# Based on the component, the corresponding stop service will be called.
+	#
+	# \param component_name Name of the component.
+	#
 	def stop(self,component_name):
 		if(self.simulate):
 			return self.AppendGraph("Stop", component_name, "")
 		self.trigger(component_name,"stop")
 
+	## Recovers different components.
+	#
+	# Based on the component, the corresponding recover service will be called.
+	#
+	# \param component_name Name of the component.
+	#
 	def recover(self,component_name):
 		if(self.simulate):
                         return self.AppendGraph("Recover", component_name, "")
 		self.trigger(component_name,"recover")
 
+	## Deals with all kind of trigger services for different components.
+	#
+	# Based on the component and service name, the corresponding trigger service will be called.
+	#
+	# \param component_name Name of the component.
+	# \param service_name Name of the trigger service.
+	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
+	#
 	def trigger(self,component_name,service_name,blocking=True):
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
 		rospy.loginfo("Waiting for <<%s>> to <<%s>>...", component_name, service_name)
@@ -120,6 +225,14 @@ class simple_script_server:
 		return True
 
 #------------------- Move section -------------------#
+	## Deals with all kind of movements for different components.
+	#
+	# Based on the component, the corresponding move functions will be called.
+	#
+	# \param component_name Name of the component.
+	# \param parameter_name Name of the parameter on the ROS parameter server.
+	# \param blocking Bool value to specify blocking behaviour.
+	#
 	def move(self,component_name,parameter_name,blocking=True):
 		if(self.simulate):
                         return self.AppendGraph("Move", component_name, parameter_name, blocking)
@@ -129,6 +242,14 @@ class simple_script_server:
 		else:
 			return self.move_traj(component_name,parameter_name,blocking)
 
+	## Deals with movements of the base.
+	#
+	# A target will be sent to the actionlib interface of the move_base node.
+	#
+	# \param component_name Name of the component.
+	# \param parameter_name Name of the parameter on the ROS parameter server.
+	# \param blocking Bool value to specify blocking behaviour.
+	#
 	def move_base(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
@@ -214,6 +335,14 @@ class simple_script_server:
 		
 		return ah
 
+	## Deals with all kind of trajectory movements for different components.
+	#
+	# A trajectory will be sent to the actionlib interface of the corresponding component.
+	#
+	# \param component_name Name of the component.
+	# \param parameter_name Name of the parameter on the ROS parameter server.
+	# \param blocking Bool value to specify blocking behaviour.
+	#
 	def move_traj(self,component_name,parameter_name,blocking):
 		ah = action_handle()
 		ah.component_name = component_name
@@ -365,13 +494,27 @@ class simple_script_server:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
 		
 		return ah
-		
+	
+	## Set the operation mode for different components.
+	#
+	# Based on the component, the corresponding set_operation_mode service will be called.
+	#
+	# \param component_name Name of the component.
+	# \param mode Name of the operation mode to set.
+	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
+	#	
 	def set_operation_mode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
 		rospy.set_param("/" + component_name + "_controller/OperationMode",mode)
 			
 #------------------- LED section -------------------#
-	def SetLight(self,parameter_name):
+	## Set the color of the cob_light component.
+	#
+	# The color is given by a parameter on the parameter server.
+	#
+	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
+	#	
+	def set_light(self,parameter_name):
 		if(self.simulate):
                         return self.AppendGraph("LED", "", parameter_name)
 		rospy.loginfo("Set light to %s",parameter_name)
@@ -638,12 +781,24 @@ class simple_script_server:
 			return 2
 
 #------------------- General section -------------------#
+	## Sleep for a certain time.
+	#
+	# \param duration Duration in seconds to sleep.
+	#
 	def sleep(self,duration):
 		if(not self.simulate):
 			rospy.loginfo("Wait for %f sec",duration)
 			time.sleep(duration)
 
-	def wait_for_input(self):
+	## Waits for user input.
+	#
+	# Waits either for a user input or until timeout is reached.
+	#
+	# \param duration Duration in seconds for timeout.
+	# 
+	# \todo implement waiting for timeout
+	#
+	def wait_for_input(self,duration=0):
 		if(not self.simulate):
 			rospy.loginfo("Wait for user input...")
 			retVal = sys.stdin.readline()
@@ -652,9 +807,13 @@ class simple_script_server:
 		#key = input()
 		#return key
 
+	## Checks if script is in pause mode
+	#
+	# Check if pause is globally set. If yes, enter a wait loop until the parameter is reset.
+	# 
+	# \todo check if pause is working
+	#
 	def check_pause(self):
-		""" check if pause is globally set. If yes, enter a wait loop until
-		the parameter is reset """
 		pause_was_active = False
 
 		while rospy.get_param("/script_server/pause"):
@@ -670,14 +829,26 @@ class simple_script_server:
 			return 0
 
 #------------------- action_handle section -------------------#	
+## Action handle class.
+#
+# The action handle is used to implement asynchronous behaviour within the script.
+#
 class action_handle:
+	## Initializes the action handle.
+	#
 	def __init__(self, simulation=False):
 		self.error_code = -1
 		self.component_name = None
 		self.parameter_name = None
 		self.simulation = simulation
 		self.parent_node = ""
-	
+
+	## Waits for the action to be finished.
+	#
+	# If duration is specified, waits until action is finished or timeout is reached.
+	#
+	# \param duration Duration for timeout.
+	#	
 	def wait(self,duration=None):
 		global graph_wait_list
 		if(self.simulation):
@@ -698,6 +869,8 @@ class action_handle:
 		else:
 			rospy.logwarn("Execution of action was aborted, wait not possible. Continuing...")
 		return self.error_code
-	
+
+	## Gets the error code for a action execution.
+	#
 	def get_error_code(self):
 		return self.error_code
