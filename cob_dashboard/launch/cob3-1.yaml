@@ -13,7 +13,7 @@
   [[stop,trigger,torso,stop],
   [init,trigger,torso,init],
   [recover,trigger,torso,recover],
-  [enable joystick,Mode,torso,velocity],
+  [enable joystick,mode,torso,velocity],
   [home,move,torso,home],
   [front,move,torso,front],
   [back,move,torso,back],
@@ -25,7 +25,7 @@
   [[stop,trigger,tray,stop],
   [init,trigger,tray,init],
   [recover,trigger,tray,recover],
-  [enable joystick,Mode,tray,velocity],
+  [enable joystick,mode,tray,velocity],
   [up,move,tray,up],
   [down,move,tray,down]]
 3 arm:
