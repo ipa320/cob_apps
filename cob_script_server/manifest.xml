@@ -23,4 +23,5 @@
   <depend package="opencv2"/>
   <depend package="cv_bridge"/>
 
+  <rosdep name="pygraphviz"/>
 </package>

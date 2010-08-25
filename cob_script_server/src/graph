@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+import roslib
+roslib.load_manifest('cob_script_server')
+import sys
+import types
+import string
+import os
+from simple_script_server import ssscript
+
+
+if __name__ == "__main__":
+	filename = sys.argv[1]
+	filename_splitted = string.split(filename, "/")
+	#print filename_splitted
+	scriptfile = filename_splitted[-1]
+	if(len(filename_splitted) > 1):
+		filename_splitted.pop(len(filename_splitted)-1)
+		scriptdir = ""
+		for name in filename_splitted:
+			scriptdir += name + "/"
+		#print scriptdir
+		sys.path.insert(0,scriptdir)
+	scriptfile_woext = string.split(scriptfile, ".")[0]
+	#print scriptfile_woext
+
+	try:
+		__import__(scriptfile_woext, globals(), locals(), [], -1)
+		scriptmodule = sys.modules[scriptfile_woext]
+		for classname in dir(scriptmodule):
+			subclass = scriptmodule.__getattribute__(classname)
+			if(isinstance(subclass, types.ClassType)):
+				if(issubclass(subclass, ssscript)):
+					if(classname != "ssscript"):
+						s = subclass()
+						model = s.parse()
+						#print s.graph.string()
+						s.graph.layout('dot')
+						s.graph.draw(classname+".png")
+						      
+	except ImportError:
+		print "Unable to import script file"
+

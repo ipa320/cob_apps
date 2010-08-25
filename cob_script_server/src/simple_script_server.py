@@ -17,27 +17,79 @@ from pr2_controllers_msgs.msg import *
 from move_base_msgs.msg import *
 from tf.transformations import *
 from sound_play.libsoundplay import SoundClient
+import pygraphviz as pgv
+
+graph=""
+graph_wait_list=[]
+
+class ssscript:
+	def Start(self, name):
+		self.sss = simple_script_server()
+		rospy.init_node(name)
+
+	def Initialize(self):
+		pass
+
+	def run(self):
+		pass
+
+	def parse(self):
+		global graph
+		self.sss = simple_script_server(simulate=True)
+		self.Initialize()
+		self.run()
+		self.graph = graph
+
 
 class simple_script_server:
 	# Decides wether do use the ROS sound_play package play sound and speech or to start the services
 	#	directly via command line. The command line version has the great advantage that it works!
 	use_ROS_sound_play = False
 
-	def __init__(self):
+	def __init__(self, simulate=False):
+		global graph
 		self.ns_global_prefix = "/script_server"
+		self.simulate = simulate
+		graph = pgv.AGraph()
+		graph.node_attr['shape']='box'
+#		self.represent.node_attr['fixedsize']='true'
+		self.last_node = "Start"
+		self.function_counter = 0
 		#self.ns_global_prefix = ""
 		if self.use_ROS_sound_play:
 			self.soundhandle = SoundClient()
 		time.sleep(1)
 
+	def AppendGraph(self, function_name, component_name, parameter_name, blocking=True):
+		global graph
+		global graph_wait_list
+		graph.add_edge(self.last_node,  str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name)
+		for waiter in graph_wait_list:
+			graph.add_edge(waiter,  str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name)
+		graph_wait_list=[]
+		ah = action_handle(simulation=True)
+		if blocking:
+			self.last_node = str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name
+		else:
+			ah.parent_node = str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name
+
+		self.function_counter += 1
+		return ah
+
 #------------------- Init section -------------------#
 	def Init(self,component_name):
-		Trigger(component_name,"init")
+		if(self.simulate):
+			return self.AppendGraph("Init", component_name, "")
+	      	Trigger(component_name,"init")
 
 	def Stop(self,component_name):
+		if(self.simulate):
+			return self.AppendGraph("Stop", component_name, "")
 		Trigger(component_name,"stop")
 
 	def Recover(self,component_name):
+		if(self.simulate):
+                        return self.AppendGraph("Recover", component_name, "")
 		Trigger(component_name,"recover")
 
 	def Trigger(self,component_name,service_name,blocking=True):
@@ -61,6 +113,8 @@ class simple_script_server:
 
 #------------------- Move section -------------------#
 	def Move(self,component_name,parameter_name,blocking=True):
+		if(self.simulate):
+                        return self.AppendGraph("Move", component_name, parameter_name, blocking)
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		if component_name == "base":
 			return self.MoveBase(component_name,parameter_name,blocking)
@@ -222,7 +276,7 @@ class simple_script_server:
 			point_nr = point_nr + 1
 			point = JointTrajectoryPoint()
 			point.positions = i
-			point.time_from_start=rospy.Duration(5*point_nr) # this value is set to 3 sec per point. TODO: read from parameter
+			point.time_from_start=rospy.Duration(4*point_nr) # this value is set to 3 sec per point. TODO: read from parameter
 			traj.points.append(point)
 		
 		# call action server
@@ -290,6 +344,8 @@ class simple_script_server:
 			
 #------------------- LED section -------------------#
 	def SetLight(self,parameter_name):
+		if(self.simulate):
+                        return self.AppendGraph("LED", "", parameter_name)
 		rospy.loginfo("Set light to %s",parameter_name)
 		pub = rospy.Publisher('light_controller/command', Light)
 		time.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
@@ -305,9 +361,9 @@ class simple_script_server:
 			
 		# check color parameters
 		if not type(param) is list: # check outer list
-				rospy.logerr("no valid parameter for light: not a list, aborting...")
-				print "parameter is:",param
-				return 3
+			rospy.logerr("no valid parameter for light: not a list, aborting...")
+			print "parameter is:",param
+			return 3
 		else:
 			if not len(param) == 3: # check dimension
 				rospy.logerr("no valid parameter for light: dimension should be 3 (r,g,b) and is %d, aborting...",len(param))
@@ -343,15 +399,18 @@ class simple_script_server:
 
 #-------------------- Sound section --------------------#
 	def Speak(self,parameter_name,mode="DEFAULT"):
+		if(self.simulate):
+                        return self.AppendGraph("Speak", "", parameter_name)
+
 		""" Speak sound specified by 'parameter_name' either via TTS or by playing a WAV-File
 		Possible modes are:
-			DEFAULT - use mode set by a global parameter (default)
-			WAV_DE	- play wav-Files with German Text
-			WAV_EN	- play wav-FIles with English Text
-			FEST_EN	- use Text-to-speech with the English Festival voice
-			CEPS_EN	- use Text-to-speech with the English Cepstral voice David
-			CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
-			MUTE	- play no sound at all
+		DEFAULT - use mode set by a global parameter (default)
+		WAV_DE	- play wav-Files with German Text
+		WAV_EN	- play wav-FIles with English Text
+		FEST_EN	- use Text-to-speech with the English Festival voice
+		CEPS_EN	- use Text-to-speech with the English Cepstral voice David
+		CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
+		MUTE	- play no sound at all
 		"""
 		rospy.logdebug("Speak <<%s>> in mode <<%s>>",parameter_name,mode)
 		ah = action_handle()
@@ -460,25 +519,28 @@ class simple_script_server:
 			rospy.loginfo("Playing sound %s (muted)",parameter_name)
 			ah.error_code = 0
 			return ah
-
+		
 		else:
 			rospy.logerr("ROS has no sound mode %s!",mode)
 			ah.error_code = 2
 			return ah
 
 	def SpeakStr(self,text,mode):
+		if(self.simulate):
+                        return self.AppendGraph("SpeakStr", text, mode)
+	
 		""" Speak the string 'text' via the TTS system specified by mode
 		Possible modes are:
-			FEST_EN	- use Text-to-speech with the English Festival voice
-			CEPS_EN	- use Text-to-speech with the English Cepstral voice David
-			CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
-			MUTE	- play no sound at all
+		FEST_EN	- use Text-to-speech with the English Festival voice
+		CEPS_EN	- use Text-to-speech with the English Cepstral voice David
+		CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
+		MUTE	- play no sound at all
 		"""
 		# verify that argument 'text' is a string
 		if not type(text) == str:
 			rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
 			return 3
-
+		
 		# get parameter for temporary wav file
 		param_name = self.ns_global_prefix +"/sound/temp_wav_file"
 		if not rospy.has_param(param_name):
@@ -489,7 +551,7 @@ class simple_script_server:
 		# play sound depending on the mode that was chosen
 		if mode == "FEST_EN":
 			rospy.loginfo("Using English Festival Voice for speaking '%s'",text)
-		
+			
 			# send text string to TTS system
 			if self.use_ROS_sound_play:
 				self.soundhandle.say(text)
@@ -504,7 +566,7 @@ class simple_script_server:
 
 		elif mode == "CEPS_EN":
 			rospy.loginfo("Using English Cepstral Voice David for speaking '%s'",text)
-		
+			
 			# send text string to TTS system
 			retVal = os.system("swift -n \"David\" -e \"utf-8\" \"" + text + "\" -o " + temp_wav_file)
 			if retVal != 0:
@@ -522,7 +584,7 @@ class simple_script_server:
 
 		elif mode == "CEPS_DE":
 			rospy.loginfo("Using German Cepstral Voice Matthias for speaking '%s'",text)
-		
+			
 			# send text string to TTS system
 			retVal = os.system("swift -n \"Matthias\" -e \"utf-8\" \"" + text + "\" -o " + temp_wav_file)
 			if retVal != 0:
@@ -549,14 +611,16 @@ class simple_script_server:
 
 #------------------- General section -------------------#
 	def sleep(self,duration):
-		rospy.loginfo("Wait for %f sec",duration)
-		time.sleep(duration)
+		if(not self.simulate):
+			rospy.loginfo("Wait for %f sec",duration)
+			time.sleep(duration)
 
 	def wait_for_input(self):
-		rospy.loginfo("Wait for user input...")
-		retVal = sys.stdin.readline()
-		rospy.loginfo("Got string >%s<",retVal)
-		return retVal
+		if(not self.simulate):
+			rospy.loginfo("Wait for user input...")
+			retVal = sys.stdin.readline()
+			rospy.loginfo("Got string >%s<",retVal)
+			return retVal
 		#key = input()
 		#return key
 
@@ -579,12 +643,19 @@ class simple_script_server:
 
 #------------------- action_handle section -------------------#	
 class action_handle:
-	def __init__(self):
+	def __init__(self, simulation=False):
 		self.error_code = -1
 		self.component_name = None
 		self.parameter_name = None
+		self.simulation = simulation
+		self.parent_node = ""
 	
 	def wait(self,duration=None):
+		global graph_wait_list
+		if(self.simulation):
+			if(self.parent_node != ""):
+				graph_wait_list.append(self.parent_node)
+			return
 		if self.error_code == 0:			
 			if duration is None:
 				rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)

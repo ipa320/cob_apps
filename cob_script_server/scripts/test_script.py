@@ -6,13 +6,10 @@ import roslib
 roslib.load_manifest('cob_script_server')
 import rospy
 
-import simple_script_server
+from simple_script_server import ssscript
 
-class GetDrink:
-	def __init__(self):
-		rospy.init_node('test_script')
-		self.sss = simple_script_server.simple_script_server()
-
+class GetDrink(ssscript):
+		
 	def Initialize(self):
 		self.sss.Init("tray")
 		self.sss.Init("torso")
@@ -29,22 +26,22 @@ class GetDrink:
 		self.sss.Move("sdh","home",False)
 		self.sss.Move("tray","down")
 		handle01.wait()
-#		self.sss.Move("base","home")
+		self.sss.Move("base","home")
 #		self.sss.wait_for_input()
 
 		#test
 #		self.sss.Move("arm","home")
 #		self.sss.MoveCartRel("arm", [0.0, 0.0, 0.0], [0.0, 0.0, 90.0/180.0*3.1415926])
-#		self.sss.Speak("sentence1","WAV_DE")
+		self.sss.Speak("sentence1","WAV_DE")
 #		self.sss.Speak("sentence1","FEST_EN")
 
 		#grasp
-#		self.sss.Move("base","kitchen")
+		self.sss.Move("base","kitchen")
 		handle01 = self.sss.Move("arm","pregrasp",False)
 		self.sss.Move("sdh","cylopen")
 		handle01.wait()
-		#self.sss.Move("arm","grasp")
-		self.sss.MoveCartRel("arm", [-0.2, 0.0, 0.0], [0.0, 0.0, 0.0])
+		self.sss.Move("arm","grasp")
+		#self.sss.MoveCartRel("arm", [-0.2, 0.0, 0.0], [0.0, 0.0, 0.0])
 		self.sss.Move("sdh","cylclosed")
 
 		#place on tablet
@@ -74,5 +71,6 @@ class GetDrink:
 		
 if __name__ == "__main__":
 	SCRIPT = GetDrink()
+	SCRIPT.Start('test_script')
 	#SCRIPT.Initialize()
-	SCRIPT.run()
+	#SCRIPT.run()
