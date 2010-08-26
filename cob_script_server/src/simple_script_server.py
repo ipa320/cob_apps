@@ -131,8 +131,7 @@ class simple_script_server:
 		self.last_node = "Start"
 		self.function_counter = 0
 		#self.ns_global_prefix = ""
-		if self.use_ROS_sound_play:
-			self.soundhandle = SoundClient()
+		self.soundhandle = SoundClient()
 		time.sleep(1)
 
 	def AppendGraph(self, function_name, component_name, parameter_name, blocking=True):
@@ -552,6 +551,51 @@ class simple_script_server:
 		return 0 # full success
 
 #-------------------- Sound section --------------------#
+	## Say some text.
+	#
+	# The text to say may be given by a list of strings or a single string which points to a parameter on the ROS parameter server.
+	#
+	# \param parameter_name Name of the parameter
+	# \param language Language to use for the TTS system
+	def say(self,parameter_name,language="en"):
+		component_name = "sound"
+		ah = action_handle()
+		ah.component_name = component_name
+		ah.parameter_name = parameter_name
+		text = ""
+		
+		rospy.loginfo("Saying <<%s>>",parameter_name)
+		
+		# get values from parameter server
+		if type(parameter_name) is str:
+			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
+				ah.error_code = 2
+				return ah
+			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
+		else:
+			param = parameter_name
+		
+		# check parameters
+		if not type(param) is list: # check list
+				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
+				print "parameter is:",param
+				ah.error_code = 3
+				return ah
+		else:
+			for i in param:
+				#print i,"type1 = ", type(i)
+				if not type(i) is str:
+					rospy.logerr("no valid parameter for %s: not a list of strings, aborting...",component_name)
+					print "parameter is:",param
+					ah.error_code = 3
+					return ah
+				else:
+					text = text + i + " "
+					rospy.logdebug("accepted parameter <<%s>> for <<%s>>",i,component_name)
+		#print text
+		self.soundhandle.say(text)
+
 	def Speak(self,parameter_name,mode="DEFAULT"):
 		if(self.simulate):
                         return self.AppendGraph("Speak", "", parameter_name)

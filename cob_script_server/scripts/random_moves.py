@@ -29,9 +29,9 @@ class RandomMoves(script):
 		for i in range(1,4):
 			r1 = (random()-0.5)*2*maxVal;
 			r2 = (random()-0.5)*2*maxVal;
-			#self.sss.move("torso",[[0.5*r1,0.5*r2,r1,r2]])
+			self.sss.move("torso",[[0.5*r1,0.5*r2,r1,r2]])
 			#self.sss.move("arm","pregrasp")
-			self.sss.move_cart_rel("arm",[0.0, 0.0, 0.1], [0.0, 0.0, 0.0])
+			#self.sss.move_cart_rel("arm",[0.0, 0.0, 0.1], [0.0, 0.0, 0.0])
 			#self.sss.move("sdh","cylopen")
 			#self.sss.move("sdh","cylclosed")
 			#self.sss.move("arm","folded")
