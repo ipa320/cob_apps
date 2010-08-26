@@ -184,11 +184,11 @@ void TeleopCOB::init()
 	n_.param("left_right",left_right_,4);  //axis[4] pan--left/right
 
 	// define step sizes
-	n_.param("lower_tilt_step",lower_tilt_step_,0.1); // rad/sec
-	n_.param("lower_pan_step",lower_pan_step_,0.1); // rad/sec
-	n_.param("upper_tilt_step",upper_tilt_step_,0.15); // rad/sec
-	n_.param("upper_pan_step",upper_pan_step_,0.15); // rad/sec
-	n_.param("tray_step",tray_step_,0.15); // rad/sec
+	n_.param("lower_tilt_step",lower_tilt_step_,0.05); // rad/sec
+	n_.param("lower_pan_step",lower_pan_step_,0.05); // rad/sec
+	n_.param("upper_tilt_step",upper_tilt_step_,0.075); // rad/sec
+	n_.param("upper_pan_step",upper_pan_step_,0.075); // rad/sec
+	n_.param("tray_step",tray_step_,0.1); // rad/sec
 	n_.param("arm_left_right_step",arm_left_right_step_,0.1); // rad/sec
 	n_.param("arm_up_down_step",arm_up_down_step_,0.1); // rad/sec
 

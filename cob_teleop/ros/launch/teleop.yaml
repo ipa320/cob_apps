@@ -20,10 +20,10 @@ up_down: 5 #tray--up/down; tilt--front/back, here we just name up_down
 left_right: 4 #pan--left/right
 
 # velocities in rad/sec, m/sec
-lower_tilt_step: 0.1
-lower_pan_step: 0.1
-upper_tilt_step: 0.15
-upper_pan_step: 0.15
+lower_tilt_step: 0.05
+lower_pan_step: 0.05
+upper_tilt_step: 0.075
+upper_pan_step: 0.075
 tray_step: 0.15
 arm_left_right_step: 0.1
 arm_up_down_step: 0.1
