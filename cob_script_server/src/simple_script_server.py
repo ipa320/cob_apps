@@ -97,19 +97,13 @@ class script():
 	# Creates a ROS node and calls Initialize() and Run().
 	#
 	# \param name Name of the ROS node.
-	def Start(self, name):
+	def Start(self):
 		self.sss = simple_script_server()
-		rospy.init_node(name)
-		self.Initialize()
-		self.Run()
-		
-	def Name(self):
-		#return os.path.dirname(__file__)
 		filename = os.path.basename(sys.argv[0])
 		basename, extension = os.path.splitext(filename)
-		print "filename = ", filename
-		print "basename = ", basename
-		print "extension = ", extension
+		rospy.init_node(basename)
+		self.Initialize()
+		self.Run()
 	
 	## Function to generate graph view of script.
 	#
