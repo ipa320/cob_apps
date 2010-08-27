@@ -33,6 +33,7 @@
   [folded,Move,arm,folded],
   [pregrasp,Move,arm,pregrasp],
   [grasp,Move,arm,grasp],
+  [graspbrics,Move,arm,graspbrics],
   [overtablet,Move,arm,overtablet],
   [tablet,Move,arm,tablet]]
 4 arm traj:
