@@ -83,7 +83,7 @@ graph_wait_list=[]
 ## Script class from which all script inherit.
 #
 # Implements basic functionalities for all scripts.
-class script:
+class script():
 	## Dummy function for initialization
 	def Initialize(self):
 		pass
@@ -102,13 +102,23 @@ class script:
 		rospy.init_node(name)
 		self.Initialize()
 		self.Run()
+		
+	def Name(self):
+		#return os.path.dirname(__file__)
+		filename = os.path.basename(sys.argv[0])
+		basename, extension = os.path.splitext(filename)
+		print "filename = ", filename
+		print "basename = ", basename
+		print "extension = ", extension
 	
 	## Function to generate graph view of script.
 	#
 	# Starts the script in simulation mode and calls Initialize() and Run().
-	def Parse(self):
+	#
+	# \param level Level for graph generation
+	def Parse(self,level):
 		global graph
-		self.sss = simple_script_server(simulate=True)
+		self.sss = simple_script_server(level, simulate=True)
 		self.Initialize()
 		self.Run()
 		self.graph = graph
@@ -121,10 +131,15 @@ class simple_script_server:
 	#	directly via command line. The command line version has the great advantage that it works!
 	use_ROS_sound_play = False
 
-	def __init__(self, simulate=False):
+	## Initializes simple_script_server class
+	#
+	# \param level Level for graph generation
+	# \param simulate Defines wether to run script in simulation for graph generation or not
+	def __init__(self, level=0, simulate=False):
 		global graph
 		self.ns_global_prefix = "/script_server"
 		self.simulate = simulate
+		self.level = level
 		graph = pgv.AGraph()
 		graph.node_attr['shape']='box'
 #		self.represent.node_attr['fixedsize']='true'
@@ -142,9 +157,9 @@ class simple_script_server:
 		else:
 			graphstring = str(self.function_counter)+"_"+function_name+"_"+component_name
 			
-		graph.add_edge(self.last_node,  graphstring)
+		graph.add_edge(self.last_node, graphstring)
 		for waiter in graph_wait_list:
-			graph.add_edge(waiter,  graphstring)
+			graph.add_edge(waiter, graphstring)
 		graph_wait_list=[]
 		ah = action_handle(simulation=True)
 		if blocking:
@@ -162,9 +177,7 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def init(self,component_name):
-		if(self.simulate):
-			return self.AppendGraph("Init", component_name, "")
-	      	self.trigger(component_name,"init")
+		self.trigger(component_name,"init")
 
 	## Stops different components.
 	#
@@ -172,8 +185,6 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def stop(self,component_name):
-		if(self.simulate):
-			return self.AppendGraph("Stop", component_name, "")
 		self.trigger(component_name,"stop")
 
 	## Recovers different components.
@@ -182,8 +193,6 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def recover(self,component_name):
-		if(self.simulate):
-                        return self.AppendGraph("Recover", component_name, "")
 		self.trigger(component_name,"recover")
 
 	## Deals with all kind of trigger services for different components.
@@ -194,8 +203,12 @@ class simple_script_server:
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def trigger(self,component_name,service_name,blocking=True):
+		if(self.simulate):
+			if (int(self.level) >= 1):
+				return self.AppendGraph(service_name, component_name, "")
+			return
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
-		rospy.loginfo("Waiting for <<%s>> to <<%s>>...", component_name, service_name)
+		rospy.loginfo("Wait for <<%s>> to <<%s>>...", component_name, service_name)
 		service_full_name = "/" + component_name + "_controller/" + service_name
 		try:
 			rospy.wait_for_service(service_full_name,rospy.get_param('server_timeout',3))
@@ -222,7 +235,7 @@ class simple_script_server:
 	# \param blocking Bool value to specify blocking behaviour.
 	def move(self,component_name,parameter_name,blocking=True):
 		if(self.simulate):
-                        return self.AppendGraph("Move", component_name, parameter_name, blocking)
+			return self.AppendGraph("move", component_name, parameter_name, blocking)
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		if component_name == "base":
 			return self.move_base(component_name,parameter_name,blocking)
@@ -499,7 +512,7 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
 	def set_light(self,parameter_name):
 		if(self.simulate):
-                        return self.AppendGraph("LED", "", parameter_name)
+			return self.AppendGraph("LED", "", parameter_name)
 		rospy.loginfo("Set light to %s",parameter_name)
 		pub = rospy.Publisher('light_controller/command', Light)
 		time.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
@@ -598,7 +611,7 @@ class simple_script_server:
 
 	def Speak(self,parameter_name,mode="DEFAULT"):
 		if(self.simulate):
-                        return self.AppendGraph("Speak", "", parameter_name)
+			return self.AppendGraph("Speak", "", parameter_name)
 
 		""" Speak sound specified by 'parameter_name' either via TTS or by playing a WAV-File
 		Possible modes are:
@@ -725,7 +738,7 @@ class simple_script_server:
 
 	def SpeakStr(self,text,mode):
 		if(self.simulate):
-                        return self.AppendGraph("SpeakStr", text, mode)
+			return self.AppendGraph("SpeakStr", text, mode)
 	
 		""" Speak the string 'text' via the TTS system specified by mode
 		Possible modes are:
@@ -813,9 +826,12 @@ class simple_script_server:
 	# \param duration Duration in seconds to sleep.
 	#
 	def sleep(self,duration):
-		if(not self.simulate):
-			rospy.loginfo("Wait for %f sec",duration)
-			time.sleep(duration)
+		if(self.simulate):
+			if (int(self.level) >= 2):
+				return self.AppendGraph("sleep", "", 0)
+			return
+		rospy.loginfo("Wait for %f sec",duration)
+		time.sleep(duration)
 
 	## Waits for user input.
 	#
@@ -825,11 +841,14 @@ class simple_script_server:
 	# 
 	# \todo implement waiting for timeout
 	def wait_for_input(self,duration=0):
-		if(not self.simulate):
-			rospy.loginfo("Wait for user input...")
-			retVal = sys.stdin.readline()
-			rospy.loginfo("Got string >%s<",retVal)
-			return retVal
+		if(self.simulate):
+			if (int(self.level) >= 2):
+				return self.AppendGraph("Wait_for_input", "", 0)
+			return
+		rospy.loginfo("Wait for user input...")
+		retVal = sys.stdin.readline()
+		rospy.loginfo("Got string >%s<",retVal)
+		return retVal
 		#key = input()
 		#return key
 

@@ -8,7 +8,7 @@ import rospy
 
 from simple_script_server import script
 
-class GetDrink(script):
+class TestScript(script):
 		
 	def Initialize(self):
 		self.sss.init("tray")
@@ -69,7 +69,5 @@ class GetDrink(script):
 		print "finished"
 		
 if __name__ == "__main__":
-	SCRIPT = GetDrink()
+	SCRIPT = TestScript()
 	SCRIPT.Start('test_script')
-	#SCRIPT.initialize()
-	#SCRIPT.run()
