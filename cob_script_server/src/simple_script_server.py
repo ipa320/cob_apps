@@ -113,6 +113,8 @@ class script():
 	# \param level Level for graph generation
 	def Parse(self,level):
 		global graph
+		rospy.init_node("graph_gen")
+		self.graph_pub = rospy.Publisher("/script_server/graph", String)
 		self.sss = simple_script_server(level, simulate=True)
 		self.Initialize()
 		self.Run()
