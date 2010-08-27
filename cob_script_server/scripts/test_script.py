@@ -70,4 +70,4 @@ class TestScript(script):
 		
 if __name__ == "__main__":
 	SCRIPT = TestScript()
-	SCRIPT.Start('test_script')
+	SCRIPT.Start()

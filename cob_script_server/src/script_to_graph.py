@@ -53,7 +53,8 @@ if __name__ == "__main__":
 						model = s.Parse(level)
 						#print s.graph.string()
 						s.graph.layout('dot')
-						s.graph.draw(classname+".png")
+						basename, extension = os.path.splitext(filename)
+						s.graph.draw(basename + "_" + str(level) + ".png")
 	except ImportError:
 		print "Unable to import script file"
 		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"
