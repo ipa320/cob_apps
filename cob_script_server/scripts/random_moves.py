@@ -42,4 +42,5 @@ class RandomMoves(script):
 		
 if __name__ == "__main__":
 	SCRIPT = RandomMoves()
+	print "filename= ",SCRIPT.Name()
 	SCRIPT.Start('random_moves_script')
