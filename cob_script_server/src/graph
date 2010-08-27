@@ -6,11 +6,28 @@ import sys
 import types
 import string
 import os
-from simple_script_server import ssscript
+from simple_script_server import script
 
 
 if __name__ == "__main__":
-	filename = sys.argv[1]
+	if (len(sys.argv) <= 1 ):
+		print "Error: wrong number of input arguments"
+		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"
+		sys.exit(1)
+	elif (len(sys.argv) == 2):
+		filename = sys.argv[1]
+		level = 0
+	elif (len(sys.argv) == 3):
+		filename = sys.argv[1]
+		level = int(sys.argv[2])
+	else:
+		print "Error: to many arguments"
+		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"
+		sys.exit(1)
+	
+	print "Script file = ", filename
+	print "Graph level = ", level
+	
 	filename_splitted = string.split(filename, "/")
 	#print filename_splitted
 	scriptfile = filename_splitted[-1]
@@ -30,14 +47,14 @@ if __name__ == "__main__":
 		for classname in dir(scriptmodule):
 			subclass = scriptmodule.__getattribute__(classname)
 			if(isinstance(subclass, types.ClassType)):
-				if(issubclass(subclass, ssscript)):
-					if(classname != "ssscript"):
+				if(issubclass(subclass, script)):
+					if(classname != "script"):
 						s = subclass()
-						model = s.parse()
+						model = s.Parse(level)
 						#print s.graph.string()
 						s.graph.layout('dot')
 						s.graph.draw(classname+".png")
-						      
 	except ImportError:
 		print "Unable to import script file"
+		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"
 

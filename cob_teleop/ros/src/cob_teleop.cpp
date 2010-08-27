@@ -1,51 +1,58 @@
-/****************************************************************
+/*!
+ *****************************************************************
+ * \file
  *
- * Copyright (c) 2010
+ * \note
+ *   Copyright (c) 2010 \n
+ *   Fraunhofer Institute for Manufacturing Engineering
+ *   and Automation (IPA) \n\n
  *
- * Fraunhofer Institute for Manufacturing Engineering	
- * and Automation (IPA)
+ *****************************************************************
  *
- * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ * \note
+ *   Project name: care-o-bot
+ * \note
+ *   ROS stack name: cob_apps
+ * \note
+ *   ROS package name: cob_teleop
  *
- * Project name: care-o-bot
- * ROS stack name: cob_apps
- * ROS package name: cob_teleop
- *								
- * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- *			
- * Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
- * Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+ * \author
+ *   Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+ * \author
+ *   Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
  *
- * Date of creation: June 2010
- * ToDo:
+ * \date Date of creation: June 2010
  *
- * +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ * \brief
+ *   Implementation of teleoperation node.
+ *
+ *****************************************************************
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
+ *     - Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer. \n
+ *     - Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Fraunhofer Institute for Manufacturing 
+ *       documentation and/or other materials provided with the distribution. \n
+ *     - Neither the name of the Fraunhofer Institute for Manufacturing
  *       Engineering and Automation (IPA) nor the names of its
  *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
+ *       this software without specific prior written permission. \n
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License LGPL as 
- * published by the Free Software Foundation, either version 3 of the 
+ * it under the terms of the GNU Lesser General Public License LGPL as
+ * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License LGPL for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public 
- * License LGPL along with this program. 
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License LGPL along with this program.
  * If not, see <http://www.gnu.org/licenses/>.
  *
  ****************************************************************/
@@ -61,6 +68,11 @@
 
 const int PUBLISH_FREQ = 20.0;
 
+/*!
+* \brief Implementation of teleoperation node.
+*
+* Sends direct commands to different components
+*/
 class TeleopCOB
 {
 	public:
@@ -137,7 +149,9 @@ class TeleopCOB
 		~TeleopCOB();
 };
 
-//TeleopCOB::TeleopCOB():req_lower_tilt(0.0),req_lower_pan(0.0),req_upper_tilt(0.0),req_upper_pan(0.0),req_tray(0.0),req_vx(0.0),req_vy(0.0),req_vth(0.0),req_j1(0.0),req_j2(0.0),req_j3(0.0),req_j4(0.0),req_j5(0.0),req_j6(0.0),req_j7(0.0)
+/*!
+* \brief Constructor for TeleopCOB class.
+*/
 TeleopCOB::TeleopCOB()
 {
 	got_init_values_ = false;
@@ -160,6 +174,16 @@ TeleopCOB::TeleopCOB()
 	joint_init_values_.resize(joint_names_.size());
 }
 
+/*!
+* \brief Destructor for TeleopCOB class.
+*/
+TeleopCOB::~TeleopCOB()
+{
+}
+
+/*!
+* \brief Initializes node to get parameters, subscribe and publish to topics.
+*/
 void TeleopCOB::init()
 {
 	// common
@@ -222,6 +246,9 @@ void TeleopCOB::init()
 	base_pub_ = n_.advertise<geometry_msgs::Twist>("/base_controller/command",1);
 }
 
+/*!
+* \brief Sets initial values for target velocities.
+*/
 void TeleopCOB::setInitValues()
 {
 	req_tray_ = joint_init_values_[0];
@@ -259,6 +286,13 @@ void TeleopCOB::setInitValues()
 	got_init_values_ = true;
 }
 
+/*!
+* \brief Executes the callback from the joint_states topic.
+*
+* Gets the current positions.
+*
+* \param msg JointState
+*/
 void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_states_msg)
 {
 	if (!got_init_values_ && stopped_ && joy_active_)
@@ -285,6 +319,13 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 	}
 }
 
+/*!
+* \brief Executes the callback from the joystick topic.
+*
+* Gets the configuration
+*
+* \param joy_msg Joy
+*/
 void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 {
 	// deadman button to activate joystick
@@ -502,6 +543,9 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 		
 }//joy_cb
 
+/*!
+* \brief Main routine for updating all components.
+*/
 void TeleopCOB::update()
 {	
 	if (!joy_active_)
@@ -558,6 +602,9 @@ void TeleopCOB::update()
 	stopped_ = false;
 }
 
+/*!
+* \brief Routine for updating the torso commands.
+*/
 void TeleopCOB::update_torso()
 {
 	//torso
@@ -590,6 +637,9 @@ void TeleopCOB::update_torso()
 	req_upper_pan_ += req_upper_pan_vel_*dt;
 }
 
+/*!
+* \brief Routine for updating the tray commands.
+*/
 void TeleopCOB::update_tray()
 {
 	double dt = 1.0/double(PUBLISH_FREQ);
@@ -609,6 +659,9 @@ void TeleopCOB::update_tray()
 	req_tray_ += req_tray_vel_*dt;
 }
 
+/*!
+* \brief Routine for updating the arm commands.
+*/
 void TeleopCOB::update_arm()
 {
 	double dt = 1.0/double(PUBLISH_FREQ);
@@ -652,6 +705,9 @@ void TeleopCOB::update_arm()
 	req_j7_ += req_j7_vel_*dt;
 }
 
+/*!
+* \brief Routine for updating the base commands.
+*/
 void TeleopCOB::update_base()
 {
 	double dt = 1.0/double(PUBLISH_FREQ);
@@ -711,22 +767,23 @@ void TeleopCOB::update_base()
 	base_pub_.publish(cmd);
 }
 
-TeleopCOB::~TeleopCOB()
-{
-}
-
+/*!
+* \brief Main loop of ROS node.
+*
+* Running with a specific frequency defined by loop_rate.
+*/
 int main(int argc,char **argv)
 {
 	ros::init(argc,argv,"teleop_cob");
 	TeleopCOB teleop_cob;
 	teleop_cob.init();
 
-	ros::Rate pub_rate(PUBLISH_FREQ); //Hz
+	ros::Rate loop_rate(PUBLISH_FREQ); //Hz
 	while(teleop_cob.n_.ok())
 	{
 		ros::spinOnce();
 		teleop_cob.update();
-		pub_rate.sleep();
+		loop_rate.sleep();
 	}
 
 	exit(0);
