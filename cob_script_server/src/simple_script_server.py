@@ -74,6 +74,7 @@ from geometry_msgs.msg import *
 from pr2_controllers_msgs.msg import *
 from move_base_msgs.msg import *
 from tf.transformations import *
+from std_msgs.msg import String
 from sound_play.libsoundplay import SoundClient
 import pygraphviz as pgv
 
@@ -122,6 +123,9 @@ class script():
 		self.Initialize()
 		self.Run()
 		self.graph = graph
+		s = String()
+		s.data = graph.string()
+		self.graph_pub.publish(s)
 
 ## Simple script server class.
 #
