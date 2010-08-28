@@ -17,8 +17,9 @@ class TestScript(script):
 		self.sss.init("sdh")
 		
 	def Run(self): 
-		print "start"
 		self.sss.SpeakStr("Hallo","FEST_EN")
+		self.sss.sleep(1)
+		
 		# init poses
 		handle01 = self.sss.move("arm","folded",False)
 		self.sss.move("torso","home",False)
@@ -65,8 +66,6 @@ class TestScript(script):
 		#drive back to home
 		self.sss.move("tray","down",False)
 #		self.sss.move("base","home")
-		
-		print "finished"
 		
 if __name__ == "__main__":
 	SCRIPT = TestScript()

@@ -2,6 +2,7 @@
 
 import roslib
 roslib.load_manifest('cob_script_server')
+import rospy
 import sys
 import types
 import string
@@ -27,6 +28,7 @@ if __name__ == "__main__":
 	
 	print "Script file = ", filename
 	print "Graph level = ", level
+	rospy.set_param("/script_server/level",level)
 	
 	filename_splitted = string.split(filename, "/")
 	#print filename_splitted
@@ -50,7 +52,7 @@ if __name__ == "__main__":
 				if(issubclass(subclass, script)):
 					if(classname != "script"):
 						s = subclass()
-						model = s.Parse(level)
+						model = s.Parse()
 						#print s.graph.string()
 						s.graph.layout('dot')
 						basename, extension = os.path.splitext(filename)
