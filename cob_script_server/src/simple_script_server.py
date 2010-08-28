@@ -139,6 +139,7 @@ class simple_script_server:
 		self.last_node = "Start"
 		self.function_counter = 0
 		#self.ns_global_prefix = ""
+		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
 		self.graph_pub = rospy.Publisher("/script_server/graph", String)
 		self.soundhandle = SoundClient()
 		time.sleep(1)
@@ -163,6 +164,16 @@ class simple_script_server:
 				ah = action_handle(simulation=True)
 		else:
 			ah = action_handle(simulation=False)
+			script_state = ScriptState()
+			script_state.header.stamp = rospy.Time.now()
+			script_state.number = self.function_counter
+			script_state.function_name = function_name
+			script_state.component_name = component_name
+			if ( type(parameter_name) is str ):
+				script_state.parameter_name = parameter_name
+			else:
+				script_state.parameter_name = ""
+			self.state_pub.publish(script_state)
 			s = String()
 			s.data = graphstring
 			self.graph_pub.publish(s)
@@ -183,11 +194,10 @@ class simple_script_server:
 		return level
 	
 	def GetGraphstring(self,function_name, component_name, parameter_name):
-		level = self.GetLevel(function_name)
 		if type(parameter_name) is types.StringType:
-			graphstring = str(self.function_counter)+"_"+str(level)+"_"+function_name+"_"+component_name+"_"+parameter_name
+			graphstring = str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name
 		else:
-			graphstring = str(self.function_counter)+"_"+str(level)+"_"+function_name+"_"+component_name
+			graphstring = str(self.function_counter)+"_"+function_name+"_"+component_name
 		return graphstring
 
 #------------------- Init section -------------------#
@@ -860,7 +870,7 @@ class simple_script_server:
 	# \param duration Duration in seconds to sleep.
 	#
 	def sleep(self,duration):
-		graph_ah = self.AppendGraph("sleep", str(duration), 0)
+		graph_ah = self.AppendGraph("sleep", "", str(duration))
 		if(self.simulate):
 			return graph_ah
 		rospy.loginfo("Wait for %f sec",duration)

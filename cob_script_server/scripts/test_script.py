@@ -30,7 +30,7 @@ class TestScript(script):
 #		self.sss.wait_for_input()
 
 		#test
-#		self.sss.move("arm","home")
+		self.sss.move("torso",[[1,1,1,1]])
 #		self.sss.moveCartRel("arm", [0.0, 0.0, 0.0], [0.0, 0.0, 90.0/180.0*3.1415926])
 		self.sss.Speak("sentence1","WAV_DE")
 #		self.sss.Speak("sentence1","FEST_EN")
