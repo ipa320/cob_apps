@@ -1,10 +1,16 @@
 #!/usr/bin/python
 
-import time
 
 import roslib
 roslib.load_manifest('cob_script_server')
+import rospy
+import actionlib
+from pr2_controllers_msgs.msg import *
+from cob_srvs.srv import *
+from cob_msgs.msg import *
+
 from simple_script_server import *
+import time
 
 class script_server:
 	def __init__(self):

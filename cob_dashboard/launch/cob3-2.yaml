@@ -47,15 +47,16 @@
   [init,Trigger,arm,init],
   [recover,Trigger,arm,recover],
   [enable joystick,Mode,arm,velocity],
-  [graspTOtablet,Move,arm,grasp-to-tablet],
-  [tabletTOfolded,Move,arm,tablet-to-folded]]
+  [grasp-to-tablet,Move,arm,grasp-to-tablet],
+  [tablet-to-folded,Move,arm,tablet-to-folded]]
 5 sdh:
   [[stop,Trigger,sdh,stop],
   [init,Trigger,sdh,init],
   [recover,Trigger,sdh,recover],
   [home,Move,sdh,home],
   [cyl. closed,Move,sdh,cylclosed],
-  [cyl. open,Move,sdh,cylopen]]
+  [cyl. open,Move,sdh,cylopen],
+  [calib,Move,sdh,calib]]
 6 eyes:
   [[stop,Trigger,head,stop],
   [init,Trigger,head,init],
