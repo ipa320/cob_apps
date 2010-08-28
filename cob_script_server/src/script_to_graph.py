@@ -17,7 +17,7 @@ if __name__ == "__main__":
 		sys.exit(1)
 	elif (len(sys.argv) == 2):
 		filename = sys.argv[1]
-		level = 0
+		level = 100
 	elif (len(sys.argv) == 3):
 		filename = sys.argv[1]
 		level = int(sys.argv[2])
@@ -56,7 +56,10 @@ if __name__ == "__main__":
 						#print s.graph.string()
 						s.graph.layout('dot')
 						basename, extension = os.path.splitext(filename)
-						s.graph.draw(basename + "_" + str(level) + ".png")
+						if (level == 100):
+							s.graph.draw(basename + ".png")
+						else:
+							s.graph.draw(basename + "_" + str(level) + ".png")
 	except ImportError:
 		print "Unable to import script file"
 		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"

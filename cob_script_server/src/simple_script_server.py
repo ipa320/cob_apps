@@ -147,17 +147,20 @@ class simple_script_server:
 	def AppendGraph(self, function_name, component_name, parameter_name, blocking=True):
 		graphstring = self.GetGraphstring(function_name, component_name, parameter_name)
 		if self.simulate:
-			ah = action_handle(simulation=True)
-			global graph
-			global graph_wait_list
-			graph.add_edge(self.last_node, graphstring)
-			for waiter in graph_wait_list:
-				graph.add_edge(waiter, graphstring)
-			graph_wait_list=[]
-			if blocking:
-				self.last_node = graphstring
+			if ( self.level >= self.GetLevel(function_name)):
+				ah = action_handle(simulation=True)
+				global graph
+				global graph_wait_list
+				graph.add_edge(self.last_node, graphstring)
+				for waiter in graph_wait_list:
+					graph.add_edge(waiter, graphstring)
+				graph_wait_list=[]
+				if blocking:
+					self.last_node = graphstring
+				else:
+					ah.parent_node = graphstring
 			else:
-				ah.parent_node = graphstring
+				ah = action_handle(simulation=True)
 		else:
 			ah = action_handle(simulation=False)
 			s = String()
@@ -165,8 +168,8 @@ class simple_script_server:
 			self.graph_pub.publish(s)
 		self.function_counter += 1
 		return ah
-		
-	def GetGraphstring(self,function_name, component_name, parameter_name):
+	
+	def GetLevel(self,function_name):
 		if (function_name == "move"):
 			level = 0
 		elif (function_name == "init"):
@@ -177,7 +180,10 @@ class simple_script_server:
 			level = 2
 		else:
 			level = 100
-		
+		return level
+	
+	def GetGraphstring(self,function_name, component_name, parameter_name):
+		level = self.GetLevel(function_name)
 		if type(parameter_name) is types.StringType:
 			graphstring = str(self.function_counter)+"_"+str(level)+"_"+function_name+"_"+component_name+"_"+parameter_name
 		else:
