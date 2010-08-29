@@ -100,4 +100,4 @@ class CalibCam(script):
 		
 if __name__ == "__main__":
 	SCRIPT = CalibCam()
-	SCRIPT.Start('calib_cam_r')
+	SCRIPT.Start()

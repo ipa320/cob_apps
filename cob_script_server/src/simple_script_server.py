@@ -169,6 +169,7 @@ class simple_script_server:
 			script_state.number = self.function_counter
 			script_state.function_name = function_name
 			script_state.component_name = component_name
+			script_state.full_graph_name = graphstring
 			if ( type(parameter_name) is str ):
 				script_state.parameter_name = parameter_name
 			else:
