@@ -62,13 +62,13 @@ import os
 import sys
 import types
 
+# ROS imports
 import roslib
 roslib.load_manifest('cob_script_server')
 import rospy
 import actionlib
-from cob_msgs.msg import *
-from cob_srvs.srv import *
-#from cob_actions.msg import *
+
+# msg imports
 from trajectory_msgs.msg import *
 from geometry_msgs.msg import *
 from pr2_controllers_msgs.msg import *
@@ -76,15 +76,33 @@ from move_base_msgs.msg import *
 from tf.transformations import *
 from std_msgs.msg import String
 from sound_play.libsoundplay import SoundClient
+
+# care-o-bot includes
+from cob_msgs.msg import *
+from cob_srvs.srv import *
+#from cob_actions.msg import *
+
+# graph includes
 import pygraphviz as pgv
 
 graph=""
 graph_wait_list=[]
+function_counter = 0
+graph = pgv.AGraph()
+graph.node_attr['shape']='box'
+last_node = "Start"
 
 ## Script class from which all script inherit.
 #
 # Implements basic functionalities for all scripts.
 class script():
+	def __init__(self):
+		# use filename as nodename
+		filename = os.path.basename(sys.argv[0])
+		basename, extension = os.path.splitext(filename)
+		rospy.init_node(basename)
+		self.graph_pub = rospy.Publisher("/script_server/graph", String)
+
 	## Dummy function for initialization
 	def Initialize(self):
 		pass
@@ -106,16 +124,22 @@ class script():
 	#
 	# Starts the script in simulation mode and calls Initialize() and Run().
 	def Parse(self):
+		rospy.loginfo("Start parsing...")
 		global graph
-		filename = os.path.basename(sys.argv[0])
-		basename, extension = os.path.splitext(filename)
-		rospy.init_node(basename)
+		global function_counter
+		function_counter = 0
+		# run script in simulation mode
 		self.sss = simple_script_server(simulate=True)
 		self.Initialize()
 		self.Run()
 		self.graph = graph
+		
 		# save graph on parameter server for further processing
+		print graph
 		rospy.set_param("/script_server/graph", graph.string())
+		self.graph_pub.publish(graph.string())
+		rospy.loginfo("...parsing finished")
+		function_counter = 0
 
 ## Simple script server class.
 #
@@ -131,75 +155,10 @@ class simple_script_server:
 	def __init__(self, simulate=False):
 		global graph
 		self.ns_global_prefix = "/script_server"
-		self.simulate = simulate
-		self.level = int(rospy.get_param("/script_server/level"))
-		graph = pgv.AGraph()
-		graph.node_attr['shape']='box'
-#		self.represent.node_attr['fixedsize']='true'
-		self.last_node = "Start"
-		self.function_counter = 0
 		#self.ns_global_prefix = ""
-		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
-		self.graph_pub = rospy.Publisher("/script_server/graph", String)
+		self.simulate = simulate
 		self.soundhandle = SoundClient()
 		time.sleep(1)
-
-	## Appends a registered function to the graph.
-	def AppendGraph(self, function_name, component_name, parameter_name, blocking=True):
-		graphstring = self.GetGraphstring(function_name, component_name, parameter_name)
-		if self.simulate:
-			if ( self.level >= self.GetLevel(function_name)):
-				ah = action_handle(simulation=True)
-				global graph
-				global graph_wait_list
-				graph.add_edge(self.last_node, graphstring)
-				for waiter in graph_wait_list:
-					graph.add_edge(waiter, graphstring)
-				graph_wait_list=[]
-				if blocking:
-					self.last_node = graphstring
-				else:
-					ah.parent_node = graphstring
-			else:
-				ah = action_handle(simulation=True)
-		else:
-			ah = action_handle(simulation=False)
-			script_state = ScriptState()
-			script_state.header.stamp = rospy.Time.now()
-			script_state.number = self.function_counter
-			script_state.function_name = function_name
-			script_state.component_name = component_name
-			script_state.full_graph_name = graphstring
-			if ( type(parameter_name) is str ):
-				script_state.parameter_name = parameter_name
-			else:
-				script_state.parameter_name = ""
-			self.state_pub.publish(script_state)
-			s = String()
-			s.data = graphstring
-			self.graph_pub.publish(s)
-		self.function_counter += 1
-		return ah
-	
-	def GetLevel(self,function_name):
-		if (function_name == "move"):
-			level = 0
-		elif (function_name == "init"):
-			level = 1
-		elif (function_name == "stop"):
-			level = 1
-		elif (function_name == "sleep"):
-			level = 2
-		else:
-			level = 100
-		return level
-	
-	def GetGraphstring(self,function_name, component_name, parameter_name):
-		if type(parameter_name) is types.StringType:
-			graphstring = str(self.function_counter)+"_"+function_name+"_"+component_name+"_"+parameter_name
-		else:
-			graphstring = str(self.function_counter)+"_"+function_name+"_"+component_name
-		return graphstring
 
 #------------------- Init section -------------------#
 	## Initializes different components.
@@ -234,9 +193,9 @@ class simple_script_server:
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def trigger(self,component_name,service_name,blocking=True):
-		graph_ah = self.AppendGraph(service_name, component_name, "")
-		if(self.simulate):
-			return graph_ah
+#		graph_ah = self.AppendGraph(service_name, component_name, "")
+#		if(self.simulate):
+#			return graph_ah
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
 		rospy.loginfo("Wait for <<%s>> to <<%s>>...", component_name, service_name)
 		service_full_name = "/" + component_name + "_controller/" + service_name
@@ -264,10 +223,9 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move(self,component_name,parameter_name,blocking=True):
-		graph_ah = self.AppendGraph("move", component_name, parameter_name, blocking)
-		if(self.simulate):
-			return graph_ah
-		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+#		graph_ah = self.AppendGraph("move", component_name, parameter_name, blocking)
+#		if(self.simulate):
+#			return graph_ah
 		if component_name == "base":
 			return self.move_base(component_name,parameter_name,blocking)
 		else:
@@ -281,15 +239,19 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_base(self,component_name,parameter_name,blocking):
-		ah = action_handle()
-		ah.component_name = component_name
-		ah.parameter_name = parameter_name
+		ah = action_handle("move", component_name, parameter_name, blocking, self.simulate)
+		if(self.simulate):
+			return ah
+		else:
+			ah.set_active()
+		
+		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
 			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
-				ah.error_code = 2
+				ah.set_failed(2)
 				return ah
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
 		else:
@@ -299,7 +261,7 @@ class simple_script_server:
 		if not type(param) is list: # check outer list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
-				ah.error_code = 3
+				ah.set_failed(3)
 				return ah
 		else:
 			#print i,"type1 = ", type(i)
@@ -307,7 +269,7 @@ class simple_script_server:
 			if not len(param) == DOF: # check dimension
 				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,DOF,len(param))
 				print "parameter is:",param
-				ah.error_code = 3
+				ah.set_failed(3)
 				return ah
 			else:
 				for i in param:
@@ -316,7 +278,7 @@ class simple_script_server:
 						print type(i)
 						rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 						print "parameter is:",param
-						ah.error_code = 3
+						ah.set_failed(3)
 						return ah
 					else:
 						rospy.logdebug("accepted parameter %f for %s",i,component_name)
@@ -343,7 +305,7 @@ class simple_script_server:
 		if not self.client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
-			ah.error_code = 4
+			ah.set_failed(4)
 			return ah
 		else:
 			rospy.logdebug("%s action server ready",action_server_name)
@@ -354,8 +316,7 @@ class simple_script_server:
 		client_goal.target_pose = pose
 		#print client_goal
 		self.client.send_goal(client_goal)
-		ah.error_code = 0 # full success
-		ah.client = self.client
+		ah.set_client(self.client)
 
 		if blocking:
 			rospy.logdebug("actionlib client waiting for result...")
@@ -363,6 +324,7 @@ class simple_script_server:
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
 		
+		ah.set_succeeded() # full success
 		return ah
 
 	## Deals with all kind of trajectory movements for different components.
@@ -373,9 +335,13 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_traj(self,component_name,parameter_name,blocking):
-		ah = action_handle()
-		ah.component_name = component_name
-		ah.parameter_name = parameter_name
+		ah = action_handle("move", component_name, parameter_name, blocking, self.simulate)
+		if(self.simulate):
+			return ah
+		else:
+			ah.set_active()
+		
+		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		
 		# selecting component
 		if component_name == "tray":
@@ -388,14 +354,14 @@ class simple_script_server:
 			joint_names = ["sdh_thumb_2_joint", "sdh_thumb_3_joint", "sdh_finger_11_joint", "sdh_finger_12_joint", "sdh_finger_13_joint", "sdh_finger_21_joint", "sdh_finger_22_joint", "sdh_finger_23_joint"]
 		else:
 			rospy.logerr("component %s not kown to script_server",component_name)
-			ah.error_code = 1
+			ah.set_failed(1)
 			return ah
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
 			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
-				ah.error_code = 2
+				ah.set_failed(2)
 				return ah
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
 		else:
@@ -405,7 +371,7 @@ class simple_script_server:
 		if not type(param) is list: # check outer list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
-				ah.error_code = 3
+				ah.set_failed(3)
 				return ah
 		else:
 			for i in param:
@@ -413,13 +379,13 @@ class simple_script_server:
 				if not type(i) is list: # check inner list
 					rospy.logerr("no valid parameter for %s: not a list of lists, aborting...",component_name)
 					print "parameter is:",param
-					ah.error_code = 3
+					ah.set_failed(3)
 					return ah
 				else:
 					if not len(i) == len(joint_names): # check dimension
 						rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(i))
 						print "parameter is:",param
-						ah.error_code = 3
+						ah.set_failed(3)
 						return ah
 					else:
 						for j in i:
@@ -428,7 +394,7 @@ class simple_script_server:
 								print type(j)
 								rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 								print "parameter is:",param
-								ah.error_code = 3
+								ah.set_failed(3)
 								return ah
 							else:
 								rospy.logdebug("accepted parameter %f for %s",j,component_name)
@@ -442,7 +408,7 @@ class simple_script_server:
 			point_nr = point_nr + 1
 			point = JointTrajectoryPoint()
 			point.positions = i
-			point.time_from_start=rospy.Duration(4*point_nr) # this value is set to 4 sec per point. TODO: read from parameter
+			point.time_from_start=rospy.Duration(4*point_nr) # this value is set to 4 sec per point. \todo: read from parameter
 			traj.points.append(point)
 		
 		# call action server
@@ -456,7 +422,7 @@ class simple_script_server:
 		if not self.client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
-			ah.error_code = 4
+			ah.set_failed(4)
 			return ah
 		else:
 			rospy.logdebug("%s action server ready",action_server_name)
@@ -467,7 +433,7 @@ class simple_script_server:
 		client_goal.trajectory = traj
 		#print client_goal
 		self.client.send_goal(client_goal)
-		ah.client = self.client
+		ah.set_client(self.client)
 
 		if blocking:
 			rospy.logdebug("actionlib client waiting for result...")
@@ -475,7 +441,7 @@ class simple_script_server:
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
 		
-		ah.error_code = 0 # full success
+		ah.set_succeeded() # full success
 		return ah
 
 	def move_cart_rel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
@@ -544,9 +510,9 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
 	def set_light(self,parameter_name):
-		graph_ah = self.AppendGraph("set_light", "", parameter_name)
-		if(self.simulate):
-			return graph_ah
+#		graph_ah = self.AppendGraph("set_light", "", parameter_name)
+#		if(self.simulate):
+#			return graph_ah
 			
 		ah = action_handle()
 		ah.component_name = "light"
@@ -653,9 +619,9 @@ class simple_script_server:
 		self.soundhandle.say(text)
 
 	def Speak(self,parameter_name,mode="DEFAULT"):
-		graph_ah = self.AppendGraph("Speak", "", parameter_name)
-		if(self.simulate):
-			return graph_ah
+#		ah = action_handle()
+#		if(self.simulate):
+#			return ah
 
 		""" Speak sound specified by 'parameter_name' either via TTS or by playing a WAV-File
 		Possible modes are:
@@ -668,8 +634,6 @@ class simple_script_server:
 		MUTE	- play no sound at all
 		"""
 		rospy.logdebug("Speak <<%s>> in mode <<%s>>",parameter_name,mode)
-		ah = action_handle()
-		ah.parameter_name = parameter_name
 		
 		# get mode from global parameter if necessary
 		if mode == "DEFAULT":
@@ -781,9 +745,9 @@ class simple_script_server:
 			return ah
 
 	def SpeakStr(self,text,mode):
-		graph_ah = self.AppendGraph("SpeakStr", text, mode)
-		if(self.simulate):
-			return graph_ah
+#		graph_ah = self.AppendGraph("SpeakStr", text, mode)
+#		if(self.simulate):
+#			return graph_ah
 	
 		""" Speak the string 'text' via the TTS system specified by mode
 		Possible modes are:
@@ -871,9 +835,9 @@ class simple_script_server:
 	# \param duration Duration in seconds to sleep.
 	#
 	def sleep(self,duration):
-		graph_ah = self.AppendGraph("sleep", "", str(duration))
-		if(self.simulate):
-			return graph_ah
+#		graph_ah = self.AppendGraph("sleep", "", str(duration))
+#		if(self.simulate):
+#			return graph_ah
 		rospy.loginfo("Wait for %f sec",duration)
 		time.sleep(duration)
 
@@ -885,9 +849,9 @@ class simple_script_server:
 	# 
 	# \todo implement waiting for timeout
 	def wait_for_input(self,duration=0):
-		graph_ah = self.AppendGraph("wait_for_input", str(duration), 0)
-		if(self.simulate):
-			return graph_ah
+#		graph_ah = self.AppendGraph("wait_for_input", str(duration), 0)
+#		if(self.simulate):
+#			return graph_ah
 		rospy.loginfo("Wait for user input...")
 		retVal = sys.stdin.readline()
 		rospy.loginfo("Got string >%s<",retVal)
@@ -921,12 +885,25 @@ class simple_script_server:
 # The action handle is used to implement asynchronous behaviour within the script.
 class action_handle:
 	## Initializes the action handle.
-	def __init__(self, simulation=False):
-		self.error_code = -1
-		self.component_name = None
-		self.parameter_name = None
-		self.simulation = simulation
+	def __init__(self, function_name, component_name, parameter_name, blocking, simulate):
+		global graph
+		global function_counter
 		self.parent_node = ""
+		self.error_code = -1
+		self.function_counter = function_counter
+		self.function_name = function_name
+		self.component_name = component_name
+		self.parameter_name = parameter_name
+		self.state = ScriptState.UNKNOWN
+		self.simulate = simulate
+		self.level = int(rospy.get_param("/script_server/level",100))
+
+		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
+		self.AppendNode(blocking)
+
+	## Sets the execution state to failed.
+	def set_client(self,client):
+		self.client = client
 
 	## Waits for the action to be finished.
 	#
@@ -935,7 +912,7 @@ class action_handle:
 	# \param duration Duration for timeout.
 	def wait(self,duration=None):
 		global graph_wait_list
-		if(self.simulation):
+		if(self.simulate):
 			if(self.parent_node != ""):
 				graph_wait_list.append(self.parent_node)
 			return
@@ -951,9 +928,88 @@ class action_handle:
 					return
 			rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
 		else:
-			rospy.logwarn("Execution of action was aborted, wait not possible. Continuing...")
+			rospy.logwarn("Execution of <<%s>> to <<%s>> was aborted, wait not possible. Continuing...",self.component_name, self.parameter_name)
 		return self.error_code
 
 	## Gets the error code for a action execution.
 	def get_error_code(self):
 		return self.error_code
+
+	## Sets the execution state to active.
+	def set_active(self):
+		self.state = ScriptState.ACTIVE
+		self.error_code = -1
+		self.PublishState()
+		
+	## Sets the execution state to succeeded.
+	def set_succeeded(self):
+		self.state = ScriptState.SUCCEEDED
+		self.error_code = 0
+		self.PublishState()
+		
+	## Sets the execution state to failed.
+	def set_failed(self,error_code):
+		self.state = ScriptState.FAILED
+		self.error_code = error_code
+		self.PublishState()
+	
+	## Returns the graphstring.
+	def GetGraphstring(self):
+		if type(self.parameter_name) is types.StringType:
+			graphstring = str(self.function_counter)+"_"+self.function_name+"_"+self.component_name+"_"+self.parameter_name
+		else:
+			graphstring = str(self.function_counter)+"_"+self.function_name+"_"+self.component_name
+		return graphstring
+
+	## Gets level of function name.
+	def GetLevel(self,function_name):
+		if (function_name == "move"):
+			level = 0
+		elif (function_name == "init"):
+			level = 1
+		elif (function_name == "stop"):
+			level = 1
+		elif (function_name == "sleep"):
+			level = 2
+		else:
+			level = 100
+		return level
+		
+	## Appends a registered function to the graph.
+	def AppendNode(self, blocking=True):
+		global graph
+		global graph_wait_list
+		global function_counter
+		global last_node
+#		global parent_node
+		graphstring = self.GetGraphstring()
+		if self.simulate:
+			if ( self.level >= self.GetLevel(self.function_name)):
+				print "adding " + graphstring + " to graph"
+				graph.add_edge(last_node, graphstring)
+				for waiter in graph_wait_list:
+					graph.add_edge(waiter, graphstring)
+				graph_wait_list=[]
+				if blocking:
+					last_node = graphstring
+				else:
+					self.parent_node = graphstring
+			#else:
+				#print "not adding " + graphstring + " to graph"
+		else:
+			self.PublishState()
+		function_counter += 1
+		
+	def PublishState(self):
+		script_state = ScriptState()
+		script_state.header.stamp = rospy.Time.now()
+		script_state.number = self.function_counter
+		script_state.function_name = self.function_name
+		script_state.component_name = self.component_name
+		script_state.full_graph_name = self.GetGraphstring()
+		if ( type(self.parameter_name) is str ):
+			script_state.parameter_name = self.parameter_name
+		else:
+			script_state.parameter_name = ""
+		script_state.state = self.state
+		self.state_pub.publish(script_state)

@@ -12,13 +12,13 @@ class TestScript(script):
 		
 	def Initialize(self):
 		self.sss.init("tray")
-		self.sss.init("torso")
-		self.sss.init("arm")
-		self.sss.init("sdh")
+		#self.sss.init("torso")
+		#self.sss.init("arm")
+		#self.sss.init("sdh")
 		
 	def Run(self): 
-		self.sss.SpeakStr("Hallo","FEST_EN")
-		self.sss.sleep(1)
+		#self.sss.SpeakStr("Hallo","FEST_EN")
+		#self.sss.sleep(1)
 		
 		# init poses
 		handle01 = self.sss.move("arm","folded",False)
@@ -30,9 +30,9 @@ class TestScript(script):
 #		self.sss.wait_for_input()
 
 		#test
-		self.sss.move("torso",[[1,1,1,1]])
+		self.sss.move("torso",[[0.1,0.1,0.1,0.1]])
 #		self.sss.moveCartRel("arm", [0.0, 0.0, 0.0], [0.0, 0.0, 90.0/180.0*3.1415926])
-		self.sss.Speak("sentence1","WAV_DE")
+#		self.sss.Speak("sentence1","WAV_DE")
 #		self.sss.Speak("sentence1","FEST_EN")
 
 		#grasp
@@ -54,14 +54,14 @@ class TestScript(script):
 		
 		#move back to save poses
 		handle03 = self.sss.move("arm","tablet-to-folded",False)
-		self.sss.sleep(3)
+#		self.sss.sleep(3)
 		self.sss.move("sdh","home",False)
 		handle03.wait()
 		
 		#deliver
 #		self.sss.move("base","order")
 		self.sss.move("torso","nod")
-		self.sss.sleep(3)
+#		self.sss.sleep(3)
 		
 		#drive back to home
 		self.sss.move("tray","down",False)
