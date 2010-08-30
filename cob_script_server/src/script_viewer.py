@@ -44,17 +44,18 @@ def state_cb(msg):
 	
 	# modify active node
 	active_node = msg.full_graph_name
-	print "active_node = ",active_node
-	n=G.get_node(active_node)
-	#print n
+	rospy.loginfo("Received state <<%s>> from node <<%s>>",str(msg.state),active_node)
+	try:
+		n=G.get_node(active_node)
+	except:
+		rospy.logwarn("Node <<%s>> not found in graph",active_node)
+		return
 	n.attr['style']='filled'
-	print msg.state
 	if msg.state == ScriptState.UNKNOWN:
 		n.attr['fillcolor']='white'
 	elif msg.state == ScriptState.ACTIVE:
 		n.attr['fillcolor']='yellow'
 	elif msg.state == ScriptState.SUCCEEDED:
-		print "jeeeahhh success"
 		n.attr['fillcolor']='green'
 	elif msg.state == ScriptState.FAILED:
 		n.attr['fillcolor']='red'

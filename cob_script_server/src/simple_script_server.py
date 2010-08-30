@@ -440,8 +440,7 @@ class simple_script_server:
 			ah.wait()
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
-		
-		ah.set_succeeded() # full success
+
 		return ah
 
 	def move_cart_rel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
@@ -835,11 +834,14 @@ class simple_script_server:
 	# \param duration Duration in seconds to sleep.
 	#
 	def sleep(self,duration):
-#		graph_ah = self.AppendGraph("sleep", "", str(duration))
-#		if(self.simulate):
-#			return graph_ah
+		ah = action_handle("sleep", "", str(duration), True, self.simulate)
+		if(self.simulate):
+			return ah
+		else:
+			ah.set_active()
 		rospy.loginfo("Wait for %f sec",duration)
 		time.sleep(duration)
+		ah.set_succeeded()
 
 	## Waits for user input.
 	#
@@ -849,12 +851,15 @@ class simple_script_server:
 	# 
 	# \todo implement waiting for timeout
 	def wait_for_input(self,duration=0):
-#		graph_ah = self.AppendGraph("wait_for_input", str(duration), 0)
-#		if(self.simulate):
-#			return graph_ah
+		ah = action_handle("wait", "input", str(duration), True, self.simulate)
+		if(self.simulate):
+			return ah
+		else:
+			ah.set_active()
 		rospy.loginfo("Wait for user input...")
 		retVal = sys.stdin.readline()
 		rospy.loginfo("Got string >%s<",retVal)
+		ah.set_succeeded()
 		return retVal
 		#key = input()
 		#return key
@@ -897,7 +902,6 @@ class action_handle:
 		self.state = ScriptState.UNKNOWN
 		self.simulate = simulate
 		self.level = int(rospy.get_param("/script_server/level",100))
-
 		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
 		self.AppendNode(blocking)
 
@@ -916,7 +920,7 @@ class action_handle:
 			if(self.parent_node != ""):
 				graph_wait_list.append(self.parent_node)
 			return
-		if self.error_code == 0:			
+		if self.error_code <= 0:			
 			if duration is None:
 				rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)
 				self.client.wait_for_result()
@@ -929,6 +933,9 @@ class action_handle:
 			rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
 		else:
 			rospy.logwarn("Execution of <<%s>> to <<%s>> was aborted, wait not possible. Continuing...",self.component_name, self.parameter_name)
+		
+		self.set_succeeded() # full success
+		
 		return self.error_code
 
 	## Gets the error code for a action execution.
@@ -938,7 +945,6 @@ class action_handle:
 	## Sets the execution state to active.
 	def set_active(self):
 		self.state = ScriptState.ACTIVE
-		self.error_code = -1
 		self.PublishState()
 		
 	## Sets the execution state to succeeded.
@@ -996,8 +1002,8 @@ class action_handle:
 					self.parent_node = graphstring
 			#else:
 				#print "not adding " + graphstring + " to graph"
-		else:
-			self.PublishState()
+		#else:
+			#self.PublishState()
 		function_counter += 1
 		
 	def PublishState(self):

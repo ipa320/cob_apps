@@ -22,10 +22,11 @@ class RandomMoves(script):
 		seed()
 		maxVal = 0.1
 		print "start"
-		#self.sss.move("sdh","home")
-		#self.sss.move("torso","home")
-		#self.sss.move("arm","folded")
-		#self.sss.move("tray","up")
+		self.sss.move("sdh","home",False)
+		self.sss.move("torso","home",False)
+		handle01 = self.sss.move("arm","folded",False)
+		self.sss.move("tray","up")
+		handle01.wait()
 		for i in range(1,4):
 			r1 = (random()-0.5)*2*maxVal;
 			r2 = (random()-0.5)*2*maxVal;
@@ -42,5 +43,4 @@ class RandomMoves(script):
 		
 if __name__ == "__main__":
 	SCRIPT = RandomMoves()
-	print "filename= ",SCRIPT.Name()
-	SCRIPT.Start('random_moves_script')
+	SCRIPT.Start()

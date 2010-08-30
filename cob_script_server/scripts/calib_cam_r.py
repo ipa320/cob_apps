@@ -30,7 +30,7 @@ class CalibCam(script):
 		print "start"
 		seed()
 		maxVal = 0.17
-		file_path = "/home/goa/"
+		file_path = "~/"
 		listener = tf.TransformListener()
 		nr_images = 14
 
