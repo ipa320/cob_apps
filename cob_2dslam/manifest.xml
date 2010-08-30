@@ -12,7 +12,6 @@
   <depend package="cob_platform"/>
   <depend package="cob_sick_s300"/>
   <depend package="cob_hokuyo"/>
-  <depend package="cob_tf_broadcaster"/>
   <depend package="gmapping"/>
   <depend package="cob_teleop"/>
   
