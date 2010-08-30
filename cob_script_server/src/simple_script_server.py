@@ -324,10 +324,10 @@ class simple_script_server:
 
 		if blocking:
 			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait(logging=True)
+			ah.wait_inside()
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
-			ah.wait(logging=False)
+			ah.wait_inside()
 		return ah
 
 	## Deals with all kind of trajectory movements for different components.
@@ -440,10 +440,10 @@ class simple_script_server:
 
 		if blocking:
 			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait(logging=True)
+			ah.wait_inside()
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
-			ah.wait(logging=False)
+			ah.wait_inside()
 		return ah
 
 	def move_cart_rel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
@@ -487,7 +487,7 @@ class simple_script_server:
 
 		if blocking:
 			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait()
+			ah.wait_inside()
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
 		
@@ -867,7 +867,9 @@ class simple_script_server:
 	# \todo check if pause is working
 	def check_pause(self):
 		pause_was_active = False
-
+		
+		if not rospy.has_param("/script_server/pause"):
+			return 1
 		while rospy.get_param("/script_server/pause"):
 			if not pause_was_active:
 				rospy.loginfo("ActionServer set to pause mode. Waiting for resume...")
@@ -891,6 +893,7 @@ class action_handle:
 		global function_counter
 		self.parent_node = ""
 		self.error_code = -1
+		self.wait_log = False
 		self.function_counter = function_counter
 		self.function_name = function_name
 		self.component_name = component_name
@@ -906,24 +909,28 @@ class action_handle:
 	def set_client(self,client):
 		self.client = client
 
-	## Waits for the action to be finished.
+	## Handles wait.
 	#
 	# Triggers waiting either as blocking or in a separate thread.
 	#
 	# \param duration Duration for timeout.
-	# \param logging activates logging for the wait of this action.
-	def wait(self,duration=None,logging=True):
-		global graph_wait_list
-		if(self.simulate):
-			if(self.parent_node != ""):
-				graph_wait_list.append(self.parent_node)
-			return
-		
-		if self.blocking:
-			self.wait_for_finished(duration,True)
-		else:
-			thread.start_new_thread(self.wait_for_finished,(duration,logging,))
+	def wait(self, duration=None):
+		self.blocking = True
+		self.wait_log = True
+		self.wait_for_finished(duration)
 
+	## Handles inside wait.
+	#
+	# Triggers waiting either as blocking or in a separate thread.
+	#
+	# \param duration Duration for timeout.
+	def wait_inside(self, duration=None):
+		if self.blocking:
+			self.wait_log = True
+			self.wait_for_finished(duration)
+		else:
+			self.wait_log = False
+			thread.start_new_thread(self.wait_for_finished,(duration,))
 		return self.error_code
 	
 	## Waits for the action to be finished.
@@ -931,25 +938,32 @@ class action_handle:
 	# If duration is specified, waits until action is finished or timeout is reached.
 	#
 	# \param duration Duration for timeout.
-	# \param logging activates logging for the wait of this action.
-	def wait_for_finished(self,duration,logging):	
+	def wait_for_finished(self,duration):
+		global graph_wait_list
+		if(self.simulate):
+			if(self.parent_node != ""):
+				graph_wait_list.append(self.parent_node)
+			return
+
 		if self.error_code <= 0:			
 			if duration is None:
-				if logging:
+				if self.wait_log:
 					rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)
 				self.client.wait_for_result()
 			else:
-				if logging:
+				if self.wait_log:
 					rospy.loginfo("Wait for <<%s>> reached <<%s>> (max %f secs)...",self.component_name, self.parameter_name,duration)
 				if not self.client.wait_for_result(rospy.Duration(duration)):
-					if logging:
+					if self.wait_log:
 						rospy.logerr("Timeout while waiting for <<%s>> to reach <<%s>>. Continuing...",self.component_name, self.parameter_name)
-					error_code = 10
+					self.error_code = 10
 					return
-			if logging:
+			if self.wait_log:
 				rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
 		else:
 			rospy.logwarn("Execution of <<%s>> to <<%s>> was aborted, wait not possible. Continuing...",self.component_name, self.parameter_name)
+			self.set_failed(self.error_code)
+			return
 		
 		self.set_succeeded() # full success
 
@@ -960,6 +974,7 @@ class action_handle:
 	## Sets the execution state to active.
 	def set_active(self):
 		self.state = ScriptState.ACTIVE
+		self.error_code = -1
 		self.PublishState()
 		
 	## Sets the execution state to succeeded.
@@ -1033,4 +1048,5 @@ class action_handle:
 		else:
 			script_state.parameter_name = ""
 		script_state.state = self.state
+		script_state.error_code = self.error_code
 		self.state_pub.publish(script_state)

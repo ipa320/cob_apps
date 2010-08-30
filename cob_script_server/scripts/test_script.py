@@ -12,14 +12,14 @@ class TestScript(script):
 		
 	def Initialize(self):
 		self.sss.init("tray")
-		self.sss.init("torso")
-		self.sss.init("arm")
-		self.sss.init("sdh")
+		#self.sss.init("torso")
+		#self.sss.init("arm")
+		#self.sss.init("sdh")
 		
 	def Run(self): 
 		#self.sss.SpeakStr("Hallo","FEST_EN")
 		#self.sss.sleep(1)
-		
+
 		# init poses
 		handle01 = self.sss.move("arm","folded",False)
 		self.sss.move("torso","home",False)
@@ -29,8 +29,8 @@ class TestScript(script):
 		self.sss.move("base","home")
 
 		#test
-		self.sss.move("torso",[[0.1,0,0.15,0]])
-		self.sss.move("torso","home")
+		#self.sss.move("torso",[[0.1,0,0.15,0]])
+		#self.sss.move("torso","home")
 #		self.sss.moveCartRel("arm", [0.0, 0.0, 0.0], [0.0, 0.0, 90.0/180.0*3.1415926])
 #		self.sss.Speak("sentence1","WAV_DE")
 #		self.sss.Speak("sentence1","FEST_EN")
@@ -48,7 +48,7 @@ class TestScript(script):
 		handle01 = self.sss.move("arm","grasp-to-tablet",False)
 		self.sss.move("tray","up",False)
 		handle01.wait()
-		print handle01.get_error_code()
+		#print handle01.get_error_code()
 		self.sss.move("sdh","cylopen")
 		
 		#move back to save poses
