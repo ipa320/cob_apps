@@ -12,9 +12,9 @@ class TestScript(script):
 		
 	def Initialize(self):
 		self.sss.init("tray")
-		#self.sss.init("torso")
-		#self.sss.init("arm")
-		#self.sss.init("sdh")
+		self.sss.init("torso")
+		self.sss.init("arm")
+		self.sss.init("sdh")
 		
 	def Run(self): 
 		#self.sss.SpeakStr("Hallo","FEST_EN")

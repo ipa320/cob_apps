@@ -53,7 +53,8 @@ if __name__ == "__main__":
 					if(classname != "script"):
 						s = subclass()
 						model = s.Parse()
-						#print s.graph.string()
+						#print "s = ",s
+						print s.graph.string()
 						s.graph.layout('dot')
 						basename, extension = os.path.splitext(filename)
 						if (level == 100):

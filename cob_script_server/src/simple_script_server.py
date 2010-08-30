@@ -61,6 +61,7 @@ import time
 import os
 import sys
 import types
+import thread
 
 # ROS imports
 import roslib
@@ -132,10 +133,9 @@ class script():
 		self.sss = simple_script_server(simulate=True)
 		self.Initialize()
 		self.Run()
-		self.graph = graph
 		
 		# save graph on parameter server for further processing
-		print graph
+#		self.graph = graph
 		rospy.set_param("/script_server/graph", graph.string())
 		self.graph_pub.publish(graph.string())
 		rospy.loginfo("...parsing finished")
@@ -193,9 +193,12 @@ class simple_script_server:
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def trigger(self,component_name,service_name,blocking=True):
-#		graph_ah = self.AppendGraph(service_name, component_name, "")
-#		if(self.simulate):
-#			return graph_ah
+		ah = action_handle(service_name, component_name, "", blocking, self.simulate)
+		if(self.simulate):
+			return ah
+		else:
+			ah.set_active()
+
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
 		rospy.loginfo("Wait for <<%s>> to <<%s>>...", component_name, service_name)
 		service_full_name = "/" + component_name + "_controller/" + service_name
@@ -203,16 +206,20 @@ class simple_script_server:
 			rospy.wait_for_service(service_full_name,rospy.get_param('server_timeout',3))
 		except rospy.ROSException, e:
 			print "Service not available: %s"%e
-			return False
+			ah.set_failed(4)
+			return ah
 		try:
 			init = rospy.ServiceProxy(service_full_name,Trigger)
 			#print init()
 			init()
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
-			return False
+			ah.set_failed(10)
+			return ah
 		rospy.loginfo("...<<%s>> is <<%s>>", component_name, service_name)
-		return True
+		
+		ah.set_succeeded() # full success
+		return ah
 
 #------------------- Move section -------------------#
 	## Deals with all kind of movements for different components.
@@ -223,9 +230,6 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move(self,component_name,parameter_name,blocking=True):
-#		graph_ah = self.AppendGraph("move", component_name, parameter_name, blocking)
-#		if(self.simulate):
-#			return graph_ah
 		if component_name == "base":
 			return self.move_base(component_name,parameter_name,blocking)
 		else:
@@ -275,7 +279,7 @@ class simple_script_server:
 				for i in param:
 					#print i,"type2 = ", type(i)
 					if not ((type(i) is float) or (type(i) is int)): # check type
-						print type(i)
+						#print type(i)
 						rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 						print "parameter is:",param
 						ah.set_failed(3)
@@ -320,11 +324,10 @@ class simple_script_server:
 
 		if blocking:
 			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait()
+			ah.wait(logging=True)
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
-		
-		ah.set_succeeded() # full success
+			ah.wait(logging=False)
 		return ah
 
 	## Deals with all kind of trajectory movements for different components.
@@ -391,7 +394,7 @@ class simple_script_server:
 						for j in i:
 							#print j,"type2 = ", type(j)
 							if not ((type(j) is float) or (type(j) is int)): # check type
-								print type(j)
+								#print type(j)
 								rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 								print "parameter is:",param
 								ah.set_failed(3)
@@ -437,10 +440,10 @@ class simple_script_server:
 
 		if blocking:
 			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait()
+			ah.wait(logging=True)
 		else:
 			rospy.logdebug("actionlib client not waiting for result, continuing...")
-
+			ah.wait(logging=False)
 		return ah
 
 	def move_cart_rel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
@@ -458,7 +461,7 @@ class simple_script_server:
 		pose.pose.orientation.y = q[1]
 		pose.pose.orientation.z = q[2]
 		pose.pose.orientation.w = q[3]
-		print pose
+		#print pose
 		
 		# call action server
 		action_server_name = "/" + component_name + '_controller/move_cart_rel'
@@ -509,10 +512,6 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
 	def set_light(self,parameter_name):
-#		graph_ah = self.AppendGraph("set_light", "", parameter_name)
-#		if(self.simulate):
-#			return graph_ah
-			
 		ah = action_handle()
 		ah.component_name = "light"
 		ah.parameter_name = parameter_name
@@ -546,7 +545,7 @@ class simple_script_server:
 				for i in param:
 					#print i,"type1 = ", type(i)
 					if not ((type(i) is float) or (type(i) is int)): # check type
-						print type(i)
+						#print type(i)
 						rospy.logerr("no valid parameter for light: not a list of float or int, aborting...")
 						print "parameter is:",param
 						ah.error_code = 3
@@ -744,9 +743,6 @@ class simple_script_server:
 			return ah
 
 	def SpeakStr(self,text,mode):
-#		graph_ah = self.AppendGraph("SpeakStr", text, mode)
-#		if(self.simulate):
-#			return graph_ah
 	
 		""" Speak the string 'text' via the TTS system specified by mode
 		Possible modes are:
@@ -900,6 +896,7 @@ class action_handle:
 		self.component_name = component_name
 		self.parameter_name = parameter_name
 		self.state = ScriptState.UNKNOWN
+		self.blocking = blocking
 		self.simulate = simulate
 		self.level = int(rospy.get_param("/script_server/level",100))
 		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
@@ -911,32 +908,50 @@ class action_handle:
 
 	## Waits for the action to be finished.
 	#
-	# If duration is specified, waits until action is finished or timeout is reached.
+	# Triggers waiting either as blocking or in a separate thread.
 	#
 	# \param duration Duration for timeout.
-	def wait(self,duration=None):
+	# \param logging activates logging for the wait of this action.
+	def wait(self,duration=None,logging=True):
 		global graph_wait_list
 		if(self.simulate):
 			if(self.parent_node != ""):
 				graph_wait_list.append(self.parent_node)
 			return
+		
+		if self.blocking:
+			self.wait_for_finished(duration,True)
+		else:
+			thread.start_new_thread(self.wait_for_finished,(duration,logging,))
+
+		return self.error_code
+	
+	## Waits for the action to be finished.
+	#
+	# If duration is specified, waits until action is finished or timeout is reached.
+	#
+	# \param duration Duration for timeout.
+	# \param logging activates logging for the wait of this action.
+	def wait_for_finished(self,duration,logging):	
 		if self.error_code <= 0:			
 			if duration is None:
-				rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)
+				if logging:
+					rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)
 				self.client.wait_for_result()
 			else:
-				rospy.loginfo("Wait for <<%s>> reached <<%s>> (max %f secs)...",self.component_name, self.parameter_name,duration)
+				if logging:
+					rospy.loginfo("Wait for <<%s>> reached <<%s>> (max %f secs)...",self.component_name, self.parameter_name,duration)
 				if not self.client.wait_for_result(rospy.Duration(duration)):
-					rospy.logerr("Timeout while waiting for <<%s>> to reach <<%s>>. Continuing...",self.component_name, self.parameter_name)
+					if logging:
+						rospy.logerr("Timeout while waiting for <<%s>> to reach <<%s>>. Continuing...",self.component_name, self.parameter_name)
 					error_code = 10
 					return
-			rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
+			if logging:
+				rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
 		else:
 			rospy.logwarn("Execution of <<%s>> to <<%s>> was aborted, wait not possible. Continuing...",self.component_name, self.parameter_name)
 		
 		self.set_succeeded() # full success
-		
-		return self.error_code
 
 	## Gets the error code for a action execution.
 	def get_error_code(self):
@@ -987,11 +1002,10 @@ class action_handle:
 		global graph_wait_list
 		global function_counter
 		global last_node
-#		global parent_node
 		graphstring = self.GetGraphstring()
 		if self.simulate:
 			if ( self.level >= self.GetLevel(self.function_name)):
-				print "adding " + graphstring + " to graph"
+				#print "adding " + graphstring + " to graph"
 				graph.add_edge(last_node, graphstring)
 				for waiter in graph_wait_list:
 					graph.add_edge(waiter, graphstring)
@@ -1006,6 +1020,7 @@ class action_handle:
 			#self.PublishState()
 		function_counter += 1
 		
+	## Publishs the state of the action handle
 	def PublishState(self):
 		script_state = ScriptState()
 		script_state.header.stamp = rospy.Time.now()
