@@ -72,7 +72,7 @@ def state_cb(msg):
 
 # create gtk window
 window = gtk.Window()
-window.set_title('cob script server viewer')
+window.set_title('script viewer')
 window.set_default_size(600, 800)
 vbox = gtk.VBox()
 window.add(vbox)

@@ -89,6 +89,7 @@ import pygraphviz as pgv
 graph=""
 graph_wait_list=[]
 function_counter = 0
+ah_counter = 0
 graph = pgv.AGraph()
 graph.node_attr['shape']='box'
 last_node = "Start"
@@ -117,9 +118,16 @@ class script():
 	# First does a simulated turn and then calls Initialize() and Run().
 	def Start(self):
 		self.Parse()
+		global ah_counter
+		ah_counter = 0
 		self.sss = simple_script_server()
 		self.Initialize()
 		self.Run()
+		# wait until last threaded action finishes
+		rospy.loginfo("Wait for script to finish...")
+		while ah_counter != 0:
+			rospy.sleep(1)
+		rospy.loginfo("...script finished.")
 	
 	## Function to generate graph view of script.
 	#
@@ -322,12 +330,8 @@ class simple_script_server:
 		self.client.send_goal(client_goal)
 		ah.set_client(self.client)
 
-		if blocking:
-			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait_inside()
-		else:
-			rospy.logdebug("actionlib client not waiting for result, continuing...")
-			ah.wait_inside()
+		ah.wait_inside()
+
 		return ah
 
 	## Deals with all kind of trajectory movements for different components.
@@ -438,12 +442,8 @@ class simple_script_server:
 		self.client.send_goal(client_goal)
 		ah.set_client(self.client)
 
-		if blocking:
-			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait_inside()
-		else:
-			rospy.logdebug("actionlib client not waiting for result, continuing...")
-			ah.wait_inside()
+		ah.wait_inside()
+
 		return ah
 
 	def move_cart_rel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
@@ -837,6 +837,7 @@ class simple_script_server:
 			ah.set_active()
 		rospy.loginfo("Wait for %f sec",duration)
 		time.sleep(duration)
+		
 		ah.set_succeeded()
 
 	## Waits for user input.
@@ -915,9 +916,10 @@ class action_handle:
 	#
 	# \param duration Duration for timeout.
 	def wait(self, duration=None):
+		global ah_counter
+		ah_counter += 1
 		self.blocking = True
-		self.wait_log = True
-		self.wait_for_finished(duration)
+		self.wait_for_finished(duration,True)
 
 	## Handles inside wait.
 	#
@@ -926,11 +928,9 @@ class action_handle:
 	# \param duration Duration for timeout.
 	def wait_inside(self, duration=None):
 		if self.blocking:
-			self.wait_log = True
-			self.wait_for_finished(duration)
+			self.wait_for_finished(duration,True)
 		else:
-			self.wait_log = False
-			thread.start_new_thread(self.wait_for_finished,(duration,))
+			thread.start_new_thread(self.wait_for_finished,(duration,False,))
 		return self.error_code
 	
 	## Waits for the action to be finished.
@@ -938,7 +938,8 @@ class action_handle:
 	# If duration is specified, waits until action is finished or timeout is reached.
 	#
 	# \param duration Duration for timeout.
-	def wait_for_finished(self,duration):
+	# \param logging Enables or disables logging for this wait.
+	def wait_for_finished(self, duration, logging):
 		global graph_wait_list
 		if(self.simulate):
 			if(self.parent_node != ""):
@@ -947,18 +948,18 @@ class action_handle:
 
 		if self.error_code <= 0:			
 			if duration is None:
-				if self.wait_log:
+				if logging:
 					rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)
 				self.client.wait_for_result()
 			else:
-				if self.wait_log:
+				if logging:
 					rospy.loginfo("Wait for <<%s>> reached <<%s>> (max %f secs)...",self.component_name, self.parameter_name,duration)
 				if not self.client.wait_for_result(rospy.Duration(duration)):
-					if self.wait_log:
+					if logging:
 						rospy.logerr("Timeout while waiting for <<%s>> to reach <<%s>>. Continuing...",self.component_name, self.parameter_name)
 					self.error_code = 10
 					return
-			if self.wait_log:
+			if logging:
 				rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
 		else:
 			rospy.logwarn("Execution of <<%s>> to <<%s>> was aborted, wait not possible. Continuing...",self.component_name, self.parameter_name)
@@ -977,17 +978,26 @@ class action_handle:
 		self.error_code = -1
 		self.PublishState()
 		
+		global ah_counter
+		ah_counter += 1
+		
 	## Sets the execution state to succeeded.
 	def set_succeeded(self):
 		self.state = ScriptState.SUCCEEDED
 		self.error_code = 0
 		self.PublishState()
 		
+		global ah_counter
+		ah_counter -= 1
+		
 	## Sets the execution state to failed.
 	def set_failed(self,error_code):
 		self.state = ScriptState.FAILED
 		self.error_code = error_code
 		self.PublishState()
+
+		global ah_counter
+		ah_counter -= 1
 	
 	## Returns the graphstring.
 	def GetGraphstring(self):
