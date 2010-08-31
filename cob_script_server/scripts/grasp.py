@@ -18,8 +18,6 @@ class MyScript(script):
                 self.sss.init("base")
 		
 	def Run(self): 
-		print "start"
-
 		# init positions
 		handle01 = self.sss.move("arm","folded",False)
 		self.sss.move("torso","home",False)
@@ -28,11 +26,11 @@ class MyScript(script):
 		handle01.wait()
 		print "Please localize the robot with rviz"
 		self.sss.wait_for_input()
-		self.sss.move("base","home")
+		#self.sss.move("base","home")
 
                 # prepare for grasping
-                self.sss.move("base","resa1")
-                self.sss.move("arm","pregrasp")
+                self.sss.move("base","kitchen")
+                self.sss.move("arm","pregrasp",False)
 
 		# get cup position (from camera)
 		#caculate tranformations, we need cup coord in sdh_palm_link
@@ -45,9 +43,7 @@ class MyScript(script):
 		#say("here's your drink")
 
 		# move components back to initial positions
-
-		print "finished"
 		
 if __name__ == "__main__":
 	SCRIPT = MyScript()
-	SCRIPT.Start('test_script')
+	SCRIPT.Start()
