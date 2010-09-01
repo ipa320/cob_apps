@@ -444,20 +444,24 @@ class simple_script_server:
 		ah.set_client(self.client)
 
 		ah.wait_inside()
-
 		return ah
 
-	def move_cart_rel(self,component_name,position=[0.0, 0.0, 0.0],orientation=[0.0, 0.0, 0.0]):
-		ah = action_handle()
-		ah.component_name = component_name
+	def move_cart_rel(self, component_name, parameter_name=[[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
+		ah = action_handle("move_rel", component_name, parameter_name, blocking, self.simulate)
+		if(self.simulate):
+			return ah
+		else:
+			ah.set_active()
+
+		param = parameter_name
 
 		# convert to Pose message
 		pose = PoseStamped()
 		pose.header.stamp = rospy.Time.now() 	
-		pose.pose.position.x = position[0]
-		pose.pose.position.y = position[1]
-		pose.pose.position.z = position[2]
-		q = quaternion_from_euler(orientation[0], orientation[1], orientation[2])
+		pose.pose.position.x = param[0][0]
+		pose.pose.position.y = param[0][1]
+		pose.pose.position.z = param[0][2]
+		q = quaternion_from_euler(param[1][0], param[1][1], param[1][2])
 		pose.pose.orientation.x = q[0]
 		pose.pose.orientation.y = q[1]
 		pose.pose.orientation.z = q[2]
@@ -473,7 +477,7 @@ class simple_script_server:
 		if not self.client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
-			ah.error_code = 4
+			ah.set_failed(4)
 			return ah
 		else:
 			rospy.logdebug("%s action server ready",action_server_name)
@@ -481,18 +485,12 @@ class simple_script_server:
 		# sending goal
 		self.check_pause()
 		client_goal = MoveCartGoal()
-		client_goal.trajectory = traj
+		client_goal.goal_pose = pose
 		#print client_goal
 		self.client.send_goal(client_goal)
-		ah.client = self.client
+		ah.set_client(self.client)
 
-		if blocking:
-			rospy.logdebug("actionlib client waiting for result...")
-			ah.wait_inside()
-		else:
-			rospy.logdebug("actionlib client not waiting for result, continuing...")
-		
-		ah.error_code = 0 # full success
+		ah.wait_inside()
 		return ah
 	
 	## Set the operation mode for different components.
