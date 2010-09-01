@@ -101,8 +101,8 @@ class script():
 	def __init__(self):
 		# use filename as nodename
 		filename = os.path.basename(sys.argv[0])
-		basename, extension = os.path.splitext(filename)
-		rospy.init_node(basename)
+		self.basename, extension = os.path.splitext(filename)
+		rospy.init_node(self.basename)
 		self.graph_pub = rospy.Publisher("/script_server/graph", String)
 
 	## Dummy function for initialization
@@ -121,6 +121,7 @@ class script():
 		global ah_counter
 		ah_counter = 0
 		self.sss = simple_script_server()
+		rospy.loginfo("Starting <<%s>> script...",self.basename)
 		self.Initialize()
 		self.Run()
 		# wait until last threaded action finishes
@@ -853,13 +854,15 @@ class simple_script_server:
 			return ah
 		else:
 			ah.set_active()
+		
+		if (duration != 0):
+			rospy.logerr("Wait with duration not implemented yet") # \todo implement waiting with duration
+		
 		rospy.loginfo("Wait for user input...")
-		retVal = sys.stdin.readline()
-		rospy.loginfo("Got string >%s<",retVal)
+		retVal = raw_input()
+		rospy.loginfo("...got string <<%s>>",retVal)
 		ah.set_succeeded()
 		return retVal
-		#key = input()
-		#return key
 
 	## Checks if script is in pause mode
 	#
