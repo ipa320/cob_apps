@@ -7,6 +7,7 @@
   [[stop,trigger,base,stop],
   [init,trigger,base,init],
   [home,move,base,home],
+  [order,move,base,order],
   [kitchen,move,base,kitchen]]
 1 torso:
   [[stop,trigger,torso,stop],
