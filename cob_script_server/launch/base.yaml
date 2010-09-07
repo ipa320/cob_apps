@@ -1,7 +1,7 @@
 #[x,y,theta]
 home: [0, 0, 0]
 order: [0.5, -1, 0]
-kitchen: [-2.2, 0, 0]
+kitchen: [-2.15, 0.5, 0]
 watercooler: [1.869,-1.376,0.897]
 table: [3.855,-2.874,0.613]
 intermediate: [2.699, -2.658, 0.068]
