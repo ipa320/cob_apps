@@ -8,14 +8,12 @@ import rospy
 
 from simple_script_server import script
 
-
 import tf
 from geometry_msgs.msg import *
 
 class GraspScript(script):
 		
 	def Initialize(self):
-		pass
 		# initialize components (not needed for simulation)
 		#self.sss.init("tray")
 		#self.sss.init("torso")
@@ -35,9 +33,6 @@ class GraspScript(script):
 		
 	def Run(self): 
 		listener = tf.TransformListener(True, rospy.Duration(10.0))
-		self.sss.sleep(2.0)
-		transformer = tf.TransformerROS()
-		br = tf.TransformBroadcaster()
 	
 		# prepare for grasping
 		self.sss.move("base","kitchen")
@@ -45,41 +40,48 @@ class GraspScript(script):
 		self.sss.move("sdh","cylopen")
 		handle01.wait()
 
-		# get cup position (from camera)
-		#caculate tranformations, we need cup coord in sdh_palm_link
+		# caculate tranformations, we need cup coordinates in arm_7_link coordinate system
 		cup = PointStamped()
 		cup.header.stamp = rospy.Time.now()
 		cup.header.frame_id = "/map"
 		cup.point.x = -2.95
 		cup.point.y = 0.1
 		cup.point.z = 0.98
-
 		self.sss.sleep(2)
 		
 		if not self.sss.simulate:
-			try:
-				#listener.waitForTransform('/map', '/arm_7_link', rospy.Time(0), rospy.Duration(5))
-				#(trans,rot) = listener.lookupTransform('/map', '/arm_7_link', rospy.Time(0))
-				cup_arm = listener.transformPoint('/arm_7_link',cup)
+			cup = listener.transformPoint('/arm_7_link',cup)
 
-				print "cup_arm: ", cup_arm
-				
-				self.sss.move_cart_rel("arm",[[cup_arm.point.x, cup_arm.point.y, cup_arm.point.z-0.4], [0, 0, 0]])
-				self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.2], [0, 0, 0]])
-				self.sss.move("sdh","cylclosed")
-				self.sss.move("arm","grasp-to-tablet")
-
-			except (tf.LookupException, tf.ConnectivityException):
-				print "tf exception"
+		print "cup: ", cup		
+		self.sss.move_cart_rel("arm",[[cup.point.x, cup.point.y, cup.point.z-0.4], [0, 0, 0]])
+		self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.2], [0, 0, 0]])
 	
 
 		# place cup on tray
-		#...
+		self.sss.move("sdh","cup")
+		handle01 = self.sss.move("arm","grasp-to-tablet",False)
+		self.sss.move("tray","up")
+		handle01.wait()
+		self.sss.move("sdh","cylopen")
+		self.sss.move_cart_rel("arm",[[0.0, 0.0, -0.2], [0, 0, 0]])
+		handle01 = self.sss.move("arm","tablet-to-folded",False)
+		self.sss.sleep(4)
+		self.sss.move("sdh","cylclosed",False)
+		handle01.wait()
 
 		# deliver cup to home
+		self.sss.move("base","order")
 		#say("here's your drink")
+		self.sss.move("torso","nod")
 
 		# move components back to initial positions
+#		self.sss.wait_for_input()
+#		handle01 = self.sss.move("arm","folded",False)
+#		self.sss.move("torso","home",False)
+#		self.sss.move("sdh","home",False)
+#		self.sss.move("tray","down")
+#		handle01.wait()
+#		self.sss.move("base","home")
 		
 if __name__ == "__main__":
 	SCRIPT = GraspScript()

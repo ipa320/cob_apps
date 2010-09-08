@@ -459,6 +459,7 @@ class simple_script_server:
 		pose = PoseStamped()
 		pose.header.stamp = rospy.Time.now()
 		pose.header.frame_id = "/arm_7_link"
+		#pose.header.frame_id = "/sdh_palm_link"
 		pose.pose.position.x = param[0][0]
 		pose.pose.position.y = param[0][1]
 		pose.pose.position.z = param[0][2]
