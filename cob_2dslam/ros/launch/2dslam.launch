@@ -5,10 +5,10 @@
 	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
 		<remap from="scan" to="scan_front"/>
 		<param name="maxUrange" type="int" value="8"/>
-		<param name="xmin" type="int" value="-5"/>
-		<param name="ymin" type="int" value="-5"/>
-		<param name="xmax" type="int" value="5"/>
-		<param name="ymax" type="int" value="5"/>
+		<param name="xmin" type="int" value="-8"/>
+		<param name="ymin" type="int" value="-8"/>
+		<param name="xmax" type="int" value="8"/>
+		<param name="ymax" type="int" value="8"/>
 		<param name="odom_frame" type="string" value="odom_combined"/>
 	</node>
 
