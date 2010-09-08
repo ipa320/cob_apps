@@ -74,15 +74,6 @@ class GraspScript(script):
 		#say("here's your drink")
 		self.sss.move("torso","nod")
 
-		# move components back to initial positions
-#		self.sss.wait_for_input()
-#		handle01 = self.sss.move("arm","folded",False)
-#		self.sss.move("torso","home",False)
-#		self.sss.move("sdh","home",False)
-#		self.sss.move("tray","down")
-#		handle01.wait()
-#		self.sss.move("base","home")
-		
 if __name__ == "__main__":
 	SCRIPT = GraspScript()
 	SCRIPT.Start()
