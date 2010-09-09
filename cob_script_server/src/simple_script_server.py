@@ -32,6 +32,8 @@ class simple_script_server:
 
 #------------------- Init section -------------------#
 	def Init(self,component_name):
+		print type(Trigger)
+		print type(component_name)
 		Trigger(component_name,"init")
 
 	def Stop(self,component_name):

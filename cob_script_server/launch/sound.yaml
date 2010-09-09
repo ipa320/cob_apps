@@ -1,4 +1,4 @@
-speech_mode: WAV_DE
+speech_mode: FEST_EN
 #wav_de_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
 wav_en_path: /home/cob/svn/cob/Files/Audio/WiMi/wav_de/
 temp_wav_file: /home/fmw/wav/swift_temp.wav
