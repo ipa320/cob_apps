@@ -14,18 +14,15 @@ from ScriptUtils import *
 from ScriptParameter import *
 del sys.path[0]
 
-class GraspFromCoolerAndDeliver:
-	def __init__(self,servers):
-		rospy.init_node('grasp_deliver')
-		self.sss = simple_script_server.simple_script_server()
+class GraspFromCoolerAndDeliver(ssscript):
+
+	def Initialize(self, servers):
 		self.su = script_utils.script_utils()
 		self.util = ScriptUtils(servers)
 		self.sss.Init("tray")
 		self.sss.Init("torso")
 		self.sss.Init("arm")
 		self.sss.Init("sdh")
-
-	def Initialize(self):
 		# Move all components to starting positions
 		self.sss.Move("tray","down",False)
 		self.sss.Move("sdh","home",False)
@@ -130,20 +127,21 @@ class GraspFromCoolerAndDeliver:
 			self.sss.Move("tray","down",False)
 		return 0
 		
-	def Run(self):
-		#self.Initialize()
-		#self.DriveToCooler()
-		#self.GraspFromCooler()
-		#self.DeliverDrink()
-		#self.sss.Move("sdh","coolercupopen")
-		#self.su.MoveLED("arm","coolergrasp")
-		#self.sss.wait_for_input()
-		#self.sss.Move("sdh","coolercupclosed")
-		#self.su.MoveLED("arm","grasp-to-tablet")
+	def run(self):
+		self.Initialize()
+		self.DriveToCooler()
+		self.GraspFromCooler()
+		self.DeliverDrink()
+		self.sss.Move("sdh","coolercupopen")
+		self.su.MoveLED("arm","coolergrasp")
+		self.sss.wait_for_input()
+		self.sss.Move("sdh","coolercupclosed")
+		self.su.MoveLED("arm","grasp-to-tablet")
 		self.su.MoveLED("arm","tablet-to-folded")
 
 if __name__ == "__main__":
 	servers = Servers()
 	SCRIPT = GraspFromCoolerAndDeliver(servers)
+	SCRIPT.Start('grasp_deliver')
 	#SCRIPT.Initialize()
-	SCRIPT.Run()
+	SCRIPT.run()

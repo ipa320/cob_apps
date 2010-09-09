@@ -1,50 +1,51 @@
 #!/usr/bin/python
+
 import roslib
 roslib.load_manifest('cob_script_server')
 import rospy
-import simple_script_server
 
-class MyClass:
-    def __init__(self):
-        rospy.init_node('test_script')
-        self.sss = simple_script_server.simple_script_server()
+from simple_script_server import script
 
-    def Initialize(self):
-        rospy.loginfo("Initializing all components...")
+import tf
+from geometry_msgs.msg import *
 
-    def GraspObject(self):
-        rospy.loginfo("Grasping an object from table...")
+class MyScript(script):
 
-	print "start"
-	handle01=self.sss.Move("arm","home",False)
-	self.sss.Move("torso","home",False)
-	self.sss.Move("sdh","home",False)
-	self.sss.Move("tray","down")
-	handle01.wait()
+	def Initialize(self):
+		pass
 
-        self.sss.Speak("Sent00")
+	def Run(self):
+		listener = tf.TransformListener(True, rospy.Duration(10.0))
+		self.sss.sleep(2)
+		cup = PointStamped()
+		cup.header.stamp = rospy.Time.now()
+		cup.header.frame_id = "/map"
+		cup.point.x = -2.95
+		cup.point.y = 0.1
+		cup.point.z = 0.98
+		self.sss.sleep(2)
+		
+		self.sss.move("arm","pregrasp")
+		
+		if not self.sss.simulate:
+			self.sss.sleep(2)
+			#listener.waitForTransform('/map', '/arm_7_link', rospy.Time(0), rospy.Duration(5))
+			cup_arm = listener.transformPoint('/arm_7_link',cup)
 
-	self.sss.Move("arm","pregrasp")
-	self.sss.sleep(2)
-
-	self.sss.Move("tray","up")
-
-	self.sss.Move("sdh","cylopen")
-
-	self.sss.Move("arm","grasp")
-	self.sss.sleep(2)
-
-	self.sss.Move("sdh","cylclosed")
-	self.sss.sleep(1)
-
-	self.sss.Move("arm","overtablet")
-	self.sss.sleep(3)
-
-	self.sss.Move("sdh","cylopen")
-
-	self.sss.Move("arm","folded")
+			print cup_arm
+			
+			#self.sss.move_cart_rel("arm",[[cup_arm.point.x, cup_arm.point.y, cup_arm.point.z-0.4], [0, 0, 0]])
+			#self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.2], [0, 0, 0]])
+			
+			#self.sss.move_cart_rel("arm",[[0.5, -0.12, -0.4], [0, 0, 0]])
+			self.sss.move_cart_rel("arm",[[0.2, -0.1, -0.2], [0, 0, 0]])
+		
+		#self.sss.move_cart_rel("arm",[[0.0, 0.2, 0.0], [0.0, 0, 0]])
+		#self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.1], [0, 0, 0]])
+		#self.sss.move_cart_rel("arm",[[-0.2, 0.0, 0.0], [0, 0, 0]])
+		#self.sss.move_cart_rel("arm",[[0.0, 0.0, -0.1], [0, 0, 0]])
+		#self.sss.move_cart_rel("arm",[[0.2, 0.0, 0.0], [0, 0, 0]])
 
 if __name__ == "__main__":
-    SCRIPT = MyClass()
-    SCRIPT.Initialize()
-    SCRIPT.GraspObject()
+	SCRIPT = MyScript()
+	SCRIPT.Start()

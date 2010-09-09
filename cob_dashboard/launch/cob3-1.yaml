@@ -3,21 +3,52 @@
 #  [[button_name1,function_name1,component_name1,parameter_name2,
 #  [button_name2,function_name2,component_name2,parameter_name2]]
 
+0 base:
+  [[stop,trigger,base,stop],
+  [init,trigger,base,init],
+  [home,move,base,home],
+  [order,move,base,order],
+  [kitchen,move,base,kitchen]]
 1 torso:
-  [[home,Move,torso,home],
-  [front,Move,torso,front],
-  [back,Move,torso,back],
-  [left,Move,torso,left],
-  [right,Move,torso,right],
-  [shake,Move,torso,shake],
-  [nod,Move,torso,nod]]
+  [[stop,trigger,torso,stop],
+  [init,trigger,torso,init],
+  [recover,trigger,torso,recover],
+  [enable joystick,mode,torso,velocity],
+  [home,move,torso,home],
+  [front,move,torso,front],
+  [back,move,torso,back],
+  [left,move,torso,left],
+  [right,move,torso,right],
+  [shake,move,torso,shake],
+  [nod,move,torso,nod]]
 2 tray:
-  [[up,Move,tray,up],
-  [down,Move,tray,down]]
+  [[stop,trigger,tray,stop],
+  [init,trigger,tray,init],
+  [recover,trigger,tray,recover],
+  [enable joystick,mode,tray,velocity],
+  [up,move,tray,up],
+  [down,move,tray,down]]
 3 arm:
-  [[home,Move,arm,home],
-  [grasp,Move,arm,grasp]]
+  [[home,move,arm,home],
+  [folded,move,arm,folded],
+  [pregrasp,move,arm,pregrasp],
+  [grasp,move,arm,grasp],
+  [overtablet,move,arm,overtablet],
+  [tablet,move,arm,tablet]]
+4 arm traj:
+  [[grasp-to-tablet,move,arm,grasp-to-tablet],
+  [tablet-to-folded,move,arm,tablet-to-folded]]
 5 sdh:
-  [[home,Move,sdh,home],
-  [cyl. closed,Move,sdh,cylclosed],
-  [cyl. open,Move,sdh,cylopen]]
+  [[stop,trigger,sdh,stop],
+  [init,trigger,sdh,init],
+  [recover,trigger,sdh,recover],
+  [home,move,sdh,home],
+  [cyl. closed,move,sdh,cylclosed],
+  [cyl. open,move,sdh,cylopen],
+  [stretched,move,sdh,stretched]]
+6 eyes:
+  [[stop,trigger,head,stop],
+  [init,trigger,head,init],
+  [recover,trigger,head,recover],
+  [front,move,head,front],
+  [back,move,head,back]]

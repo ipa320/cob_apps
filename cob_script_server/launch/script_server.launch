@@ -7,8 +7,8 @@
 		<include file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
 		<param name="pause" value="false" type="bool" />
 		<group ns="sound">
-			<param name="wav_de_path" value="$(find cob_script_server)/common/files/wav_de" />
-			<param name="wav_en_path" value="$(find cob_script_server)/common/files/wav_en" />
+			<param name="wav_de_path" value="$(find cob_script_server)/common/files/wav_de/" />
+			<param name="wav_en_path" value="$(find cob_script_server)/common/files/wav_en/" />
 			<param name="temp_wav_file" value="$(find cob_script_server)/common/files/swift_temp.wav" />
 		</group>
 

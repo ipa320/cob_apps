@@ -1,78 +1,70 @@
 #!/usr/bin/python
 
-import time
-
 import roslib
 roslib.load_manifest('cob_script_server')
 import rospy
 
-import simple_script_server
+from simple_script_server import script
 
-class GetDrink:
-	def __init__(self):
-		rospy.init_node('test_script')
-		self.sss = simple_script_server.simple_script_server()
-
+class TestScript(script):
+		
 	def Initialize(self):
-		self.sss.Init("tray")
-		self.sss.Init("torso")
-		self.sss.Init("arm")
-		self.sss.Init("sdh")
+		self.sss.init("tray")
+		#self.sss.init("torso")
+		#self.sss.init("arm")
+		#self.sss.init("sdh")
 		
-	def run(self): 
-		
-		print "start"
-		self.sss.SpeakStr("Hallo","FEST_EN")
+	def Run(self): 
+		#self.sss.SpeakStr("Hallo","FEST_EN")
+		#self.sss.sleep(1)
+
 		# init poses
-		handle01 = self.sss.Move("arm","folded",False)
-		self.sss.Move("torso","home",False)
-		self.sss.Move("sdh","home",False)
-		self.sss.Move("tray","down")
+		handle01 = self.sss.move("arm","folded",False)
+		self.sss.move("torso","home",False)
+		self.sss.move("sdh","home",False)
+		self.sss.move("tray","down")
 		handle01.wait()
-#		self.sss.Move("base","home")
-#		self.sss.wait_for_input()
+		self.sss.move("base","home")
 
 		#test
-#		self.sss.Move("arm","home")
-#		self.sss.MoveCartRel("arm", [0.0, 0.0, 0.0], [0.0, 0.0, 90.0/180.0*3.1415926])
+		#self.sss.move("torso",[[0.1,0,0.15,0]])
+		#self.sss.move("torso","home")
+#		self.sss.moveCartRel("arm", [0.0, 0.0, 0.0], [0.0, 0.0, 90.0/180.0*3.1415926])
 #		self.sss.Speak("sentence1","WAV_DE")
 #		self.sss.Speak("sentence1","FEST_EN")
 
 		#grasp
-#		self.sss.Move("base","kitchen")
-		handle01 = self.sss.Move("arm","pregrasp",False)
-		self.sss.Move("sdh","cylopen")
+		self.sss.move("base","kitchen")
+		handle01 = self.sss.move("arm","pregrasp",False)
+		self.sss.move("sdh","cylopen")
 		handle01.wait()
-		#self.sss.Move("arm","grasp")
-		self.sss.MoveCartRel("arm", [-0.2, 0.0, 0.0], [0.0, 0.0, 0.0])
-		self.sss.Move("sdh","cylclosed")
+		self.sss.move("arm","grasp")
+		#self.sss.moveCartRel("arm", [-0.2, 0.0, 0.0], [0.0, 0.0, 0.0])
+		self.sss.move("sdh","cylclosed")
 
 		#place on tablet
-#		self.sss.wait_for_input()
-		handle01 = self.sss.Move("arm","grasp-to-tablet",False)
-		self.sss.Move("tray","up",False)
+		handle01 = self.sss.move("arm","grasp-to-tablet",False)
+		self.sss.move("tray","up",False)
 		handle01.wait()
-#		print handle01.get_error_code()
-		self.sss.Move("sdh","cylopen")
+		#print handle01.get_error_code()
+		self.sss.move("sdh","cylopen")
 		
 		#move back to save poses
-		handle03 = self.sss.Move("arm","tablet-to-folded",False)
+		handle03 = self.sss.move("arm","tablet-to-folded",False)
 		self.sss.sleep(3)
-		self.sss.Move("sdh","home",False)
+		self.sss.move("sdh","home",False)
 		handle03.wait()
 		
 		#deliver
-#		self.sss.Move("base","order")
-		self.sss.Move("torso","nod")
+		self.sss.move("base","order")
+		self.sss.move("torso","nod")
+		self.sss.wait_for_input()
 		self.sss.sleep(3)
 		
 		#drive back to home
-		self.sss.Move("tray","down",False)
-#		self.sss.Move("base","home")
-		
-		print "finished"
+		self.sss.move("tray","down",False)
+		self.sss.move("base","home")
 		
 if __name__ == "__main__":
-	SCRIPT = GetDrink()
-	#SCRIPT.Initialize()
-	SCRIPT.run()
+	SCRIPT = TestScript()
+	SCRIPT.Start()
