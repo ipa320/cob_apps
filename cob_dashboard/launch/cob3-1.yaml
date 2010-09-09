@@ -29,14 +29,21 @@
   [up,move,tray,up],
   [down,move,tray,down]]
 3 arm:
-  [[home,move,arm,home],
+  [[stop,trigger,arm,stop],
+  [init,trigger,arm,init],
+  [recover,trigger,arm,recover],
+  [enable joystick,mode,arm,velocity],
+  [home,move,arm,home],
   [folded,move,arm,folded],
   [pregrasp,move,arm,pregrasp],
   [grasp,move,arm,grasp],
   [overtablet,move,arm,overtablet],
   [tablet,move,arm,tablet]]
 4 arm traj:
-  [[grasp-to-tablet,move,arm,grasp-to-tablet],
+  [[stop,trigger,arm,stop],
+  [init,trigger,arm,init],
+  [recover,trigger,arm,recover],
+  [enable joystick,mode,arm,velocity],[grasp-to-tablet,move,arm,grasp-to-tablet],
   [tablet-to-folded,move,arm,tablet-to-folded]]
 5 sdh:
   [[stop,trigger,sdh,stop],
@@ -45,7 +52,7 @@
   [home,move,sdh,home],
   [cyl. closed,move,sdh,cylclosed],
   [cyl. open,move,sdh,cylopen],
-  [stretched,move,sdh,stretched]]
+  [cup,move,sdh,cup]]
 6 eyes:
   [[stop,trigger,head,stop],
   [init,trigger,head,init],
