@@ -124,7 +124,7 @@ class simple_script_server:
 		pose.pose.orientation.w = q[3]
 		
 		# call action server
-		action_server_name = "move_base"
+		action_server_name = "/move_base"
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
 		# trying to connect to server
@@ -286,9 +286,9 @@ class simple_script_server:
 			return False
 		return True
 		
-	def SetOperationMode(self,component_name,mode):
+	def SetOperationMode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
-		rospy.set_param(component_name + "_controller/OperationMode",mode)
+		rospy.set_param("/" + component_name + "_controller/OperationMode",mode)
 			
 #------------------- LED section -------------------#
 	def SetLight(self,parameter_name):
@@ -482,8 +482,9 @@ class simple_script_server:
 			return 3
 
 		# get parameter for temporary wav file
-		if not rospy.has_param(self.ns_global_prefix +"/sound/temp_wav_file"):
-			rospy.logerr("parameter temp_wav_file does not exist on ROS Parameter Server, aborting")
+		param_name = self.ns_global_prefix +"/sound/temp_wav_file"
+		if not rospy.has_param(param_name):
+			rospy.logerr("parameter <<%s>> does not exist on ROS Parameter Server, aborting...",param_name)
 			return 2
 		temp_wav_file = rospy.get_param(self.ns_global_prefix +"/sound/temp_wav_file")
 

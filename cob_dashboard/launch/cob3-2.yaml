@@ -3,6 +3,12 @@
 #  [[button_name1,function_name1,component_name1,parameter_name2,
 #  [button_name2,function_name2,component_name2,parameter_name2]]
 
+0 base:
+  [[stop,Trigger,base,stop],
+  [init,Trigger,base,init],
+  [resa1,Move,base,resa1],
+  [resa2,Move,base,resa2],
+  [resa3,Move,base,resa3]]
 1 torso:
   [[stop,Trigger,torso,stop],
   [init,Trigger,torso,init],
@@ -32,7 +38,9 @@
   [pregrasp,Move,arm,pregrasp],
   [intermediateback,Move,arm,intermediateback],
   [intermediatefront,Move,arm,intermediatefront],
-  [overtablet,Move,arm,overtablet]]
+  [overtablet,Move,arm,overtablet],
+  [resa1,Move,arm,resa1],
+  [resa2,Move,arm,resa2]]
 4 arm traj:
   [[stop,Trigger,arm,stop],
   [init,Trigger,arm,init],

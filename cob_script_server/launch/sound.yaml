@@ -36,6 +36,7 @@ speech_de/Sent23: "Ich kann das Getränk nun entgegennehmen."
 speech_de/Sent24: "Ich bin bereit"
 speech_de/Sent25: "Hallo"
 speech_de/Sent26: "Da bin ich wieder."
+speech_en/hello: "Hello, I am care-o-bot!"
 
 # For grasp tutorial
 speech_en/grasp_tutorial_01: "Hello, my name is Care-O-bot!"
