@@ -100,11 +100,11 @@ class NodeClass
         // Constructor
         NodeClass()
         {
-            topicPub_JointStateCmd = n.advertise<sensor_msgs::JointState>("JointStateCmd", 1);
+            topicPub_JointStateCmd = n.advertise<sensor_msgs::JointState>("base_driver/JointStateCmd", 1);
 			
-			srvClient_GetJointState = n.serviceClient<cob_srvs::GetJointState>("GetJointState");
-			srvClient_InitPltf = n.serviceClient<cob_srvs::Trigger>("Init");
-			srcClient_ShutdownPltf = n.serviceClient<cob_srvs::Trigger>("Shutdown");
+			srvClient_GetJointState = n.serviceClient<cob_srvs::GetJointState>("base_driver/GetJointState");
+			srvClient_InitPltf = n.serviceClient<cob_srvs::Trigger>("base_driver/Init");
+			srcClient_ShutdownPltf = n.serviceClient<cob_srvs::Trigger>("base_driver/Shutdown");
 
             //topicSub_demoSubscribe = n.subscribe("demoSubscribe", 1, &NodeClass::topicCallback_demoSubscribe, this);
 
