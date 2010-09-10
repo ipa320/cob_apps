@@ -164,10 +164,10 @@ int NodeClass::init(){
         ROS_ERROR("Failed to initialize Platform using base_drive_chain_node");
         return 1;
     } else ROS_INFO("Successfully initialized base_drive_chain_node");
-
+	
 
 	ROS_INFO("Simple_Drive_node init successful");
-	
+
     return 0;
 }
 
@@ -175,7 +175,7 @@ int NodeClass::simpleDriveTest(int argc, char** argv) {
 	double startTime;
 	sensor_msgs::JointState msgDriveCmd;
 	cob_srvs::GetJointState srvGetJointState;
-	msgDriveCmd.set_velocity_size(iNumMotors);
+	msgDriveCmd.velocity.resize(iNumMotors);
 
 	switch (argc){
 		
