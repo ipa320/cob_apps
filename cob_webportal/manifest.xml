@@ -1,0 +1,15 @@
+<package>
+  <description brief="cob_webportal">
+
+     This package contain special launch files used by the web interface 
+
+  </description>
+  <author>Ulrich Reiser, email: ulrich.reiser@ipa.fraunhofer.de</author>
+  <license>LGPL</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_webportal</url>
+
+  <depend package="robot_state_publisher"/>
+</package>
+
+
