@@ -6,9 +6,9 @@
 0 base:
   [[stop,trigger,base,stop],
   [init,trigger,base,init],
-  [resa1,move,base,resa1],
-  [resa2,move,base,resa2],
-  [resa3,move,base,resa3]]
+  [home,move,base,home],
+  [order,move,base,order],
+  [kitchen,move,base,kitchen]]
 1 torso:
   [[stop,trigger,torso,stop],
   [init,trigger,torso,init],
