@@ -20,7 +20,7 @@
   <!-- start Relaysboard node -->
   <node pkg="cob_relayboard" type="cob_relayboard_node" name="relayboard" ns="base_driver" output="screen"/>
   <!-- set parameters to parameter server --> <!-- assign ComPort from which relaybord is read -->
-  <param name="base_driver/ComPort" value="/dev/ttyUSB0"/>
+  <param name="base_driver/relayboard/ComPort" value="/dev/ttyUSB0"/>
 
 	<!-- Axes definition -->
 	<param name="axis_linear_x" value="1" type="int"/>
