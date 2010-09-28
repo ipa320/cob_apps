@@ -1,7 +1,7 @@
 <package>
   <description brief="cob_script_server">
 
-     cob_script_server
+     The cob_script_server package provides a simple interface to operate Care-O-bot. It can be used via the python API or the actionlib interface.
 
   </description>
   <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
@@ -12,14 +12,17 @@
   <depend package="rospy"/>
   <depend package="actionlib"/>
   <depend package="tf"/>
+  <depend package="std_msgs"/>
   <depend package="cob_msgs"/>
   <depend package="cob_srvs"/>
   <depend package="cob_actions"/>
-  <depend package="cob_goco"/>
   <depend package="trajectory_msgs"/>
   <depend package="geometry_msgs"/>
   <depend package="pr2_controllers_msgs"/>
   <depend package="move_base_msgs"/>
   <depend package="sound_play"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
 
+  <rosdep name="pygraphviz"/>
 </package>

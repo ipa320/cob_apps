@@ -1,15 +1,22 @@
 <?xml version="1.0"?>
 <launch>
 
-	<group ns="script_server" >
+	<group ns="script_server">
 
 		<!-- upload parameters to parameter server -->
-		<include file="$(find cob_script_server)/launch/upload_param.launch"/>
+		<include file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
 		<param name="pause" value="false" type="bool" />
+		<group ns="sound">
+			<param name="wav_de_path" value="$(find cob_script_server)/common/files/wav_de/" />
+			<param name="wav_en_path" value="$(find cob_script_server)/common/files/wav_en/" />
+			<param name="temp_wav_file" value="$(find cob_script_server)/common/files/swift_temp.wav" />
+		</group>
 
 		<!-- start script_server -->
 		<node pkg="cob_script_server" type="script_server.py" name="script_server" cwd="node" respawn="false" output="screen" />
-
 	</group>
+
+	<!-- start soundplay server -->
+	<!--node pkg="sound_play" type="soundplay_node.py" name="sound_play" cwd="node" respawn="false" output="screen" /-->
 
 </launch>

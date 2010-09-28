@@ -1,39 +1,45 @@
 #!/usr/bin/python
-#***************************************************************
+#################################################################
+##\file
 #
-# Copyright (c) 2010
+# \note
+#   Copyright (c) 2010 \n
+#   Fraunhofer Institute for Manufacturing Engineering
+#   and Automation (IPA) \n\n
 #
-# Fraunhofer Institute for Manufacturing Engineering	
-# and Automation (IPA)
+#################################################################
 #
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# \note
+#   Project name: care-o-bot
+# \note
+#   ROS stack name: cob_apps
+# \note
+#   ROS package name: cob_dashboard
 #
-# Project name: care-o-bot
-# ROS stack name: cob_apps
-# ROS package name: cob_dashboard
-#								
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#			
-# Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
-# Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+# \author
+#   Author: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
+# \author
+#   Supervised by: Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de
 #
-# Date of creation: May 2010
-# ToDo:
+# \date Date of creation: Aug 2010
 #
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# \brief
+#   Implementation of ROS node for dashboard.
+#
+#################################################################
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
+#     - Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer. \n
+#     - Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * Neither the name of the Fraunhofer Institute for Manufacturing 
+#       documentation and/or other materials provided with the distribution. \n
+#     - Neither the name of the Fraunhofer Institute for Manufacturing
 #       Engineering and Automation (IPA) nor the names of its
 #       contributors may be used to endorse or promote products derived from
-#       this software without specific prior written permission.
+#       this software without specific prior written permission. \n
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License LGPL as 
@@ -42,113 +48,64 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License LGPL for more details.
 # 
 # You should have received a copy of the GNU Lesser General Public 
 # License LGPL along with this program. 
 # If not, see <http://www.gnu.org/licenses/>.
 #
-#****************************************************************
+#################################################################
 
-from actions import *
-from parameters import *
+import rospy
+from simple_script_server import *
 
-base=base()
-torso=torso()
-tray=tray()
-arm=arm()
-lbr=lbr()
-sdh=sdh()
-head=head()
+## Implements configurable buttons
+class buttons:
+	def __init__(self):
+		self.sss = simple_script_server()
+		self.panels = []
+		self.CreatePanel()
 
-panels = [  
-  ( "base", [ 
-#	( "stop", base.Stop, ()),
-	( "init", base.Init, ()),
-	]),
-  ( "torso", [ 
-	( "stop", torso.Stop, ()),
-	( "init", torso.Init, ()),
-	( "Mode: Joy", torso.SetOperationMode, ("velocity",)),
-	( "home", torso.MoveTraj, (torsoParameter.home,)),
-	( "front", torso.MoveTraj, (torsoParameter.front,)),
-	( "back", torso.MoveTraj, (torsoParameter.back,)),
-	( "left", torso.MoveTraj, (torsoParameter.left,)),
-	( "right", torso.MoveTraj, (torsoParameter.right,)),
-	( "shake", torso.MoveTraj, (torsoParameter.shake,)),
-	( "nod", torso.MoveTraj, (torsoParameter.nod,)),
-	]),
-  ( "tray", [ 
-  	( "stop", tray.Stop, ()),
-	( "init", tray.Init, ()),
-	( "Mode: Joy", tray.SetOperationMode, ("velocity",)),
-	( "up", tray.MoveTraj, (trayParameter.up,)),
-	( "down", tray.MoveTraj, (trayParameter.down,)),
-	]),
-  ( "arm", [ 
-	( "stop", arm.Stop, ()),
-	( "init", arm.Init, ()),
-	( "Mode: Joy", arm.SetOperationMode, ("velocity",)),
-	( "home", arm.MoveTraj, (armParameter.home,)),
-	( "folded", arm.MoveTraj, (armParameter.folded,)),
-	( "pregrasp", arm.MoveTraj, (armParameter.pregrasp,)),
-	( "grasp", arm.MoveTraj, (armParameter.grasp,)),
-	( "intermediateback", arm.MoveTraj, (armParameter.intermediateback,)),
-	( "intermediatefront", arm.MoveTraj, (armParameter.intermediatefront,)),
-	( "overtablet", arm.MoveTraj, (armParameter.overtablet,)),
-	]),
-  ( "arm traj", [ 
-	( "stop", arm.Stop, ()),
-	( "init", arm.Init, ()),
-	( "Mode: Joy", arm.SetOperationMode, ("velocity",)),
-	( "graspTOtablet", arm.MoveTraj, (armParameter.graspTOtablet,)),
-	( "tabletTOfolded", arm.MoveTraj, (armParameter.tabletTOfolded,)),
-	]),
-  ( "lbr", [
-	( "stop", lbr.Stop, ()),
-	( "init", lbr.Init, ()),
-	( "home", lbr.MoveTraj, (lbrParameter.home,)),
-	( "folded", lbr.MoveTraj, (lbrParameter.folded,)),
-	( "pregrasp", lbr.MoveTraj, (lbrParameter.pregrasp,)),
-	( "grasp", lbr.MoveTraj, (lbrParameter.grasp,)),
-	( "overTablet", lbr.MoveTraj, (lbrParameter.overTablet,)),
-	]),
-#  ( "sdh", [ 
-#  	( "stop", sdh.Stop, ()),
-#	( "init", sdh.Init, ()),
-#	( "home", sdh.MoveCommand, (sdhParameter.home,)),
-#	( "cylClose", sdh.MoveCommand, (sdhParameter.cylClose,)),
-#	( "cylOpen", sdh.MoveCommand, (sdhParameter.cylOpen,)),
-#	( "spherClose", sdh.MoveCommand, (sdhParameter.spherClose,)),
-#	( "spherOpen", sdh.MoveCommand, (sdhParameter.spherOpen,)),
-#	( "trainObjects", sdh.MoveCommand, (sdhParameter.trainObjects,)),
-#	( "trainObjectsParallel", sdh.MoveCommand, (sdhParameter.trainObjectsParallel,)),
-#	( "cupHome", sdh.MoveCommand, (sdhParameter.cupHome,)),
-#	( "cupClose", sdh.MoveCommand, (sdhParameter.cupClose,)),
-#	( "cupOpen", sdh.MoveCommand, (sdhParameter.cupOpen,)),
-#	( "cupRelease", sdh.MoveCommand, (sdhParameter.cupRelease,)),
-#	( "coolerButtonUp", sdh.MoveCommand, (sdhParameter.coolerButtonUp,)),
-#	( "coolerButtonDown", sdh.MoveCommand, (sdhParameter.coolerButtonDown,)),
-#	( "coolerCupOpen", sdh.MoveCommand, (sdhParameter.coolerCupOpen,)),
-#	( "coolerCupClose", sdh.MoveCommand, (sdhParameter.coolerCupClose,)),
-#	]),
-  ( "sdh sim", [ 
-  	( "stop", sdh.Stop, ()),
-	( "init", sdh.Init, ()),
-	( "home", sdh.MoveTraj, (sdhTrajParameter.home,)),
-	( "cylClose", sdh.MoveTraj, (sdhTrajParameter.cylClose,)),
-	( "cylOpen", sdh.MoveTraj, (sdhTrajParameter.cylOpen,)),
-	( "spherClose", sdh.MoveTraj, (sdhTrajParameter.spherClose,)),
-	( "spherOpen", sdh.MoveTraj, (sdhTrajParameter.spherOpen,)),
-	]),
-  ( "head", [ 
-  	( "stop", head.Stop, ()),
-	( "init", head.Init, ()),
-	( "recover", head.Recover, ()),
-	( "home", head.MoveTraj, (headTrajParameter.home,)),
-	( "front", head.MoveTraj, (headTrajParameter.front,)),
-	( "back", head.MoveTraj, (headTrajParameter.back,)),
-	( "test", head.MoveTraj, (headTrajParameter.test,)),
-	])
-  ]
+	## Creates the panel out of configuration from ROS parameter server
+	def CreatePanel(self):
+		param_prefix = "/dashboard/buttons"
+		if not rospy.has_param(param_prefix):
+			rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",param_prefix)
+			return False
+		group_param = rospy.get_param(param_prefix)
+		#print group_param
+		group_param = self.SortDict(group_param)
+		#print group_param
+		
+		for group in group_param:
+			print group[0]
+			buttons = []
+			for button in group[1]:
+				print button
+				if button[1] == "move":
+					buttons.append(self.CreateButton(button[0],self.sss.move,button[2],button[3]))
+				elif button[1] == "trigger":
+					buttons.append(self.CreateButton(button[0],self.sss.trigger,button[2],button[3]))
+				elif button[1] == "mode":
+					buttons.append(self.CreateButton(button[0],self.sss.set_operation_mode,button[2],button[3]))
+				else:
+					rospy.logerr("Function <<%s>> not known to dashboard",button[1])
+					return False
+			group = (group[0],buttons)
+			self.panels.append(group)
+	
+	## Creates one button with functionality
+	def CreateButton(self,button_name,function,component_name,parameter_name):
+		#button = ([(button_name,function,(component_name,parameter_name)),])
+		button = (button_name,function,(component_name,parameter_name,False))
+		return button
+	
+	## Sorts a dictionary alphabetically
+	def SortDict(self,dictionary):
+		keys = sorted(dictionary.iterkeys())
+		k=[]
+		#print "keys = ", keys
+		#for key in keys:
+		#	print "values = ", dictionary[key]
+		return [[key,dictionary[key]] for key in keys]
