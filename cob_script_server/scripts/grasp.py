@@ -29,7 +29,7 @@ class GraspScript(script):
 		handle01.wait()
 		print "Please localize the robot with rviz"
 		self.sss.wait_for_input()
-		self.sss.move("base","home")
+		#self.sss.move("base","home")
 		
 	def Run(self): 
 		listener = tf.TransformListener(True, rospy.Duration(10.0))
@@ -52,7 +52,7 @@ class GraspScript(script):
 		if not self.sss.simulate:
 			cup = listener.transformPoint('/arm_7_link',cup)
 
-		print "cup: ", cup		
+		#print "cup: ", cup		
 		self.sss.move_cart_rel("arm",[[cup.point.x, cup.point.y, cup.point.z-0.4], [0, 0, 0]])
 		self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.2], [0, 0, 0]])
 	

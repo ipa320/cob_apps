@@ -167,7 +167,7 @@ class simple_script_server:
 		#self.ns_global_prefix = ""
 		self.simulate = simulate
 		self.soundhandle = SoundClient()
-		time.sleep(1)
+		rospy.sleep(1)
 
 #------------------- Init section -------------------#
 	## Initializes different components.
@@ -411,14 +411,14 @@ class simple_script_server:
 		
 		# convert to trajectory message
 		traj = JointTrajectory()
-		traj.header.stamp = rospy.Time.now()+rospy.Duration(2)
+		traj.header.stamp = rospy.Time.now()+rospy.Duration(0.5)
 		traj.joint_names = joint_names
 		point_nr = 0
 		for i in param:
 			point_nr = point_nr + 1
 			point = JointTrajectoryPoint()
 			point.positions = i
-			point.time_from_start=rospy.Duration(4*point_nr) # this value is set to 4 sec per point. \todo: read from parameter
+			point.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
 			traj.points.append(point)
 		
 		# call action server
@@ -521,7 +521,7 @@ class simple_script_server:
 		
 		rospy.loginfo("Set light to %s",parameter_name)
 		pub = rospy.Publisher('light_controller/command', Light)
-		time.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
+		rospy.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
@@ -839,7 +839,7 @@ class simple_script_server:
 		else:
 			ah.set_active()
 		rospy.loginfo("Wait for %f sec",duration)
-		time.sleep(duration)
+		rospy.sleep(duration)
 		
 		ah.set_succeeded()
 
@@ -880,7 +880,7 @@ class simple_script_server:
 			if not pause_was_active:
 				rospy.loginfo("ActionServer set to pause mode. Waiting for resume...")
 				pause_was_active = True
-			time.sleep(1)
+			rospy.sleep(1)
 
 		if pause_was_active:
 			rospy.loginfo("Resuming...")
