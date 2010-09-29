@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+  
+  <!-- start base_drive_chain and locate IniFiles, Param must be set BEFORE execution, because it's read in the constructor -->
+  <param name="IniDirectory" value="$(find cob_platform)/ros/bin/Platform/IniFiles/"/>
 
   <!-- start ucar ctrlr node -->
   <!-- <node pkg="cob_platform" type="cob_platform" name="cob_platform" cwd="node" output="screen"/> -->
@@ -14,8 +17,6 @@
 
   <!-- start base_drive_chain and locate IniFiles -->
   <node pkg="cob_base_drive_chain" type="cob_base_drive_chain_node" name="base_drive_chain" ns="base_driver" respawn="false" output="screen"/>
-  <!-- set parameters to parameter server -->
-  <param name="base_driver/IniDirectory" value="$(find cob_platform)/ros/bin/Platform/IniFiles/"/>
 
   <!-- start Relaysboard node -->
   <node pkg="cob_relayboard" type="cob_relayboard_node" name="relayboard" ns="base_driver" output="screen"/>
