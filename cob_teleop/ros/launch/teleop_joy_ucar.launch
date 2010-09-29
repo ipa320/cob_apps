@@ -16,7 +16,7 @@
 	<param name="scale_linear" value="0.2" type="double"/>
 	<param name="scale_angular" value="0.1" type="double"/>
 	<!-- cob teleop platform node -->
-	<node pkg="cob_teleop" type="cob_teleop_platform_joy" name="teleop_platform"/>
+	<node pkg="cob_teleop" type="cob_teleop" name="teleop_platform"/>
 
 	<!-- joy node -->
 	<include file="$(find cob_joy)/ros/launch/$(env ROBOT).launch" />

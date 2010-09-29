@@ -18,6 +18,6 @@
   <depend package="cob_tray"/>
   <depend package="cob_arm"/>
   <depend package="cob_platform"/>
-  <depend package="cob_base_drive_chain"/>
+  <depend package="cob_undercarriage_ctrl"/>
 
 </package>
