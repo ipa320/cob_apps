@@ -139,7 +139,7 @@ class script():
 		global function_counter
 		function_counter = 0
 		# run script in simulation mode
-		self.sss = simple_script_server(simulate=True)
+		self.sss = simple_script_server(parse=True)
 		self.Initialize()
 		self.Run()
 		
@@ -160,12 +160,12 @@ class simple_script_server:
 
 	## Initializes simple_script_server class.
 	#
-	# \param simulate Defines wether to run script in simulation for graph generation or not
-	def __init__(self, simulate=False):
+	# \param parse Defines wether to run script in simulation for graph generation or not
+	def __init__(self, parse=False):
 		global graph
 		self.ns_global_prefix = "/script_server"
 		#self.ns_global_prefix = ""
-		self.simulate = simulate
+		self.parse = parse
 		self.soundhandle = SoundClient()
 		rospy.sleep(1)
 
@@ -175,8 +175,8 @@ class simple_script_server:
 	# Based on the component, the corresponding init service will be called.
 	#
 	# \param component_name Name of the component.
-	def init(self,component_name):
-		self.trigger(component_name,"init")
+	def init(self,component_name,blocking=True):
+		self.trigger(component_name,"init",blocking)
 
 	## Stops different components.
 	#
@@ -202,8 +202,8 @@ class simple_script_server:
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def trigger(self,component_name,service_name,blocking=True):
-		ah = action_handle(service_name, component_name, "", blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle(service_name, component_name, "", blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -252,8 +252,8 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_base(self,component_name,parameter_name,blocking):
-		ah = action_handle("move", component_name, parameter_name, blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle("move", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -343,8 +343,8 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_traj(self,component_name,parameter_name,blocking):
-		ah = action_handle("move", component_name, parameter_name, blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle("move", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -449,8 +449,8 @@ class simple_script_server:
 		return ah
 
 	def move_cart_rel(self, component_name, parameter_name=[[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
-		ah = action_handle("move_rel", component_name, parameter_name, blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle("move_rel", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -621,7 +621,7 @@ class simple_script_server:
 
 	def Speak(self,parameter_name,mode="DEFAULT"):
 #		ah = action_handle()
-#		if(self.simulate):
+#		if(self.parse):
 #			return ah
 
 		""" Speak sound specified by 'parameter_name' either via TTS or by playing a WAV-File
@@ -833,8 +833,8 @@ class simple_script_server:
 	# \param duration Duration in seconds to sleep.
 	#
 	def sleep(self,duration):
-		ah = action_handle("sleep", "", str(duration), True, self.simulate)
-		if(self.simulate):
+		ah = action_handle("sleep", "", str(duration), True, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -851,8 +851,8 @@ class simple_script_server:
 	# 
 	# \todo implement waiting for timeout
 	def wait_for_input(self,duration=0):
-		ah = action_handle("wait", "input", str(duration), True, self.simulate)
-		if(self.simulate):
+		ah = action_handle("wait", "input", str(duration), True, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -894,7 +894,7 @@ class simple_script_server:
 # The action handle is used to implement asynchronous behaviour within the script.
 class action_handle:
 	## Initializes the action handle.
-	def __init__(self, function_name, component_name, parameter_name, blocking, simulate):
+	def __init__(self, function_name, component_name, parameter_name, blocking, parse):
 		global graph
 		global function_counter
 		self.parent_node = ""
@@ -906,7 +906,7 @@ class action_handle:
 		self.parameter_name = parameter_name
 		self.state = ScriptState.UNKNOWN
 		self.blocking = blocking
-		self.simulate = simulate
+		self.parse = parse
 		self.level = int(rospy.get_param("/script_server/level",100))
 		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
 		self.AppendNode(blocking)
@@ -979,7 +979,7 @@ class action_handle:
 		global function_counter
 		global last_node
 		graphstring = self.GetGraphstring()
-		if self.simulate:
+		if self.parse:
 			if ( self.level >= self.GetLevel(self.function_name)):
 				#print "adding " + graphstring + " to graph"
 				graph.add_edge(last_node, graphstring)
@@ -1043,7 +1043,7 @@ class action_handle:
 	# \param logging Enables or disables logging for this wait.
 	def wait_for_finished(self, duration, logging):
 		global graph_wait_list
-		if(self.simulate):
+		if(self.parse):
 			if(self.parent_node != ""):
 				graph_wait_list.append(self.parent_node)
 			return
