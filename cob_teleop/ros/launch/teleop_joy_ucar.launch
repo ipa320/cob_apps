@@ -1,26 +1,13 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- start ucar ctrlr node -->
-  <!-- <node pkg="cob_platform" type="cob_platform" name="cob_platform" cwd="node" output="screen"/> -->
-  <!-- Syntax: node pkg=<name of package> type=<name of binary> name=<name during execution> ns=<name of target namespace> cwd=<name of working direcory - in which it shalll be executed> outpu=<where to display logs - (screen = this console)>-->
-  <node pkg="cob_undercarriage_ctrl" type="cob_undercarriage_ctrl_node" name="undercarriage_ctrl" ns="base_controller" cwd="node" output="screen">
-    <!-- remap topics and services -->
-    <remap from="/base_controller/JointStateCmd" to="/base_driver/JointStateCmd"/> 
-    <remap from="/base_controller/GetJointState" to="/base_driver/GetJointState"/> 
-    <remap from="/base_controller/Diagnostic" to="/base_driver/Diagnostic"/>
-    <remap from="/base_controller/EMStopState" to="/base_driver/EMStopState"/> 
-  </node>
-
-  <!-- start base_drive_chain and locate IniFiles -->
-  <node pkg="cob_base_drive_chain" type="cob_base_drive_chain_node" name="base_drive_chain" ns="base_driver" respawn="false" output="screen"/>
-  <!-- set parameters to parameter server -->
-  <param name="base_driver/IniDirectory" value="$(find cob_platform)/ros/bin/Platform/IniFiles/"/>
-
-  <!-- start Relaysboard node -->
-  <node pkg="cob_relayboard" type="cob_relayboard_node" name="relayboard" ns="base_driver" output="screen"/>
-  <!-- set parameters to parameter server --> <!-- assign ComPort from which relaybord is read -->
-  <param name="base_driver/ComPort" value="/dev/ttyUSB3"/>
+	<!-- start platform controller and underlying components: undercarriage_ctrl + base_drive_chain + relayboard -->
+	<!-- cob_undercarriage_ctrl.launch: 
+		- Launch cob_base_drive_chain, which processes motor commands. Has to be initialized via service base_driver/Init
+		- Launch cob_relayboard, which publishes emergency stop states
+		- Launch and initialize undercarriage_controller
+	-->
+	<include file="$(find cob_undercarriage_ctrl)/ros/launch/cob_undercarriage_ctrl.launch" />
 
 	<!-- Axes definition -->
 	<param name="axis_linear_x" value="1" type="int"/>
@@ -28,9 +15,8 @@
 	<param name="axis_angular_z" value="2" type="int"/>
 	<param name="scale_linear" value="0.2" type="double"/>
 	<param name="scale_angular" value="0.1" type="double"/>
-
 	<!-- cob teleop platform node -->
-	<node pkg="cob_teleop" type="cob_teleop_platform_joy" name="teleop_platform"/>
+	<node pkg="cob_teleop" type="cob_teleop" name="teleop_platform"/>
 
 	<!-- joy node -->
 	<include file="$(find cob_joy)/ros/launch/$(env ROBOT).launch" />
