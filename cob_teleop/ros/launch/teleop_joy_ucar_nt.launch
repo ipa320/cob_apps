@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- start platform controller and underlying components: undercarriage_ctrl + base_drive_chain + relayboard -->
+	<!-- cob_undercarriage_ctrl.launch: 
+		- Launch cob_base_drive_chain, which processes motor commands. Has to be initialized via service base_driver/Init
+		- Launch cob_relayboard, which publishes emergency stop states
+		- Launch and initialize undercarriage_controller
+	-->
+	<include file="$(find cob_undercarriage_ctrl_nt)/ros/launch/cob_undercarriage_ctrl_nt.launch" />
+
+	<!-- Axes definition -->
+	<param name="axis_linear_x" value="1" type="int"/>
+	<param name="axis_linear_y" value="0" type="int"/>
+	<param name="axis_angular_z" value="2" type="int"/>
+	<param name="scale_linear" value="0.2" type="double"/>
+	<param name="scale_angular" value="0.1" type="double"/>
+	<!-- cob teleop platform node -->
+	<node pkg="cob_teleop" type="cob_teleop" name="teleop_platform"/>
+
+	<!-- joy node -->
+	<include file="$(find cob_joy)/ros/launch/$(env ROBOT).launch" />
+
+</launch>
