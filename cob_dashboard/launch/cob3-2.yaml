@@ -6,9 +6,9 @@
 0 base:
   [[stop,trigger,base,stop],
   [init,trigger,base,init],
-  [resa1,move,base,resa1],
-  [resa2,move,base,resa2],
-  [resa3,move,base,resa3]]
+  [home,move,base,home],
+  [order,move,base,order],
+  [kitchen,move,base,kitchen]]
 1 torso:
   [[stop,trigger,torso,stop],
   [init,trigger,torso,init],
@@ -40,8 +40,7 @@
   [intermediateback,move,arm,intermediateback],
   [intermediatefront,move,arm,intermediatefront],
   [overtablet,move,arm,overtablet],
-  [tablet,move,arm,tablet],
-  [resa2,move,arm,resa2]]
+  [tablet,move,arm,tablet]]
 4 arm traj:
   [[stop,trigger,arm,stop],
   [init,trigger,arm,init],
@@ -56,7 +55,7 @@
   [home,move,sdh,home],
   [cyl. closed,move,sdh,cylclosed],
   [cyl. open,move,sdh,cylopen],
-  [calib,move,sdh,calib]]
+  [cup,move,sdh,cup]]
 6 eyes:
   [[stop,trigger,head,stop],
   [init,trigger,head,init],
