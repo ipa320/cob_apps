@@ -27,7 +27,8 @@ class GraspScript(script):
 		self.sss.move("sdh","home",False)
 		self.sss.move("tray","down")
 		handle01.wait()
-		print "Please localize the robot with rviz"
+		if not self.sss.parse:
+			print "Please localize the robot with rviz"
 		self.sss.wait_for_input()
 		#self.sss.move("base","home")
 		
@@ -49,16 +50,16 @@ class GraspScript(script):
 		cup.point.z = 0.98
 		self.sss.sleep(2)
 		
-		if not self.sss.simulate:
+		if not self.sss.parse:
 			cup = listener.transformPoint('/arm_7_link',cup)
 
 		#print "cup: ", cup		
 		self.sss.move_cart_rel("arm",[[cup.point.x, cup.point.y, cup.point.z-0.4], [0, 0, 0]])
 		self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.2], [0, 0, 0]])
+		self.sss.move("sdh","cup")
 	
 
 		# place cup on tray
-		self.sss.move("sdh","cup")
 		handle01 = self.sss.move("arm","grasp-to-tablet",False)
 		self.sss.move("tray","up")
 		handle01.wait()
