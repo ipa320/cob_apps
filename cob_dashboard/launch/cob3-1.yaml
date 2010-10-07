@@ -34,6 +34,8 @@
   [recover,trigger,arm,recover],
   [reboot,trigger,arm,reboot],
   [enable joystick,mode,arm,velocity],
+  [enable grav comp,mode,arm,gravcomp],
+  [enable position hold,mode,arm,positionhold],
   [home,move,arm,home],
   [folded,move,arm,folded],
   [pregrasp,move,arm,pregrasp],
