@@ -15,7 +15,6 @@
   <depend package="std_msgs"/>
   <depend package="cob_msgs"/>
   <depend package="cob_srvs"/>
-  <depend package="cob_actions"/>
   <depend package="trajectory_msgs"/>
   <depend package="geometry_msgs"/>
   <depend package="pr2_controllers_msgs"/>
