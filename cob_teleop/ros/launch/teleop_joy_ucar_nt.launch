@@ -7,7 +7,7 @@
 		- Launch cob_relayboard, which publishes emergency stop states
 		- Launch and initialize undercarriage_controller
 	-->
-	<include file="$(find cob_undercarriage_ctrl)/ros/launch/cob_undercarriage_ctrl.launch" />
+	<include file="$(find cob_undercarriage_ctrl_nt)/ros/launch/cob_undercarriage_ctrl_nt.launch" />
 
 	<!-- Axes definition -->
 	<param name="axis_linear_x" value="1" type="int"/>
