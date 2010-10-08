@@ -5,7 +5,7 @@
 	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/$(env ROBOT).yaml"/>
 	
 	<!-- upload script server parameters -->
-	<include file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
+	<include ns="script_server" file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
 	
 	<!-- start dashboard -->
 	<node pkg="cob_dashboard" type="knoeppkes.py" name="$(anon dashboard_node)" ns="dashboard" cwd="node" respawn="false" output="screen" />
