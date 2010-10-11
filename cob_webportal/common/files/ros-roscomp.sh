@@ -1,10 +1,11 @@
 #!/bin/bash
 export ROBOT=cob3-1
 source /opt/ros/cturtle/setup.sh
-source /home/uhr/ros/setup.sh
-source /home/uhr/git/care-o-bot/setup.sh /home/uhr/git/care-o-bot
-source /home/uhr/git/cob3_intern/setup.sh /home/uhr/git/cob3_intern
-source /home/uhr/git/robocup/setup.sh /home/uhr/git/robocup
+source /home/brics/git/care-o-bot/setup.sh /home/uhr/git/care-o-bot
+#source /home/brics/git/cob3_intern/setup.sh /home/uhr/git/cob3_intern
+#source /home/uhr/git/robocup/setup.sh /home/uhr/git/robocup
+
+VIRTUALGL_PATH=/opt/VirtualGL/bin/vglrun
 
 
 status() {
@@ -34,8 +35,8 @@ status() {
 }
 
 
-if [ -e $1 ] || [ -e $2 ] || [ -e $3 ] || [ -e $4 ] || [ -e $5 ] || [[ $1 != "start" && $1 != "stop" && $1 != "restart" && $1 != "status" ]] || [[ $4 != "rosstart" && $4 != "roslaunch" ]]; then
-  echo "Usage: (start|stop|restart|status) name searchname (rosstart|roslaunch) launchfile args"
+if [ -e $1 ] || [ -e $2 ] || [ -e $3 ] || [ -e $4 ] || [ -e $5 ] || [[ $1 != "start" && $1 != "stop" && $1 != "restart" && $1 != "status" ]] || [[ $4 != "rosstart" && $4 != "roslaunch" && $4 != "rosrun" ]]; then
+  echo "Usage: (start|stop|restart|status) name searchname (rosstart|roslaunch) launchfile args [DISPLAY] [vgl]"
   exit -1
 fi
 
@@ -45,6 +46,12 @@ name=$2
 searchname=$3
 rostype=$4
 launchfile=$5
+disp=$6
+vgl=$7
+
+if [ -z $disp ]; then
+	export DISPLAY=:$disp
+fi
 
 unset args[0]
 unset args[1]
@@ -81,7 +88,12 @@ if [ $cmd = "start" -o $cmd = "restart" ]; then
 
   echo " * $rostype $name $launchfile $argStr"
   #$rostype $name $argStr &
-  python -u /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
+   if [ -e $vgl ]; then 
+   	python -u /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
+   else
+	
+   	$VIRTUALGL_PATH python -u /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
+   fi
 
   echo "Waiting for \"$name\" to be initialized"
 
