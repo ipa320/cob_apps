@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <launch>
 
-	<!-- upload parameters-->
+	<!-- upload button parameters -->
 	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/$(env ROBOT).yaml"/>
 	
-	<!-- start script_server -->
-	<include file="$(find cob_script_server)/launch/script_server.launch" />
+	<!-- upload script server parameters -->
+	<include ns="script_server" file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
 	
 	<!-- start dashboard -->
-	<node pkg="cob_dashboard" type="knoeppkes.py" name="dashboard_node" ns="dashboard" cwd="node" respawn="false" output="screen" />
+	<node pkg="cob_dashboard" type="knoeppkes.py" name="$(anon dashboard_node)" ns="dashboard" cwd="node" respawn="false" output="screen" />
 	
 </launch>

@@ -580,20 +580,21 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter
 	# \param language Language to use for the TTS system
-	def say(self,parameter_name,language="en"):
+	def say(self,parameter_name,blocking=True):
 		component_name = "sound"
-		ah = action_handle()
-		ah.component_name = component_name
-		ah.parameter_name = parameter_name
+		ah = action_handle("say", component_name, parameter_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+			
 		text = ""
-		
-		rospy.loginfo("Saying <<%s>>",parameter_name)
 		
 		# get values from parameter server
 		if type(parameter_name) is str:
 			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
-				ah.error_code = 2
+				ah.set_failed(2)
 				return ah
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
 		else:
@@ -603,7 +604,7 @@ class simple_script_server:
 		if not type(param) is list: # check list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
-				ah.error_code = 3
+				ah.set_failed(3)
 				return ah
 		else:
 			for i in param:
@@ -611,13 +612,44 @@ class simple_script_server:
 				if not type(i) is str:
 					rospy.logerr("no valid parameter for %s: not a list of strings, aborting...",component_name)
 					print "parameter is:",param
-					ah.error_code = 3
+					ah.set_failed(3)
 					return ah
 				else:
 					text = text + i + " "
 					rospy.logdebug("accepted parameter <<%s>> for <<%s>>",i,component_name)
-		#print text
-		self.soundhandle.say(text)
+
+		rospy.loginfo("Saying <<%s>>",text)
+		#self.soundhandle.say(text)
+		if blocking:
+			os.system("echo " + text + " | text2wave | aplay -q")
+		else:
+			os.system("echo " + text + " | text2wave | aplay -q &")
+		ah.set_succeeded()
+		return ah
+
+	## Play a sound file.
+	#
+	# \param parameter_name Name of the parameter
+	# \param language Language to use
+	def play(self,parameter_name,blocking=True):
+		component_name = "sound"
+		ah = action_handle("play", component_name, parameter_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		wav_path = "~/git/care-o-bot/cob_apps/cob_script_server/common/files/wav_de/"
+		filename = wav_path + parameter_name + ".wav"
+		
+		rospy.loginfo("Playing <<%s>>",filename)
+		#self.soundhandle.playWave(filename)
+		if blocking:
+			os.system("aplay -q " + filename)
+		else:
+			os.system("aplay -q " + filename + "&")
+		ah.set_succeeded()
+		return ah
 
 	def Speak(self,parameter_name,mode="DEFAULT"):
 #		ah = action_handle()
