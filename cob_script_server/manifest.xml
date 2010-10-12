@@ -22,6 +22,7 @@
   <depend package="sound_play"/>
   <depend package="opencv2"/>
   <depend package="cv_bridge"/>
-
+  <depend package="gazebo_plugins"/>
+  
   <rosdep name="pygraphviz"/>
 </package>

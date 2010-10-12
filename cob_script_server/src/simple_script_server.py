@@ -418,7 +418,7 @@ class simple_script_server:
 			point_nr = point_nr + 1
 			point = JointTrajectoryPoint()
 			point.positions = i
-			point.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
+			point.time_from_start=rospy.Duration(1*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
 			traj.points.append(point)
 		
 		# call action server
