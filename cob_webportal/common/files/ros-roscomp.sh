@@ -1,7 +1,7 @@
 #!/bin/bash
 export ROBOT=cob3-1
 source /opt/ros/cturtle/setup.sh
-source /home/brics/git/care-o-bot/setup.sh /home/uhr/git/care-o-bot
+source /home/brics/git/care-o-bot/setup.sh /home/brics/git/care-o-bot
 #source /home/brics/git/cob3_intern/setup.sh /home/uhr/git/cob3_intern
 #source /home/uhr/git/robocup/setup.sh /home/uhr/git/robocup
 
@@ -89,10 +89,11 @@ if [ $cmd = "start" -o $cmd = "restart" ]; then
   echo " * $rostype $name $launchfile $argStr"
   #$rostype $name $argStr &
    if [ -e $vgl ]; then 
-   	python -u /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
+   	/opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
+	echo "/opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr "
    else
-	
-   	$VIRTUALGL_PATH python -u /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
+	echo "$VIRTUALGL_PATH /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &"
+   	$VIRTUALGL_PATH  /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
    fi
 
   echo "Waiting for \"$name\" to be initialized"
