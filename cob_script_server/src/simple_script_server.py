@@ -363,7 +363,7 @@ class simple_script_server:
 		elif component_name == "head":
 			joint_names = ["head_axis_joint"]
 		else:
-			rospy.logerr("component %s not kown to script_server",component_name)
+			rospy.logerr("component %s not known to script_server",component_name)
 			ah.set_failed(1)
 			return ah
 		
