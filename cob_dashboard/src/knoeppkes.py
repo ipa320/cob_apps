@@ -98,9 +98,9 @@ class GtkGeneralPanel(gtk.Frame):
     hbox.pack_start(label, False, False, 0)
     self.vbox.pack_start(hbox, False, False, 5)    
 
-    but = gtk.Button("Init all")
+    #but = gtk.Button("Init all")
     #but.connect("clicked", lambda w: gtk.main_quit())
-    self.vbox.pack_start(but, False, False, 5)    
+    #self.vbox.pack_start(but, False, False, 5)    
 
     but = gtk.Button(stock=gtk.STOCK_QUIT	)
     but.connect("clicked", lambda w: gtk.main_quit())

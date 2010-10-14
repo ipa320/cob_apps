@@ -9,7 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_2dslam</url>
 
-  <depend package="cob_platform"/>
+  <depend package="cob_base"/>
   <depend package="cob_sick_s300"/>
   <depend package="cob_hokuyo"/>
   <depend package="gmapping"/>
