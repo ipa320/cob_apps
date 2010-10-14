@@ -361,7 +361,7 @@ class simple_script_server:
 		elif component_name == "sdh":
 			joint_names = ["sdh_thumb_2_joint", "sdh_thumb_3_joint", "sdh_finger_11_joint", "sdh_finger_12_joint", "sdh_finger_13_joint", "sdh_finger_21_joint", "sdh_finger_22_joint", "sdh_finger_23_joint"]
 		else:
-			rospy.logerr("component %s not kown to script_server",component_name)
+			rospy.logerr("component %s not known to script_server",component_name)
 			ah.set_failed(1)
 			return ah
 		
