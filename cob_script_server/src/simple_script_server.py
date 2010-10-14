@@ -424,7 +424,7 @@ class simple_script_server:
 		# call action server
 		operation_mode_name = "/" + component_name + '_controller/OperationMode'
 		action_server_name = "/" + component_name + '_controller/joint_trajectory_action'
-		rospy.set_param(operation_mode_name, "position")
+		rospy.set_param(operation_mode_name, "position") # \todo remove and replace with service call
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, JointTrajectoryAction)
 		# trying to connect to server
@@ -506,7 +506,17 @@ class simple_script_server:
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def set_operation_mode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
-		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo change to service call
+		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo remove and only use service call
+		#rospy.wait_for_service("/" + component_name + "_controller/set_operation_mode")
+		try:
+			set_operation_mode = rospy.ServiceProxy("/" + component_name + "_controller/set_operation_mode", SetOperationMode)
+			req = SetOperationModeRequest()
+			req.operationMode.data = "position"
+			print req
+			resp = set_operation_mode(req)
+			print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
 			
 #------------------- LED section -------------------#
 	## Set the color of the cob_light component.

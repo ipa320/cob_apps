@@ -34,7 +34,7 @@
   [init,trigger,arm,init],
   [recover,trigger,arm,recover],
   [reboot,trigger,arm,reboot],
-  [enable position mode,mode,arm,velocity],
+  [enable position mode,mode,arm,position],
   [enable velocity mode,mode,arm,velocity],
   [enable gravcomp mode,mode,arm,gravcomp],
   [enable positionhold mode,mode,arm,positionhold],
