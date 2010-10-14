@@ -1,0 +1,7 @@
+
+<launch> 
+  <node pkg="planning_environment" name="display_planner_collision_model_environment_server" type="display_planner_collision_model" respawn="false" output="screen">
+    <param name="skip_collision_map" type="bool" value="false" />
+    <param name="prefix" type="string" value="/cob3_environment_server" />
+  </node>
+</launch>
