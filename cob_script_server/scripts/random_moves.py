@@ -12,8 +12,8 @@ from simple_script_server import script
 class RandomMoves(script):
 
 	def Initialize(self):
-		#self.sss.init("sdh")
-		#self.sss.init("tray")
+		self.sss.init("sdh")
+		self.sss.init("tray")
 		self.sss.init("torso")
 		#self.sss.init("arm")	
 
@@ -23,9 +23,9 @@ class RandomMoves(script):
 		print "start"
 		self.sss.move("sdh","home",False)
 		self.sss.move("torso","home",False)
-		handle01 = self.sss.move("arm","folded",False)
+		#handle01 = self.sss.move("arm","folded",False)
 		self.sss.move("tray","up")
-		handle01.wait()
+		#handle01.wait()
 		for i in range(1,2):
 			r1 = (random()-0.5)*2*maxVal;
 			r2 = (random()-0.5)*2*maxVal;

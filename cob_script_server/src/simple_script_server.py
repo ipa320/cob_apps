@@ -511,7 +511,7 @@ class simple_script_server:
 		try:
 			set_operation_mode = rospy.ServiceProxy("/" + component_name + "_controller/set_operation_mode", SetOperationMode)
 			req = SetOperationModeRequest()
-			req.operationMode.data = "position"
+			req.operationMode.data = mode
 			print req
 			resp = set_operation_mode(req)
 			print resp
