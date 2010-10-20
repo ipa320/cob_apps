@@ -56,7 +56,7 @@ class GraspScript(script):
 		#print "cup: ", cup		
 		self.sss.move_cart_rel("arm",[[cup.point.x, cup.point.y, cup.point.z-0.4], [0, 0, 0]])
 		self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.2], [0, 0, 0]])
-		self.sss.move("sdh","cylclosed")
+		self.sss.move("sdh","cup")
 	
 
 		# place cup on tray
