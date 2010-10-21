@@ -9,8 +9,8 @@ VIRTUALGL_PATH=/opt/VirtualGL/bin/vglrun
 
 
 status() {
-  local package=$cmd
-  local launchfile=$name
+  local package=$name
+  local launchfile=$launchfile
 
   status=1
   nodeRunning=0
@@ -36,7 +36,7 @@ status() {
 
 
 if [ -e $1 ] || [ -e $2 ] || [ -e $3 ] || [ -e $4 ] || [ -e $5 ] || [[ $1 != "start" && $1 != "stop" && $1 != "restart" && $1 != "status" ]] || [[ $4 != "rosstart" && $4 != "roslaunch" && $4 != "rosrun" ]]; then
-  echo "Usage: (start|stop|restart|status) name searchname (rosstart|roslaunch) launchfile args [DISPLAY] [vgl]"
+  echo "Usage: (start|stop|restart|status) name searchname (rosstart|roslaunch) launchfile args [vgl]"
   exit -1
 fi
 
@@ -46,11 +46,10 @@ name=$2
 searchname=$3
 rostype=$4
 launchfile=$5
-disp=$6
-vgl=$7
 
-if [ -z $disp ]; then
-	export DISPLAY=:$disp
+if [[ $6 == "vgl" ]]; then
+  vgl=$6
+  unset args[6]
 fi
 
 unset args[0]
@@ -98,8 +97,8 @@ if [ $cmd = "start" -o $cmd = "restart" ]; then
 
   echo "Waiting for \"$name\" to be initialized"
 
-  timeout=10
-  sleepPerPeriod=0.2
+  timeout=6
+  sleepPerPeriod=1
   time=0
   running=0
   while [ $time -lt $timeout ]; do

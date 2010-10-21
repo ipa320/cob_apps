@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
-	<!-- upload button parameters -->
+	<!-- upload button parameters, but delete the old ones before -->
+	<rosparam command="delete" param="dashboard/buttons"/>
 	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/$(env ROBOT).yaml"/>
 	
 	<!-- upload script server parameters -->
