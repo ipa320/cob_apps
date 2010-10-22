@@ -10,6 +10,7 @@
   <url>http://www.ros.org/wiki/cob_dashboard</url>
 
   <depend package="rospy"/>
+  <depend package="cob_msgs"/>
   <depend package="cob_script_server"/>
 
 </package>
