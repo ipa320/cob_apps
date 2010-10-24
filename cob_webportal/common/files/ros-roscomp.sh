@@ -89,9 +89,9 @@ if [ $cmd = "start" -o $cmd = "restart" ]; then
   #$rostype $name $argStr &
    if [ -e $vgl ]; then 
    	/opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
-	echo " > /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr "
+	echo "/opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr "
    else
-	echo " > $VIRTUALGL_PATH /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &"
+	echo "$VIRTUALGL_PATH /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &"
    	$VIRTUALGL_PATH  /opt/ros/cturtle/ros/bin/$rostype $name $launchfile $argStr &
    fi
 
