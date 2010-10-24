@@ -87,6 +87,7 @@ class GtkGeneralPanel(gtk.Frame):
     gtk.Frame.__init__(self)
     if not pynotify.init ("cob_dashboard"):
       sys.exit (1)
+    self.em_stop = False
     self.set_label("general")
     self.set_shadow_type(gtk.SHADOW_IN)
     self.vbox = gtk.VBox(False, 0)
@@ -119,18 +120,20 @@ class GtkGeneralPanel(gtk.Frame):
       #print "Emergency Stop Active"
       self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/share/icons/weather-storm.png")
       self.status_label.set_text("EM Stop !")
-      n = pynotify.Notification("Emergency Stop issued!", "", "dialog-warning")
-      icon=gtk.status_icon_new_from_icon_name("important")      
-      n.attach_to_status_icon(icon)
-      n.set_timeout(1000)
-      n.show()
+      if(self.em_stop == False):
+        self.em_stop = True
+        n = pynotify.Notification("Emergency Stop issued!", "", "dialog-warning")
+        n.set_timeout(1)
+        n.show()
     else:
       #print "Status OK"
       self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/share/icons/weather-clear.png")
       self.status_label.set_text("Status OK")
-      n = pynotify.Notification("Emergency Stop released!", "", "dialog-ok")
-      n.set_timeout(1000)
-      n.show()
+      if(self.em_stop == True):
+        self.em_stop = False
+        n = pynotify.Notification("Emergency Stop released!", "", "dialog-ok")
+        n.set_timeout(1)
+        n.show()
 		    
 
 ## Class for gtk panel implementation
