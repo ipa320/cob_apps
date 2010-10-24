@@ -7,6 +7,7 @@
 	
 	<!-- upload script server parameters -->
 	<include ns="script_server" file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
+	<include ns="script_server" file="$(find cob_script_server)/launch/upload_param_$(env ROBOT_ENV).launch"/>
 	
 	<!-- start dashboard -->
 	<node pkg="cob_dashboard" type="knoeppkes.py" name="$(anon dashboard_node)" ns="dashboard" cwd="node" respawn="false" output="screen" />

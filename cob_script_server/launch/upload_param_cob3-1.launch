@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-	<!-- send parameters to parameter server -->
-	<rosparam command="load" ns="base" file="$(find cob_script_server)/launch/base.yaml"/>
+	<!-- send ROBOT parameters to parameter server -->
 	<rosparam command="load" ns="tray" file="$(find cob_script_server)/launch/tray.yaml"/>
 	<rosparam command="load" ns="torso" file="$(find cob_script_server)/launch/torso.yaml"/>
 	<rosparam command="load" ns="head" file="$(find cob_script_server)/launch/head.yaml"/>

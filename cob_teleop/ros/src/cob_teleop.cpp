@@ -518,13 +518,18 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 	{
 		//joint 7 left or right
 		if(left_right_>=0 && left_right_<(int)joy_msg->axes.size() && joy_msg->axes[left_right_]<0.0)
+		{
 			req_j7_vel_ = -1*(int)joy_msg->buttons[arm_joint7_button_]*arm_left_right_step_*run_factor_;
+			publish_arm_ = true;
+		}
 		else if(left_right_>=0 && left_right_<(int)joy_msg->axes.size() && joy_msg->axes[left_right_]>0.0)
+		{
 			req_j7_vel_ = (int)joy_msg->buttons[arm_joint7_button_]*arm_left_right_step_*run_factor_;
+			publish_arm_ = true;
+		}
 		else
 			req_j7_vel_ = 0.0;
 		ROS_DEBUG("cb::arm joint7 velocity: %f",req_j7_vel_);
-		publish_arm_ = true;
 	}
 	else //button release
 	{

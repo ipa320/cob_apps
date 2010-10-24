@@ -487,7 +487,7 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		self.check_pause()
+		#self.check_pause()
 		client_goal = MoveCartGoal()
 		client_goal.goal_pose = pose
 		#print client_goal

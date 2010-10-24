@@ -8,8 +8,9 @@
   [init,trigger,base,init],
   [recover,trigger,base,recover],
   [home,move,base,home],
-  [order,move,base,order],
-  [kitchen,move,base,kitchen]]
+  [entrance,move,base,rc_entrance],
+  [table,move,base,rc_table],
+  [window,move,base,rc_window]]
 1 torso:
   [[stop,trigger,torso,stop],
   [init,trigger,torso,init],
@@ -34,6 +35,7 @@
   [init,trigger,arm,init],
   [recover,trigger,arm,recover],
   [reboot,trigger,arm,reboot],
+  [undefined mode,mode,arm,undefined],
   [position mode,mode,arm,position],
   [velocity mode,mode,arm,velocity],
   [gravcomp mode,mode,arm,gravcomp],
@@ -49,6 +51,7 @@
   [tablet,move,arm,tablet]]
 5 arm traj:
   [[stop,trigger,arm,stop],
+  [folded-to-pregrasp,move,arm,folded-to-pregrasp],
   [grasp-to-tablet,move,arm,grasp-to-tablet],
   [tablet-to-folded,move,arm,tablet-to-folded]]
 6 sdh:
@@ -58,7 +61,7 @@
   [home,move,sdh,home],
   [cyl. closed,move,sdh,cylclosed],
   [cyl. open,move,sdh,cylopen],
-  [cup,move,sdh,cup]]
+  [cup sim,move,sdh,cup]]
 7 eyes:
   [[stop,trigger,head,stop],
   [init,trigger,head,init],
