@@ -26,7 +26,6 @@
 #include <kdl/velocityprofile_trap.hpp>
 #include <kdl/trajectory_segment.hpp>
 
-#include <cob_mmcontroller/TrajectoryManager.h>
 
 
 
@@ -47,7 +46,6 @@ ChainFkSolverPos_recursive *  fksolver1;//Forward position solver
 ChainIkSolverVel_pinv * iksolver1v;//Inverse velocity solver
 ChainIkSolverPos_NR * iksolverpos;//Maximum 100 iterations, stop at accuracy 1e-6
 
-TrajectoryManager * trajman;
 
 bool RunSyncMM = false;
 ros::Publisher arm_pub_;  //publish topic arm_controller/command
@@ -275,7 +273,6 @@ int main(int argc, char **argv)
 	}
 	my_tree.getChain("base_link","arm_7_link", chain);
 	my_tree.getChain("base_link","arm_0_link", chain_base_arm0);
-	trajman = new TrajectoryManager(chain, node);
 
 	fksolver1 = new ChainFkSolverPos_recursive(chain);//Forward position solver
 	iksolver1v = new ChainIkSolverVel_pinv(chain);//Inverse velocity solver
