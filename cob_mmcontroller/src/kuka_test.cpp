@@ -10,8 +10,6 @@
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <visualization_msgs/Marker.h>
-#include <cob_simpletrajectories/MoveRelLin.h>
-#include <cob_simpletrajectories/MoveDoorHandle.h>
 
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
@@ -241,7 +239,6 @@ void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 		std::vector<std::string> names = msg->name;
 		std::vector<double> positions = msg->position;
 		q = parseJointStates(names,positions);
-		trajman->setConfig(q);
 	 	//std::cout << "Joints: " << q(0) << " " << q(1) << " " << q(2) << " " << q(3) << " " << q(4) << " " << q(5) << " " << q(6)  << "\n";	
 		//std::cout << "VirtualJoints: " << VirtualQ(0) << " " << VirtualQ(1) << " " << VirtualQ(2) << " " << VirtualQ(3) << " " << VirtualQ(4) << " " << VirtualQ(5) << " " << VirtualQ(6)  << "\n";	
 		JntArray q_out(7);
