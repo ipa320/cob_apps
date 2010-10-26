@@ -65,7 +65,7 @@ import rospy
 import actionlib
 
 from cob_msgs.msg import *
-from simple_script_server import script
+from simple_script_server import *
 
 ## Script server class which inherits from script class.
 #
@@ -75,10 +75,11 @@ class script_server(script):
 	## Initializes the actionlib interface of the script server.
 	#
 	def __init__(self):
+		script.__init__(self)
 		self.ns_global_prefix = "/script_server"
 		self.move_action_server = actionlib.SimpleActionServer(self.ns_global_prefix, MoveAction, self.execute_cb)
-		time.sleep(1)
-
+		#time.sleep(1)
+	
 #------------------- Actionlib section -------------------#
 	## Executes actionlib callbacks.
 	#
@@ -86,19 +87,21 @@ class script_server(script):
 	#
 	def execute_cb(self, server_goal):
 		server_result = MoveActionResult().result
-		server_result.return_value = self.sss.move(server_goal.component_name.data,server_goal.parameter_name.data)
+		handle01 = self.sss.move(server_goal.component_name,server_goal.parameter_name)
 		
+		server_result.return_value = handle01.get_error_code()
 		if server_result.return_value == 0:
-			print "success"
+			rospy.logdebug("action result success")
 			self.move_action_server.set_succeeded(server_result)
 		else:
-			print "error"
+			rospy.logerror("action result error")
 			self.move_action_server.set_aborted(server_result)
 
 ## Main routine for running the script server
 #
 if __name__ == '__main__':
 	rospy.init_node('script_server')
-	script_server()
+	SCRIPT = script_server()
+	SCRIPT.Start()
 	rospy.loginfo("script_server is running")
 	rospy.spin()
