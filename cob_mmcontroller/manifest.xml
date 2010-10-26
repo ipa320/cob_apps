@@ -14,6 +14,8 @@
   <depend package="geometry_msgs"/>
   <depend package="trajectory_msgs"/>
   <depend package="kinematics_msgs"/>
+  <depend package="visualization_msgs"/>
+  <depend package="nav_msgs"/>
   <depend package="kdl_parser"/>
   <depend package="cob_srvs"/>
   <depend package="pr2_controllers_msgs"/>
@@ -22,4 +24,5 @@
   <depend package="kdl"/>
   <depend package="actionlib"/>
   <depend package="cob_srvs"/>
+  <depend package="cob_simpletrajectories"/>
 </package>
