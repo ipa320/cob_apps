@@ -22,14 +22,16 @@ int main(int argc, char **argv){
   desired_pose.header.frame_id = "base_link";//"torso_lift_link";
   desired_pose.link_name = "arm_7_link";//"r_wrist_roll_link";
   
+
+/* OLD: possibly not working due to changes on lbr model
   //pos1: stretch-up
-  /*desired_pose.pose.position.x = -0.06;
+  desired_pose.pose.position.x = -0.06;
   desired_pose.pose.position.y = -0.21;
   desired_pose.pose.position.z = 1.92;
   desired_pose.pose.orientation.x = -1.0;
   desired_pose.pose.orientation.y = 0.0;
   desired_pose.pose.orientation.z = 0.0;
-  desired_pose.pose.orientation.w = 0.02;*/
+  desired_pose.pose.orientation.w = 0.02;
   
   //pos2: over-tablet
   desired_pose.pose.position.x = 0.52;
@@ -39,6 +41,35 @@ int main(int argc, char **argv){
   desired_pose.pose.orientation.y = -0.17;
   desired_pose.pose.orientation.z = 0.19;
   desired_pose.pose.orientation.w = -0.63;
+END_OLD */
+
+  //pos3: brics_pregrasp
+  desired_pose.pose.position.x = -0.44;
+  desired_pose.pose.position.y = -0.327;
+  desired_pose.pose.position.z = 0.701;
+  desired_pose.pose.orientation.x = -0.463;
+  desired_pose.pose.orientation.y = 0.664;
+  desired_pose.pose.orientation.z = 0.567;
+  desired_pose.pose.orientation.w = -0.149;
+
+  //pos4: over_tablet
+  /*desired_pose.pose.position.x = 0.515;
+  desired_pose.pose.position.y = -0.177;
+  desired_pose.pose.position.z = 0.999;
+  desired_pose.pose.orientation.x = -0.457;
+  desired_pose.pose.orientation.y = 0.566;
+  desired_pose.pose.orientation.z = -0.422;
+  desired_pose.pose.orientation.w = 0.541;*/
+
+  //pos4: home
+  /*desired_pose.pose.position.x = -0.215;
+  desired_pose.pose.position.y = -0.790;
+  desired_pose.pose.position.z = 1.608;
+  desired_pose.pose.orientation.x = -0.111;
+  desired_pose.pose.orientation.y = -0.368;
+  desired_pose.pose.orientation.z = 0.923;
+  desired_pose.pose.orientation.w = -0.014;*/
+	
   
 
 

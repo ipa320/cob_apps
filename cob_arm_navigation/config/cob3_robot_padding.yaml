@@ -1,4 +1,4 @@
-default_robot_padding: 0.02
+default_robot_padding: 0.0
 link_padding:
   - link: torso
     padding: 0.0

@@ -5,35 +5,11 @@ groups:
 
   - name: platform
     joints:
-      fl_caster_rotation_joint
-      fl_caster_l_wheel_joint
-      fl_caster_r_wheel_joint
-      fr_caster_rotation_joint
-      fr_caster_l_wheel_joint
-      fr_caster_r_wheel_joint
-      bl_caster_rotation_joint
-      bl_caster_l_wheel_joint
-      bl_caster_r_wheel_joint
-      br_caster_rotation_joint
-      br_caster_l_wheel_joint
-      br_caster_r_wheel_joint
+      base_joint
     links:
-      fl_caster_rotation_link
-      fl_caster_l_wheel_link
-      fl_caster_r_wheel_link
-      fr_caster_rotation_link
-      fr_caster_l_wheel_link
-      fr_caster_r_wheel_link
-      bl_caster_rotation_link
-      bl_caster_l_wheel_link
-      bl_caster_r_wheel_link
-      br_caster_rotation_link
-      br_caster_l_wheel_link
-      br_caster_r_wheel_link
       base_laser_front_link
       base_laser_rear_link
-      base_laser_top_link
-      
+      base_laser_top_link      
 
   - name: torso
     joints:
@@ -43,27 +19,15 @@ groups:
       torso_upper_neck_tilt_joint
     links:
       base_link
-      torso_lower_neck_pan_link
       torso_lower_neck_tilt_link
-      torso_upper_neck_pan_link
       torso_upper_neck_tilt_link
+      head_cover_link
       
   - name: tablet
     joints:
       torso_tray_joint
     links:
       torso_tray_link
-        
-  - name: head
-    joints:
-      head_camera_axis_joint
-    links:
-      head_camera_axis_link
-      head_color_camera_l_link
-      head_color_camera_r_link
-      head_cover_link
-      head_tof_camera_link
-      
       
   - name: arm
     joints:
