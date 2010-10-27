@@ -10,8 +10,6 @@
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <visualization_msgs/Marker.h>
-#include <cob_simpletrajectories/MoveRelLin.h>
-#include <cob_simpletrajectories/MoveDoorHandle.h>
 
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
