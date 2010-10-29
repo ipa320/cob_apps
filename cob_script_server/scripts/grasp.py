@@ -48,9 +48,9 @@ class GraspScript(script):
 		#cup.point.x = -2.95
 		#cup.point.y = 0.1
 		#cup.point.z = 0.98
-		cup.point.x = 3.96
-		cup.point.y = 1.30
-		cup.point.z = 0.80
+		cup.point.x = 2.48
+		cup.point.y = 1.22
+		cup.point.z = 0.85
 		self.sss.sleep(2)
 		
 		if not self.sss.parse:

@@ -14,15 +14,15 @@
   <include file="$(find cob_arm_navigation)/launch/cob3_ompl_planning.launch"/>
 
 	<!-- load planning_environment -->
-  <include file="$(find cob_arm_navigation)/launch/cob3_environment_server.launch"/>
-
+<!--  <include file="$(find cob_arm_navigation)/launch/cob3_environment_server.launch"/>
+-->
 	<!-- load controllers -->
-  <include file="$(find cob_arm_navigation)/launch/cob3_trajectory_filter.launch"/>
-	<!-- <include file="$(find trajectory_filter_server)/launch/trajectory_unnormalize.launch"/> -->
+<!--  <include file="$(find cob_arm_navigation)/launch/cob3_trajectory_filter.launch"/>
+-->	<!-- <include file="$(find trajectory_filter_server)/launch/trajectory_unnormalize.launch"/> -->
 	
 	<!-- load move_arm -->
-	<include file="$(find cob_arm_navigation)/launch/cob3_move_arm.launch"/>
-	<!-- needs environment-server -->
+<!--	<include file="$(find cob_arm_navigation)/launch/cob3_move_arm.launch"/>
+-->	<!-- needs environment-server -->
 
 
 	<!-- load ik -->
