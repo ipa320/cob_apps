@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <launch> 
 	<!-- send parameters for collision checking for PR2; this includes parameters for the self filter -->
-	<rosparam command="load" ns="robot_description_collision" file="$(find cob_planning)/config/cob3_collision_checks.yaml" />
+	<rosparam command="load" ns="robot_description_collision" file="$(find cob_arm_navigation)/config/cob3_collision_checks.yaml" />
 
 	<!-- send parameters needed for motion planning -->
-	<rosparam command="load" ns="robot_description_planning" file="$(find cob_planning)/config/cob3_planning_groups.yaml" />
+	<rosparam command="load" ns="robot_description_planning" file="$(find cob_arm_navigation)/config/cob3_planning_groups.yaml" />
 
 </launch>

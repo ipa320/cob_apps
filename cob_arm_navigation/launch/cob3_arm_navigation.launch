@@ -1,28 +1,28 @@
 <?xml version="1.0"?>
 <launch> 
  	<!-- send additional description parameters -->
-  <include file="$(find cob_planning)/launch/cob3_planning_environment.launch" />
+  <include file="$(find cob_arm_navigation)/launch/cob3_planning_environment.launch" />
 
 	<!-- load laser-perception -->
 	<!-- <include file="$(find cob_planning)/launch/cob3_laser_perception.launch"/> -->
 
 	<!-- displaying known model markers -->
-  <include file="$(find cob_planning)/launch/cob3_display_planner_collision_model.launch" />
-  <include file="$(find cob_planning)/launch/cob3_display_planner_collision_model_ik.launch" />
+  <include file="$(find cob_arm_navigation)/launch/cob3_display_planner_collision_model.launch" />
+  <include file="$(find cob_arm_navigation)/launch/cob3_display_planner_collision_model_ik.launch" />
 
 	<!-- load planning -->
-  <include file="$(find cob_planning)/launch/cob3_ompl_planning.launch"/>
+  <include file="$(find cob_arm_navigation)/launch/cob3_ompl_planning.launch"/>
 
 	<!-- load planning_environment -->
-  <include file="$(find cob_planning)/launch/cob3_environment_server.launch"/>
-
+<!--  <include file="$(find cob_arm_navigation)/launch/cob3_environment_server.launch"/>
+-->
 	<!-- load controllers -->
-  <include file="$(find cob_planning)/launch/cob3_trajectory_filter.launch"/>
-	<!-- <include file="$(find trajectory_filter_server)/launch/trajectory_unnormalize.launch"/> -->
+<!--  <include file="$(find cob_arm_navigation)/launch/cob3_trajectory_filter.launch"/>
+-->	<!-- <include file="$(find trajectory_filter_server)/launch/trajectory_unnormalize.launch"/> -->
 	
 	<!-- load move_arm -->
-	<include file="$(find cob_planning)/launch/cob3_move_arm.launch"/>
-	<!-- needs environment-server -->
+<!--	<include file="$(find cob_arm_navigation)/launch/cob3_move_arm.launch"/>
+-->	<!-- needs environment-server -->
 
 
 	<!-- load ik -->

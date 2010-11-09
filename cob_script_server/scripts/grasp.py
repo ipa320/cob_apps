@@ -15,11 +15,11 @@ class GraspScript(script):
 		
 	def Initialize(self):
 		# initialize components (not needed for simulation)
-		#self.sss.init("tray")
-		#self.sss.init("torso")
+		self.sss.init("tray")
+		self.sss.init("torso")
 		#self.sss.init("arm")
-		#self.sss.init("sdh")
-		#self.sss.init("base")
+		self.sss.init("sdh")
+		self.sss.init("base")
 		
 		# move to initial positions
 		handle01 = self.sss.move("arm","folded",False)
@@ -36,26 +36,30 @@ class GraspScript(script):
 		listener = tf.TransformListener(True, rospy.Duration(10.0))
 	
 		# prepare for grasping
-		self.sss.move("base","kitchen")
-		handle01 = self.sss.move("arm","pregrasp",False)
+		#self.sss.move("base","kitchen")
+		self.sss.move("base","rc_table")
+		self.sss.move("arm","pregrasp")
 		self.sss.move("sdh","cylopen")
-		handle01.wait()
 
 		# caculate tranformations, we need cup coordinates in arm_7_link coordinate system
 		cup = PointStamped()
 		cup.header.stamp = rospy.Time.now()
 		cup.header.frame_id = "/map"
-		cup.point.x = -2.95
-		cup.point.y = 0.1
-		cup.point.z = 0.98
+		#cup.point.x = -2.95
+		#cup.point.y = 0.1
+		#cup.point.z = 0.98
+		cup.point.x = 2.48
+		cup.point.y = 1.22
+		cup.point.z = 0.85
 		self.sss.sleep(2)
 		
 		if not self.sss.parse:
 			cup = listener.transformPoint('/arm_7_link',cup)
 
 		#print "cup: ", cup		
-		self.sss.move_cart_rel("arm",[[cup.point.x, cup.point.y, cup.point.z-0.4], [0, 0, 0]])
+		self.sss.move_cart_rel("arm",[[cup.point.x, cup.point.y, cup.point.z-0.2], [0, 0, 0]])
 		self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.2], [0, 0, 0]])
+		#self.sss.move("sdh","cup")cylclosed
 		self.sss.move("sdh","cylclosed")
 	
 
@@ -71,7 +75,7 @@ class GraspScript(script):
 		handle01.wait()
 
 		# deliver cup to home
-		self.sss.move("base","order")
+		self.sss.move("base","rc_entrance")
 		#say("here's your drink")
 		self.sss.move("torso","nod")
 

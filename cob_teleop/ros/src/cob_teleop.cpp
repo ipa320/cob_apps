@@ -96,6 +96,7 @@ class TeleopCOB
 		int axis_vx_,axis_vy_,axis_vth_;
 
 		//arm
+		bool publish_arm_;
 		double req_j1_,req_j1_vel_; //joint1 between link_0 and link_1 left_right movement
 		double req_j2_,req_j2_vel_; //joint2 between link_1 and link_2 up_down movement
 		int arm_joint12_button_;
@@ -427,6 +428,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 	}
 
 	//arm
+	publish_arm_ = false;
 	//joint12
 	if(arm_joint12_button_>=0 && arm_joint12_button_<(int)joy_msg->buttons.size() && joy_msg->buttons[arm_joint12_button_]==1)
 	{
@@ -447,6 +449,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 		else
 			req_j2_vel_ = 0.0;
 		ROS_DEBUG("cb::arm joint2 velocity: %f",req_j2_vel_);
+		publish_arm_ = true;
 	}
 	else //button release
 	{
@@ -474,6 +477,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 		else
 			req_j4_vel_ = 0.0;
 		ROS_DEBUG("cb::arm joint4 velocity: %f",req_j4_vel_);
+		publish_arm_ = true;
 	}
 	else //button release
 	{
@@ -501,6 +505,7 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 		else
 			req_j6_vel_ = 0.0;
 		ROS_DEBUG("cb::arm joint6 velocity: %f",req_j6_vel_);
+		publish_arm_ = true;
 	}
 	else //button release
 	{
@@ -513,9 +518,15 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 	{
 		//joint 7 left or right
 		if(left_right_>=0 && left_right_<(int)joy_msg->axes.size() && joy_msg->axes[left_right_]<0.0)
+		{
 			req_j7_vel_ = -1*(int)joy_msg->buttons[arm_joint7_button_]*arm_left_right_step_*run_factor_;
+			publish_arm_ = true;
+		}
 		else if(left_right_>=0 && left_right_<(int)joy_msg->axes.size() && joy_msg->axes[left_right_]>0.0)
+		{
 			req_j7_vel_ = (int)joy_msg->buttons[arm_joint7_button_]*arm_left_right_step_*run_factor_;
+			publish_arm_ = true;
+		}
 		else
 			req_j7_vel_ = 0.0;
 		ROS_DEBUG("cb::arm joint7 velocity: %f",req_j7_vel_);
@@ -693,7 +704,8 @@ void TeleopCOB::update_arm()
 	traj.points[0].velocities.push_back(req_j7_vel_); //joint7
 	traj.points[0].time_from_start = ros::Duration(horizon);
 	
-	arm_pub_.publish(traj);
+	if (publish_arm_)
+		arm_pub_.publish(traj);
 
 	//update current position 
 	req_j1_ += req_j1_vel_*dt;

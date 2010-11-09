@@ -1,8 +1,9 @@
 #!/bin/bash
 export ROBOT=cob3-1
+export ROBOT_ENV=brics_rc
 source /opt/ros/cturtle/setup.sh
 source /home/brics/git/care-o-bot/setup.sh /home/brics/git/care-o-bot
-#source /home/brics/git/cob3_intern/setup.sh /home/uhr/git/cob3_intern
+source /home/brics/git/cob3_intern/setup.sh /home/brics/git/cob3_intern
 #source /home/uhr/git/robocup/setup.sh /home/uhr/git/robocup
 
 VIRTUALGL_PATH=/opt/VirtualGL/bin/vglrun

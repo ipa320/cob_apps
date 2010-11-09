@@ -13,10 +13,6 @@ default_collision_operations:
     object2: arm
     operation: enable
     
-  - object1: head
-    object2: arm
-    operation: enable
-    
   - object1: base_link
     object2: arm_0_link
     operation: disable    
@@ -33,16 +29,20 @@ default_collision_operations:
     object2: hand
     operation: enable    
     
-  - object1: head
-    object2: hand
-    operation: enable    
-    
   - object1: arm
     object2: hand
     operation: enable
     
   - object1: sdh_palm_link
     object2: arm_7_link
+    operation: disable
+
+  - object1: sdh_palm_link
+    object2: arm_6_link
+    operation: disable
+
+  - object1: sdh_palm_link
+    object2: arm_5_link
     operation: disable
 
 

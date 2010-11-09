@@ -19,13 +19,15 @@ class GraspScript(script):
 		
 	def Initialize(self):
 		# initialize components (not needed for simulation)
-		#self.sss.init("tray")
-		#self.sss.init("torso")
-		#self.sss.init("arm")
-		#self.sss.init("sdh")
-		#self.sss.init("base")
+		self.sss.init("tray")
+		self.sss.init("torso")
+		self.sss.init("arm")
+		self.sss.set_operation_mode("arm", "position")
+		self.sss.init("sdh")
+		self.sss.init("base")
 		
 		self.thumb_sub = rospy.Subscriber("/sdh_thumb_2_bumper/state",ContactsState,self.callback)
+		self.thumb_sub = rospy.Subscriber("/sdh_controller/tactile_data",TactileSensor,self.callback_hw)
 		
 		# move to initial positions
 		
@@ -45,9 +47,9 @@ class GraspScript(script):
 		handle01 = self.sss.move("base","table_cup_start")
 	
 		# prepare for grasping
-		handle01 = self.sss.move("arm","pregrasp_tablecup",False)
+		self.sss.move("arm","pregrasp")
+		self.sss.move("arm","pregrasp_tablecup")
 		self.sss.move("sdh","table_cup_open")
-		handle01.wait()
 		
 		self.sss.move("base","table_cup_end")
 		
