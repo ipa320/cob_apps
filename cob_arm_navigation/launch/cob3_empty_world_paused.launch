@@ -1,0 +1,8 @@
+<launch>
+
+  <!-- start gazebo with an empty plane -->
+  <param name="/use_sim_time" value="true" />
+
+  <node name="gazebo" pkg="gazebo" type="gazebo" args="$(find cob_gazebo_worlds)/common/worlds/cob3.world" respawn="false" output="screen"/>
+
+</launch>

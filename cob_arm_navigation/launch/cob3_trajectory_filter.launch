@@ -1,0 +1,19 @@
+<launch> 
+	<node pkg="trajectory_filter_server" name="trajectory_filter" type="trajectory_filter_server" output="screen">
+		<!-- <rosparam command="load" file="$(find cob_planning)/config/joint_limits.yaml"/> -->
+		<rosparam command="load" file="$(find cob_planning)/config/filters.yaml"/>
+
+    <remap from="robot_description" to="robot_description" />
+    <remap from="collision_map" to="collision_map_occ" />
+    <remap from="collision_map_update" to="collision_map_occ_update" />    
+    <param name="refresh_interval_collision_map" type="double" value="0.0" />
+    <param name="refresh_interval_kinematic_state" type="double" value="1.0" />
+    <param name="bounding_planes" type="string" value="0 0 1 -0.01" />
+    <param name="compute_contacts" type="bool" value="false" />
+
+    <param name="pointcloud_padd" type="double" value="0.00" />
+
+    <rosparam command="load" file="$(find cob_planning)/config/cob3_robot_padding.yaml" />		
+
+	</node>
+</launch>

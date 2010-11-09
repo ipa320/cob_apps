@@ -1,0 +1,122 @@
+## This file should be loaded under ompl_planning
+
+## the list of groups for which motion planning can be performed
+group_list:
+  arm
+  #PR2: right_arm left_arm
+
+## the planner configurations; each config must have a type, which specifies
+## the planner to be used; other parameters can be specified as well, depending 
+## on the planner
+
+planner_configs:
+  
+  armIKConfig1:
+    type: GAIK
+
+  pRRTkConfig1:
+    type: kinematic::pRRT
+    range: 0.75
+    thread_count: 2
+    
+  RRTkConfig1:
+    type: kinematic::RRT
+    range: 0.75
+
+  RRTdConfig1:
+    type: dynamic::RRT
+
+  LazyRRTkConfig1:
+    type: kinematic::LazyRRT
+    range: 0.75
+
+  SBLkConfig1:
+    type: kinematic::SBL
+    projection: 0 1
+    celldim: 1 1
+    range: 0.5
+    
+  pSBLkConfig1:
+    type: kinematic::pSBL
+    projection: 0 1
+    celldim: 1 1
+    range: 0.5
+    
+  KPIECEkConfig1:
+    type: kinematic::KPIECE
+    projection: 0 1
+    celldim: 1 1
+    range: 0.5
+
+  KPIECEdConfig1:
+    type: dynamic::KPIECE
+    projection: 0 1
+    celldim: 0.5 0.5
+
+  RRTkConfig2:
+    type: kinematic::RRT
+    range: 0.75
+
+  SBLkConfig2:
+    type: kinematic::SBL
+    projection: 5 6
+    celldim: 0.1 0.1
+  
+  KPIECEkConfig2l:
+    type: kinematic::KPIECE
+    projection: link l_wrist_roll_link
+    celldim: 0.1 0.1 0.1
+
+  KPIECEkConfig2r:
+    type: kinematic::KPIECE
+    projection: link r_wrist_roll_link
+    celldim: 0.1 0.1 0.1
+
+  KPIECEkConfig2cob:
+    type: kinematic::KPIECE
+    projection: link arm_7_link
+    celldim: 0.1 0.1 0.1
+
+  LBKPIECEkConfig1:
+    type: kinematic::LBKPIECE
+    projection: 5 6
+    celldim: 0.1 0.1
+
+  LBKPIECEkConfig2r:
+    type: kinematic::LBKPIECE
+    projection: link r_wrist_roll_link
+    celldim: 0.1 0.1 0.1
+
+  LBKPIECEkConfig2l:
+    type: kinematic::LBKPIECE
+    projection: link l_wrist_roll_link
+    celldim: 0.1 0.1 0.1
+
+  LBKPIECEkConfig2cob:
+    type: kinematic::LBKPIECE
+    projection: link arm_7_link
+    celldim: 0.1 0.1 0.1
+
+## the definition of the planners that go in each group
+groups:
+
+  - name: robot_body
+    planner_configs:
+      RRTkConfig1 RRTdConfig1 LazyRRTkConfig1 SBLkConfig1 KPIECEkConfig1 KPIECEdConfig1
+
+  - name: left_arm
+    planner_configs:
+      RRTkConfig2 SBLkConfig2 KPIECEkConfig1 KPIECEkConfig2l LBKPIECEkConfig2l armIKConfig1
+
+  - name: right_arm
+    planner_configs:
+      RRTkConfig2 SBLkConfig2 KPIECEkConfig1 KPIECEkConfig2r LBKPIECEkConfig2r armIKConfig1
+
+  #cob3
+  - name: arm
+    planner_configs:
+      RRTkConfig2 SBLkConfig2 KPIECEkConfig1 KPIECEkConfig2cob LBKPIECEkConfig2cob armIKConfig1
+      
+  - name: arms
+    planner_configs:
+      RRTkConfig2 SBLkConfig2 

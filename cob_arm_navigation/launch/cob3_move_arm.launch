@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="move_arm" type="move_arm_simple_action" output="screen" name="move_arm">    
+
+    <remap from="robot_description" to="robot_description" />
+    <remap from="joint_state" to="joint_states" />
+    <remap from="arm_ik" to="arm_controller/get_constraint_aware_ik" />
+		<!-- <remap from="arm_ik" to="arm_controller/get_ik" /> -->
+    <!-- PR2: <remap from="arm_fk" to="pr2_right_arm_kinematics/get_fk" />	-->
+		<!-- cob: get_fk-service bisher noch nicht implementiert -->
+    <remap from="filter_trajectory" to="trajectory_filter/filter_trajectory_with_constraints" />
+    
+    <remap from="get_trajectory_validity" to="cob3_environment_server/get_trajectory_validity" />	
+    <remap from="get_environment_safety" to="cob3_environment_server/get_environment_safety" />	
+    <remap from="get_execution_safety" to="cob3_environment_server/get_execution_safety" />	
+    <remap from="get_joints_in_group" to="cob3_environment_server/get_joints_in_group" />	
+    <remap from="get_robot_state" to="cob3_environment_server/get_robot_state" />	
+    <remap from="get_state_validity" to="cob3_environment_server/get_state_validity" />	
+
+    <param name="group" type="string" value="arm" />
+    <param name="ik_allowed_time" type="double" value="2.0" />
+    <param name="trajectory_filter_allowed_time" type="double" value="2.0" />
+    <param name="group" type="string" value="arm" />
+    <param name="controller_action_name" type="string" value="/arm_controller/joint_trajectory_action" />
+
+  </node>
+</launch>
+

@@ -6,6 +6,7 @@
 0 base:
   [[stop,trigger,base,stop],
   [init,trigger,base,init],
+  [recover,trigger,base,recover],
   [home,move,base,home],
   [order,move,base,order],
   [kitchen,move,base,kitchen]]
@@ -28,24 +29,29 @@
   [enable joystick,mode,tray,velocity],
   [up,move,tray,up],
   [down,move,tray,down]]
-3 arm:
+3 arm settings:
   [[stop,trigger,arm,stop],
   [init,trigger,arm,init],
   [recover,trigger,arm,recover],
-  [enable joystick,mode,arm,velocity],
+  [reboot,trigger,arm,reboot],
+  [position mode,mode,arm,position],
+  [velocity mode,mode,arm,velocity],
+  [gravcomp mode,mode,arm,gravcomp],
+  [positionhold mode,mode,arm,positionhold]]
+4 arm pos:
+  [[stop,trigger,arm,stop],
   [home,move,arm,home],
   [folded,move,arm,folded],
   [pregrasp,move,arm,pregrasp],
   [grasp,move,arm,grasp],
+  [graspbrics,move,arm,graspbrics],
   [overtablet,move,arm,overtablet],
   [tablet,move,arm,tablet]]
-4 arm traj:
+5 arm traj:
   [[stop,trigger,arm,stop],
-  [init,trigger,arm,init],
-  [recover,trigger,arm,recover],
-  [enable joystick,mode,arm,velocity],[grasp-to-tablet,move,arm,grasp-to-tablet],
+  [grasp-to-tablet,move,arm,grasp-to-tablet],
   [tablet-to-folded,move,arm,tablet-to-folded]]
-5 sdh:
+6 sdh:
   [[stop,trigger,sdh,stop],
   [init,trigger,sdh,init],
   [recover,trigger,sdh,recover],
@@ -53,7 +59,7 @@
   [cyl. closed,move,sdh,cylclosed],
   [cyl. open,move,sdh,cylopen],
   [cup,move,sdh,cup]]
-6 eyes:
+7 eyes:
   [[stop,trigger,head,stop],
   [init,trigger,head,init],
   [recover,trigger,head,recover],

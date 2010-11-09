@@ -139,7 +139,7 @@ class script():
 		global function_counter
 		function_counter = 0
 		# run script in simulation mode
-		self.sss = simple_script_server(simulate=True)
+		self.sss = simple_script_server(parse=True)
 		self.Initialize()
 		self.Run()
 		
@@ -160,12 +160,12 @@ class simple_script_server:
 
 	## Initializes simple_script_server class.
 	#
-	# \param simulate Defines wether to run script in simulation for graph generation or not
-	def __init__(self, simulate=False):
+	# \param parse Defines wether to run script in simulation for graph generation or not
+	def __init__(self, parse=False):
 		global graph
 		self.ns_global_prefix = "/script_server"
 		#self.ns_global_prefix = ""
-		self.simulate = simulate
+		self.parse = parse
 		self.soundhandle = SoundClient()
 		rospy.sleep(1)
 
@@ -175,8 +175,8 @@ class simple_script_server:
 	# Based on the component, the corresponding init service will be called.
 	#
 	# \param component_name Name of the component.
-	def init(self,component_name):
-		self.trigger(component_name,"init")
+	def init(self,component_name,blocking=True):
+		self.trigger(component_name,"init",blocking)
 
 	## Stops different components.
 	#
@@ -202,8 +202,8 @@ class simple_script_server:
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def trigger(self,component_name,service_name,blocking=True):
-		ah = action_handle(service_name, component_name, "", blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle(service_name, component_name, "", blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -252,8 +252,8 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_base(self,component_name,parameter_name,blocking):
-		ah = action_handle("move", component_name, parameter_name, blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle("move", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -343,8 +343,8 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_traj(self,component_name,parameter_name,blocking):
-		ah = action_handle("move", component_name, parameter_name, blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle("move", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -363,7 +363,7 @@ class simple_script_server:
 		elif component_name == "head":
 			joint_names = ["head_axis_joint"]
 		else:
-			rospy.logerr("component %s not kown to script_server",component_name)
+			rospy.logerr("component %s not known to script_server",component_name)
 			ah.set_failed(1)
 			return ah
 		
@@ -424,7 +424,7 @@ class simple_script_server:
 		# call action server
 		operation_mode_name = "/" + component_name + '_controller/OperationMode'
 		action_server_name = "/" + component_name + '_controller/joint_trajectory_action'
-		rospy.set_param(operation_mode_name, "position")
+		rospy.set_param(operation_mode_name, "position") # \todo remove and replace with service call
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, JointTrajectoryAction)
 		# trying to connect to server
@@ -449,8 +449,8 @@ class simple_script_server:
 		return ah
 
 	def move_cart_rel(self, component_name, parameter_name=[[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
-		ah = action_handle("move_rel", component_name, parameter_name, blocking, self.simulate)
-		if(self.simulate):
+		ah = action_handle("move_rel", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -506,7 +506,17 @@ class simple_script_server:
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def set_operation_mode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
-		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo change to service call
+		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo remove and only use service call
+		#rospy.wait_for_service("/" + component_name + "_controller/set_operation_mode")
+		try:
+			set_operation_mode = rospy.ServiceProxy("/" + component_name + "_controller/set_operation_mode", SetOperationMode)
+			req = SetOperationModeRequest()
+			req.operationMode.data = "position"
+			print req
+			resp = set_operation_mode(req)
+			print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
 			
 #------------------- LED section -------------------#
 	## Set the color of the cob_light component.
@@ -580,20 +590,21 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter
 	# \param language Language to use for the TTS system
-	def say(self,parameter_name,language="en"):
+	def say(self,parameter_name,blocking=True):
 		component_name = "sound"
-		ah = action_handle()
-		ah.component_name = component_name
-		ah.parameter_name = parameter_name
+		ah = action_handle("say", component_name, parameter_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+			
 		text = ""
-		
-		rospy.loginfo("Saying <<%s>>",parameter_name)
 		
 		# get values from parameter server
 		if type(parameter_name) is str:
 			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
-				ah.error_code = 2
+				ah.set_failed(2)
 				return ah
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
 		else:
@@ -603,7 +614,7 @@ class simple_script_server:
 		if not type(param) is list: # check list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
-				ah.error_code = 3
+				ah.set_failed(3)
 				return ah
 		else:
 			for i in param:
@@ -611,17 +622,48 @@ class simple_script_server:
 				if not type(i) is str:
 					rospy.logerr("no valid parameter for %s: not a list of strings, aborting...",component_name)
 					print "parameter is:",param
-					ah.error_code = 3
+					ah.set_failed(3)
 					return ah
 				else:
 					text = text + i + " "
 					rospy.logdebug("accepted parameter <<%s>> for <<%s>>",i,component_name)
-		#print text
-		self.soundhandle.say(text)
+
+		rospy.loginfo("Saying <<%s>>",text)
+		#self.soundhandle.say(text)
+		if blocking:
+			os.system("echo " + text + " | text2wave | aplay -q")
+		else:
+			os.system("echo " + text + " | text2wave | aplay -q &")
+		ah.set_succeeded()
+		return ah
+
+	## Play a sound file.
+	#
+	# \param parameter_name Name of the parameter
+	# \param language Language to use
+	def play(self,parameter_name,blocking=True):
+		component_name = "sound"
+		ah = action_handle("play", component_name, parameter_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		wav_path = "~/git/care-o-bot/cob_apps/cob_script_server/common/files/wav_de/"
+		filename = wav_path + parameter_name + ".wav"
+		
+		rospy.loginfo("Playing <<%s>>",filename)
+		#self.soundhandle.playWave(filename)
+		if blocking:
+			os.system("aplay -q " + filename)
+		else:
+			os.system("aplay -q " + filename + "&")
+		ah.set_succeeded()
+		return ah
 
 	def Speak(self,parameter_name,mode="DEFAULT"):
 #		ah = action_handle()
-#		if(self.simulate):
+#		if(self.parse):
 #			return ah
 
 		""" Speak sound specified by 'parameter_name' either via TTS or by playing a WAV-File
@@ -833,8 +875,8 @@ class simple_script_server:
 	# \param duration Duration in seconds to sleep.
 	#
 	def sleep(self,duration):
-		ah = action_handle("sleep", "", str(duration), True, self.simulate)
-		if(self.simulate):
+		ah = action_handle("sleep", "", str(duration), True, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -851,8 +893,8 @@ class simple_script_server:
 	# 
 	# \todo implement waiting for timeout
 	def wait_for_input(self,duration=0):
-		ah = action_handle("wait", "input", str(duration), True, self.simulate)
-		if(self.simulate):
+		ah = action_handle("wait", "input", str(duration), True, self.parse)
+		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
@@ -894,7 +936,7 @@ class simple_script_server:
 # The action handle is used to implement asynchronous behaviour within the script.
 class action_handle:
 	## Initializes the action handle.
-	def __init__(self, function_name, component_name, parameter_name, blocking, simulate):
+	def __init__(self, function_name, component_name, parameter_name, blocking, parse):
 		global graph
 		global function_counter
 		self.parent_node = ""
@@ -906,7 +948,7 @@ class action_handle:
 		self.parameter_name = parameter_name
 		self.state = ScriptState.UNKNOWN
 		self.blocking = blocking
-		self.simulate = simulate
+		self.parse = parse
 		self.level = int(rospy.get_param("/script_server/level",100))
 		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
 		self.AppendNode(blocking)
@@ -979,7 +1021,7 @@ class action_handle:
 		global function_counter
 		global last_node
 		graphstring = self.GetGraphstring()
-		if self.simulate:
+		if self.parse:
 			if ( self.level >= self.GetLevel(self.function_name)):
 				#print "adding " + graphstring + " to graph"
 				graph.add_edge(last_node, graphstring)
@@ -1043,7 +1085,7 @@ class action_handle:
 	# \param logging Enables or disables logging for this wait.
 	def wait_for_finished(self, duration, logging):
 		global graph_wait_list
-		if(self.simulate):
+		if(self.parse):
 			if(self.parent_node != ""):
 				graph_wait_list.append(self.parent_node)
 			return
