@@ -15,7 +15,6 @@
   <depend package="std_msgs"/>
   <depend package="cob_msgs"/>
   <depend package="cob_srvs"/>
-  <depend package="cob_actions"/>
   <depend package="trajectory_msgs"/>
   <depend package="geometry_msgs"/>
   <depend package="pr2_controllers_msgs"/>
@@ -23,6 +22,7 @@
   <depend package="sound_play"/>
   <depend package="opencv2"/>
   <depend package="cv_bridge"/>
-
+  <depend package="gazebo_plugins"/>
+  
   <rosdep name="pygraphviz"/>
 </package>

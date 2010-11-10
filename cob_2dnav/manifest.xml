@@ -10,7 +10,7 @@
   <url>http://ros.org/wiki/cob_2dnav</url>
   
   <depend package="move_base"/>
-  <depend package="cob_platform"/>
+  <depend package="cob_base"/>
   <depend package="cob_teleop"/>
   <depend package="cob_sick_s300"/>
   <depend package="cob_hokuyo"/>

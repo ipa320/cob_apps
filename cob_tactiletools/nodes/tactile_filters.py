@@ -53,10 +53,10 @@ class TactileFilters():
 if (__name__ == "__main__"):
     TF = TactileFilters()
     rospy.init_node('TactileSensorView', anonymous=True)
-    rospy.Subscriber("/sdh/tactile_data", TactileSensor, TF.roscb)
-    TF.mean_value_publisher = rospy.Publisher("/tactile_tools/mean_values", Float32MultiArray)
-    TF.grabbed_publisher = rospy.Publisher("/tactile_tools/grabbed", Bool)
-    service_is_grasped = rospy.Service('tactile_tools/is_grasped', Trigger, TF.handle_is_grasped)
+    rospy.Subscriber("/sdh_controller/tactile_data", TactileSensor, TF.roscb)
+    TF.mean_value_publisher = rospy.Publisher("/sdh_controller/mean_values", Float32MultiArray)
+    TF.grabbed_publisher = rospy.Publisher("/sdh_controller/grabbed", Bool)
+    service_is_grasped = rospy.Service('/sdh_controller/is_grasped', Trigger, TF.handle_is_grasped)
     treshold = rospy.get_param('TouchedTreshold', '10')
     TF.touched_treshold = treshold
     print "Setting touched treshold to ", treshold

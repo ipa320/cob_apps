@@ -16,8 +16,8 @@
   <!--include file="$(find cob_camera_sensors)/ros/launch/cob3-2_tof.launch" /-->
   <!--include file="$(find cob_point_cloud_publisher)/ros/launch/point_cloud_publisher.launch" /-->
   
-  <!-- start teleoperated platform -->
-  <include file="$(find cob_platform)/ros/launch/platform.launch" />
+  <!-- start teleoperated base -->
+  <include file="$(find cob_base)/ros/launch/base.launch" />
   <include file="$(find cob_teleop)/ros/launch/cob_teleop.launch" />
  
   <!-- start move base -->

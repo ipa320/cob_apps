@@ -1,0 +1,22 @@
+default_robot_padding: 0.01
+#link_padding:
+#  - link: robot_body
+#    padding: 0.0
+#  - link: left_arm
+#    padding: .01
+#  - link: right_arm 
+#    padding: .01
+#  - link: r_end_effector
+#    padding: .01
+#  - link: l_end_effector
+#    padding: .01
+#  - link: r_gripper_r_finger_tip_link
+#    padding: .01
+#  - link: r_gripper_l_finger_tip_link
+#    padding: .01
+#  - link: l_gripper_l_finger_tip_link
+#    padding: .01
+#  - link: l_gripper_r_finger_tip_link
+#    padding: .01
+#  - link: attached
+#    padding: .01

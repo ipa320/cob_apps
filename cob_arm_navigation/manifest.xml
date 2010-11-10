@@ -1,0 +1,17 @@
+<package>
+  <description brief="cob_arm_navigation">
+
+     cob_arm_navigation
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_arm_nagivation</url>
+	<depend package="pr2_arm_navigation_tutorials"/>
+	<depend package="actionlib"/>
+	<depend package="pr2_controllers_msgs"/>
+
+</package>
+
+

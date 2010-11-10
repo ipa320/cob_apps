@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- start up empty world -->
+  <!--PR2: <include file="$(find pr2_gazebo)/empty_world_paused.launch"/> -->
+	<include file="$(find cob_arm_navigation)/launch/cob3_empty_world_paused.launch"/>
+
+  <!-- start pr2 robot -->
+  <!--PR2: <include file="$(find pr2_gazebo)/pr2.launch"/> -->
+	<include file="$(find cob_bringup)/ros/launch/cob3-sim.launch"/>
+
+</launch>

@@ -6,9 +6,13 @@
 0 base:
   [[stop,trigger,base,stop],
   [init,trigger,base,init],
+  [recover,trigger,base,recover],
   [home,move,base,home],
-  [order,move,base,order],
-  [kitchen,move,base,kitchen]]
+  [entrance,move,base,rc_entrance],
+  [table,move,base,rc_table],
+  [window,move,base,rc_window],
+  [cob1initial,move,base,cob1initial],
+  [cob1graspafter,move,base,cob1graspafter]]
 1 torso:
   [[stop,trigger,torso,stop],
   [init,trigger,torso,init],
@@ -28,31 +32,41 @@
   [enable joystick,mode,tray,velocity],
   [up,move,tray,up],
   [down,move,tray,down]]
-3 arm:
+3 arm settings:
   [[stop,trigger,arm,stop],
   [init,trigger,arm,init],
   [recover,trigger,arm,recover],
   [reboot,trigger,arm,reboot],
-  [enable joystick,mode,arm,velocity],
+  [undefined mode,mode,arm,undefined],
+  [position mode,mode,arm,position],
+  [pos stiff mode,mode,arm,positionstiffness],
+  [velocity mode,mode,arm,velocity],
+  [gravcomp mode,mode,arm,gravcomp],
+  [positionhold mode,mode,arm,positionhold]]
+4 arm pos:
+  [[stop,trigger,arm,stop],
   [home,move,arm,home],
   [folded,move,arm,folded],
   [pregrasp,move,arm,pregrasp],
   [grasp,move,arm,grasp],
+  [graspbrics,move,arm,graspbrics],
   [overtablet,move,arm,overtablet],
-  [tablet,move,arm,tablet]]
-4 arm traj:
+  [tablet,move,arm,tablet],
+  [cob1initial,move,arm,cob1initial]]
+5 arm traj:
   [[stop,trigger,arm,stop],
+  [folded-to-pregrasp,move,arm,folded-to-pregrasp],
   [grasp-to-tablet,move,arm,grasp-to-tablet],
   [tablet-to-folded,move,arm,tablet-to-folded]]
-5 sdh:
+6 sdh:
   [[stop,trigger,sdh,stop],
   [init,trigger,sdh,init],
   [recover,trigger,sdh,recover],
   [home,move,sdh,home],
   [cyl. closed,move,sdh,cylclosed],
   [cyl. open,move,sdh,cylopen],
-  [cup,move,sdh,cup]]
-6 eyes:
+  [cup sim,move,sdh,cup]]
+7 eyes:
   [[stop,trigger,head,stop],
   [init,trigger,head,init],
   [recover,trigger,head,recover],

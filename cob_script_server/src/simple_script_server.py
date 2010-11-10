@@ -166,7 +166,17 @@ class simple_script_server:
 		self.ns_global_prefix = "/script_server"
 		#self.ns_global_prefix = ""
 		self.parse = parse
+		
+		# sound
 		self.soundhandle = SoundClient()
+		
+		# light
+		self.pub_light = rospy.Publisher('light_controller/command', Light)
+		rospy.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
+
+		# base
+		self.pub_base = rospy.Publisher('base_controller/command', Twist)
+
 		rospy.sleep(1)
 
 #------------------- Init section -------------------#
@@ -335,6 +345,68 @@ class simple_script_server:
 
 		return ah
 
+	## Deals with direct movements of the base (without planning and collision checking).
+	#
+	# A target will be sent directly to the base_controller node.
+	#
+	# \param component_name Name of the component.
+	# \param parameter_name Name of the parameter on the ROS parameter server.
+	# \param blocking Bool value to specify blocking behaviour.
+	def move_base_direct(self,component_name,parameter_name,blocking=False):
+		ah = action_handle("move_direct", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+		param = parameter_name
+		
+		# check trajectory parameters
+		if not type(param) is list: # check outer list
+				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+		else:
+			#print i,"type1 = ", type(i)
+			DOF = 4
+			if not len(param) == DOF: # check dimension
+				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,DOF,len(param))
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+			else:
+				for i in param:
+					#print i,"type2 = ", type(i)
+					if not ((type(i) is float) or (type(i) is int)): # check type
+						#print type(i)
+						rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
+						print "parameter is:",param
+						ah.set_failed(3)
+						return ah
+					else:
+						rospy.logdebug("accepted parameter %f for %s",i,component_name)
+
+		# sending goal
+		twist = Twist()
+		twist.linear.x = param[0]
+		twist.linear.y = param[1]
+		twist.angular.z = param[2]
+		self.pub_base.publish(twist)
+		
+		# drive for some time
+		rospy.sleep(param[3])
+
+		# stop base
+		twist.linear.x = 0
+		twist.linear.y = 0
+		twist.angular.z = 0
+		self.pub_base.publish(twist)
+		
+		ah.set_succeeded()
+		return ah
+
 	## Deals with all kind of trajectory movements for different components.
 	#
 	# A trajectory will be sent to the actionlib interface of the corresponding component.
@@ -363,7 +435,7 @@ class simple_script_server:
 		elif component_name == "head":
 			joint_names = ["head_axis_joint"]
 		else:
-			rospy.logerr("component %s not kown to script_server",component_name)
+			rospy.logerr("component %s not known to script_server",component_name)
 			ah.set_failed(1)
 			return ah
 		
@@ -424,7 +496,6 @@ class simple_script_server:
 		# call action server
 		operation_mode_name = "/" + component_name + '_controller/OperationMode'
 		action_server_name = "/" + component_name + '_controller/joint_trajectory_action'
-		rospy.set_param(operation_mode_name, "position")
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, JointTrajectoryAction)
 		# trying to connect to server
@@ -436,7 +507,10 @@ class simple_script_server:
 			return ah
 		else:
 			rospy.logdebug("%s action server ready",action_server_name)
-
+		
+		# set operation mode to position
+		self.set_operation_mode(component_name,"position")
+		
 		# sending goal
 		self.check_pause()
 		client_goal = JointTrajectoryGoal()
@@ -487,7 +561,7 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		self.check_pause()
+		#self.check_pause()
 		client_goal = MoveCartGoal()
 		client_goal.goal_pose = pose
 		#print client_goal
@@ -506,7 +580,17 @@ class simple_script_server:
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def set_operation_mode(self,component_name,mode,blocking=False):
 		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
-		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo change to service call
+		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo remove and only use service call
+		#rospy.wait_for_service("/" + component_name + "_controller/set_operation_mode")
+		try:
+			set_operation_mode = rospy.ServiceProxy("/" + component_name + "_controller/set_operation_mode", SetOperationMode)
+			req = SetOperationModeRequest()
+			req.operationMode.data = mode
+			print req
+			resp = set_operation_mode(req)
+			print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
 			
 #------------------- LED section -------------------#
 	## Set the color of the cob_light component.
@@ -520,8 +604,6 @@ class simple_script_server:
 		ah.parameter_name = parameter_name
 		
 		rospy.loginfo("Set light to %s",parameter_name)
-		pub = rospy.Publisher('light_controller/command', Light)
-		rospy.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
@@ -568,8 +650,9 @@ class simple_script_server:
 		color.b = param[2]
 
 		# publish color		
-		pub.publish(color)
+		self.pub_light.publish(color)
 		
+		ah.set_succeeded()
 		ah.error_code = 0
 		return ah
 
@@ -580,20 +663,21 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter
 	# \param language Language to use for the TTS system
-	def say(self,parameter_name,language="en"):
+	def say(self,parameter_name,blocking=True):
 		component_name = "sound"
-		ah = action_handle()
-		ah.component_name = component_name
-		ah.parameter_name = parameter_name
+		ah = action_handle("say", component_name, parameter_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+			
 		text = ""
-		
-		rospy.loginfo("Saying <<%s>>",parameter_name)
 		
 		# get values from parameter server
 		if type(parameter_name) is str:
 			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
-				ah.error_code = 2
+				ah.set_failed(2)
 				return ah
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
 		else:
@@ -603,7 +687,7 @@ class simple_script_server:
 		if not type(param) is list: # check list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
-				ah.error_code = 3
+				ah.set_failed(3)
 				return ah
 		else:
 			for i in param:
@@ -611,13 +695,44 @@ class simple_script_server:
 				if not type(i) is str:
 					rospy.logerr("no valid parameter for %s: not a list of strings, aborting...",component_name)
 					print "parameter is:",param
-					ah.error_code = 3
+					ah.set_failed(3)
 					return ah
 				else:
 					text = text + i + " "
 					rospy.logdebug("accepted parameter <<%s>> for <<%s>>",i,component_name)
-		#print text
-		self.soundhandle.say(text)
+
+		rospy.loginfo("Saying <<%s>>",text)
+		#self.soundhandle.say(text)
+		if blocking:
+			os.system("echo " + text + " | text2wave | aplay -q")
+		else:
+			os.system("echo " + text + " | text2wave | aplay -q &")
+		ah.set_succeeded()
+		return ah
+
+	## Play a sound file.
+	#
+	# \param parameter_name Name of the parameter
+	# \param language Language to use
+	def play(self,parameter_name,blocking=True):
+		component_name = "sound"
+		ah = action_handle("play", component_name, parameter_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		wav_path = "~/git/care-o-bot/cob_apps/cob_script_server/common/files/wav_de/"
+		filename = wav_path + parameter_name + ".wav"
+		
+		rospy.loginfo("Playing <<%s>>",filename)
+		#self.soundhandle.playWave(filename)
+		if blocking:
+			os.system("aplay -q " + filename)
+		else:
+			os.system("aplay -q " + filename + "&")
+		ah.set_succeeded()
+		return ah
 
 	def Speak(self,parameter_name,mode="DEFAULT"):
 #		ah = action_handle()
