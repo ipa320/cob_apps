@@ -12,10 +12,10 @@ from simple_script_server import script
 class RandomMoves(script):
 
 	def Initialize(self):
-		self.sss.init("sdh")
+		#self.sss.init("sdh")
 		self.sss.init("tray")
 		self.sss.init("torso")
-		#self.sss.init("arm")	
+		self.sss.init("arm")	
 
 	def Run(self):
 		seed()
@@ -30,15 +30,17 @@ class RandomMoves(script):
 			r1 = (random()-0.5)*2*maxVal;
 			r2 = (random()-0.5)*2*maxVal;
 			self.sss.move("torso",[[0.5*r1,0.5*r2,r1,r2]])
-			#self.sss.move("arm","pregrasp")
-			#self.sss.move_cart_rel("arm",[0.0, 0.0, 0.1], [0.0, 0.0, 0.0])
+			self.sss.move("arm","pregrasp")
+			self.sss.move_cart_rel("arm",[[0.0, 0.0, 0.1], [0.0, 0.0, 0.0]])
+			self.sss.move_cart_rel("arm",[[0.0, 0.0, -0.1], [0.0, 0.0, 0.0]])
 			#self.sss.move("sdh","cylopen")
 			#self.sss.move("sdh","cylclosed")
 			#self.sss.move("arm","folded")
 			self.sss.sleep(1)
-		self.sss.move("sdh","home")
-		self.sss.wait_for_input()
+		self.sss.move("sdh","home",False)
 		self.sss.move("torso","home",False)
+		#self.sss.move("arm","folded",False)
+		self.sss.move("tray","up")
 		
 if __name__ == "__main__":
 	SCRIPT = RandomMoves()

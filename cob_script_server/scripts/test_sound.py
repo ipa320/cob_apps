@@ -11,7 +11,6 @@ from script_utils import *
 
 from sound_play.libsoundplay import SoundClient
 
-
 class Test_Sound(script):
 	def Run(self):
 		rospy.loginfo("Testing Sound modes...")
@@ -63,4 +62,4 @@ class Test_Sound(script):
 		
 if __name__ == "__main__":
 	SCRIPT = Test_Sound()
-	SCRIPT.Start('test_sound')
+	SCRIPT.Start()

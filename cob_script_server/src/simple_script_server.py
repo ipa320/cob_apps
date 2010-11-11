@@ -74,6 +74,8 @@ from trajectory_msgs.msg import *
 from geometry_msgs.msg import *
 from pr2_controllers_msgs.msg import *
 from move_base_msgs.msg import *
+from move_arm_msgs.msg import *
+from motion_planning_msgs.msg import *
 from tf.transformations import *
 from std_msgs.msg import String
 from sound_play.libsoundplay import SoundClient
@@ -81,7 +83,6 @@ from sound_play.libsoundplay import SoundClient
 # care-o-bot includes
 from cob_msgs.msg import *
 from cob_srvs.srv import *
-#from cob_actions.msg import *
 
 # graph includes
 import pygraphviz as pgv
@@ -253,6 +254,99 @@ class simple_script_server:
 			return self.move_base(component_name,parameter_name,blocking)
 		else:
 			return self.move_traj(component_name,parameter_name,blocking)
+
+	#todo: decide about success/failure return value
+	def move_planned(self, component_name, parameter_name, blocking=True):
+		if(self.parse):
+			return -1		
+
+		if component_name == "arm":
+			rospy.loginfo("Move Arm Planned!")
+			client = actionlib.SimpleActionClient('move_arm', MoveArmAction)
+			client.wait_for_server()
+
+			joint_names = ["arm_1_joint", "arm_2_joint", "arm_3_joint", "arm_4_joint", "arm_5_joint", "arm_6_joint", "arm_7_joint"]
+
+			goal = MoveArmGoal()
+			# Fill in the goal here
+			goal.motion_plan_request.group_name = "arm"
+			goal.motion_plan_request.num_planning_attempts = 1
+			goal.motion_plan_request.allowed_planning_time = rospy.Duration(5.0)
+
+			goal.motion_plan_request.planner_id= ""
+			goal.planner_service_name = "ompl_planning/plan_kinematic_path"
+			goal.motion_plan_request.goal_constraints.joint_constraints=[]
+			
+			for i in range(len(joint_names)):
+				new_constraint = JointConstraint()
+				new_constraint.joint_name = joint_names[i]
+				new_constraint.position = 0.0
+				new_constraint.tolerance_below = 0.1
+				new_constraint.tolerance_above = 0.1
+				goal.motion_plan_request.goal_constraints.joint_constraints.append(new_constraint)
+
+			# get joint values from parameter server
+			if type(parameter_name) is str:
+				if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
+					rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
+				param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
+			else:
+				param = parameter_name
+				rospy.loginfo("Getting joint values from parameter server failed")
+
+			# check trajectory parameters
+			if not type(param) is list: # check outer list
+					rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
+					print "parameter is:",param
+			else:
+				for i in param:
+					#print i,"type1 = ", type(i)
+					if not type(i) is list: # check inner list
+						rospy.logerr("no valid parameter for %s: not a list of lists, aborting...",component_name)
+						print "parameter is:",param
+					else:
+						if not len(i) == len(joint_names): # check dimension
+							rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(i))
+							print "parameter is:",param
+						else:
+							for j in i:
+								#print j,"type2 = ", type(j)
+								if not ((type(j) is float) or (type(j) is int)): # check type
+									#print type(j)
+									rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
+									print "parameter is:",param
+								else:
+									rospy.logdebug("accepted parameter %f for %s",j,component_name)
+
+			#fill into message
+			#pregrasp hardcoded			
+			#goal.motion_plan_request.goal_constraints.joint_constraints[0].position = 	-1.2986303567886353
+			#goal.motion_plan_request.goal_constraints.joint_constraints[1].position = 	-1.9999999245021005
+			#goal.motion_plan_request.goal_constraints.joint_constraints[2].position = 	-2.0263538360595703
+			#goal.motion_plan_request.goal_constraints.joint_constraints[3].position = 	-1.3672049045562744
+			#goal.motion_plan_request.goal_constraints.joint_constraints[4].position = 	0.88282591104507446
+			#goal.motion_plan_request.goal_constraints.joint_constraints[5].position = 	1.0767384767532349
+			#goal.motion_plan_request.goal_constraints.joint_constraints[6].position = 	-2.2612252235412598
+
+			#no need for trajectories anymore, since planning (will) guarantee collision-free motion!
+			traj_endpoint = param[len(param)-1]
+			for k in range(len(traj_endpoint)):
+				#print "traj_endpoint[%d]: %f", k, traj_endpoint[k]
+				goal.motion_plan_request.goal_constraints.joint_constraints[k].position = traj_endpoint[k]
+
+			#print "goal_position: "
+			#print goal.motion_plan_request.goal_constraints.joint_constraints
+	
+			finished_within_time = False
+			client.send_goal(goal)
+			finished_within_time = client.wait_for_result(rospy.Duration(200.0))
+			if finished_within_time:
+				rospy.loginfo("Planned motion finished within time!")
+			else:
+				rospy.loginfo("This all takes too long...!")
+		else:
+			rospy.loginfo("Planned motion only available for component 'arm'! Aborting...")
+
 
 	## Deals with movements of the base.
 	#
@@ -586,9 +680,9 @@ class simple_script_server:
 			set_operation_mode = rospy.ServiceProxy("/" + component_name + "_controller/set_operation_mode", SetOperationMode)
 			req = SetOperationModeRequest()
 			req.operationMode.data = mode
-			print req
+			#print req
 			resp = set_operation_mode(req)
-			print resp
+			#print resp
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
 			
@@ -663,7 +757,7 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter
 	# \param language Language to use for the TTS system
-	def say(self,parameter_name,blocking=True):
+	def say(self,parameter_name,language="en",blocking=True):
 		component_name = "sound"
 		ah = action_handle("say", component_name, parameter_name, False, self.parse)
 		if(self.parse):

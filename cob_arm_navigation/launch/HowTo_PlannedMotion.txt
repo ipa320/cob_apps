@@ -1,0 +1,34 @@
+in .bashrc:
+export ROBOT=cob3-1
+export ROBOT_ENV=brics_rc 
+
+
+1)
+export ROBOT_ENV=empty_world (only for this terminal)
+roslaunch cob_bringup cob3-sim.launch
+
+2)
+rosrun rviz rviz
+
+3)
+roslaunch cob_gazebo_world brics_rc_world_urdf.launch
+roslaunch cob_gazebo_world table_brics_rc_urdf.launch
+
+4)
+roslaunch cob_2dnav move_base.launch
+
+5)
+roslaunch cob_arm_navigation cob3_arm_navigation.launch
+
+6)
+roscd cob_arm_navigation
+./bin/addURDF ~/git/care-o-bot/cob_simulation/cob_gazebo_worlds/common/worlds/brics_rc_world.urdf brics_rc_world
+./bin/addURDF ~/git/care-o-bot/cob_simulation/cob_gazebo_worlds/objects/table_brics_rc.urdf table
+./bin/addFloor
+
+7)
+roslaunch cob_script_server script_server.launch
+
+8)
+rosrun cob_script_server grasp_planned.py
+
