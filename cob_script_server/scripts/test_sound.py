@@ -13,53 +13,34 @@ from sound_play.libsoundplay import SoundClient
 
 class Test_Sound(script):
 	def Run(self):
-		rospy.loginfo("Testing Sound modes...")
+		if not self.sss.parse:
+			rospy.loginfo("Testing Sound modes...")
+			rospy.loginfo("If you can't hear something, check soundcard number (#card) with:")
+			rospy.loginfo("    cat /proc/asound/cards")
+			rospy.loginfo("Initialize card with:")
+			rospy.loginfo("    alsactrl init #card")
 		for i in range(1):
 			self.sss.say(["Hello, my name is Care-O-bot."])
-			self.sss.sleep(5)
 			
 			self.sss.say(["Hello, my name is Care-O-bot.","How are you?"])
-			self.sss.sleep(5)
 			
 			self.sss.say("sent00")
-			self.sss.sleep(5)
 			
 			self.sss.say("sent00","de")
-			self.sss.sleep(5)
 
 			self.sss.say(123)
 			self.sss.say([123])
-			
-#			rospy.loginfo("Speaking with default mode")
-#			self.sss.Speak("sent00")
-#
-#			rospy.loginfo("Speaking Cepstral English")
-#			self.sss.Speak("sent01","CEPS_EN")
-#
-#			rospy.loginfo("Speaking Cepstral German")
-#			self.sss.Speak("sent01","CEPS_DE")
-#
-#			rospy.loginfo("Speaking WAV German")
-#			self.sss.Speak("grasp_tutorial_01","WAV_DE")
-#
-#			rospy.loginfo("Speaking WAV English")
-#			self.sss.Speak("sent01","WAV_EN")
-#
-#			rospy.loginfo("Speaking Festival English")
-#			self.sss.Speak("sent01","FEST_EN")
-#
-#			rospy.loginfo("Setting sound to 'mute'")
-#			self.sss.Speak("sent01","MUTE")
-#			self.sss.Speak("sent01","CEPS_EN")
-#
-#			rospy.loginfo("Selecting invalid mode")
-#			self.sss.Speak("sent01","SPAM")
 
-			time.sleep(2)
-			rospy.loginfo("\n\n")
+			self.sss.say(["Hello, my name is Care-O-bot.","How are you?"],False)
+			self.sss.sleep(1)
+			self.sss.say(["This is a non blocking voice."])
 
-		print "finished"
+			rospy.set_param("script_server/sound/language","de")
+			self.sss.play("grasp_tutorial_01")
 		
+			rospy.set_param("script_server/sound/language","en")
+			self.sss.play("grasp_tutorial_01")
+
 if __name__ == "__main__":
 	SCRIPT = Test_Sound()
 	SCRIPT.Start()
