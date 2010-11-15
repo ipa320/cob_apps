@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find cob_machine)/cob3-sim.machine" /> 
+  
+  <!-- send additional description parameters -->
+  <!-- already loaded: <include file="$(find pr2_arm_navigation_config)/launch/pr2_planning_environment.launch" /> -->
+
+  <!-- set laser tilt rate -->
+  <!-- <node pkg="pr2_mechanism_controllers" type="send_periodic_cmd_srv.py" name="laser_tilt_controller_3dnav_params" args="laser_tilt_controller linear 3 .75 .25" /> -->
+  
+  <!-- convert tilt laser scan to pointcloud -->
+<!--  
+	<node machine="c2" pkg="laser_filters" type="scan_to_cloud_filter_chain" output="screen" name="scan_to_cloud_filter_chain_tilt_laser">
+    <remap from="scan" to="tilt_scan"/>
+    <remap from="cloud_filtered" to="tilt_scan_cloud"/>
+    <param name="target_frame" type="string" value="base_link"/>
+    <rosparam command="load" file="$(find pr2_arm_navigation_perception)/config/shadow_filter.yaml" />
+  </node>
+-->
+
+  <!-- need to clear known objects from scans -->
+<!--
+  <node machine="c2" pkg="planning_environment" type="clear_known_objects" name="laser_clear_objects" output="screen">
+    <remap from="cloud_in" to="tilt_scan_cloud" />
+    <remap from="cloud_out" to="tilt_scan_cloud_known" />
+    <param name="sensor_frame" type="string" value="laser_tilt_mount_link" />    	   
+    <param name="fixed_frame" type="string" value="base_link" />
+    <param name="object_padd" type="double" value="0.02" />
+    <param name="object_scale" type="double" value="1.0" />
+  </node>
+-->
+
+  <!-- displaying known model markers -->
+<!--
+  <include file="$(find planning_environment)/launch/display_planner_collision_model.launch" />
+  <include file="$(find planning_environment)/launch/display_planner_collision_model_ik.launch" />
+-->
+	
+  <!-- need to individually self filter scans -->
+<!--  <include file="$(find pr2_arm_navigation_perception)/launch/tilt_laser_self_filter.launch" /> -->
+
+  <!-- assemble pointcloud into a full world view -->
+<!--
+  <node machine="c2" pkg="laser_assembler" type="point_cloud_assembler" output="screen"  name="point_cloud_assembler">
+    <remap from="cloud" to="tilt_scan_cloud_filtered"/>
+    <param name="tf_cache_time_secs" type="double" value="10.0" />
+    <param name="tf_tolerance_secs" type="double" value="0.0" />
+    <param name="max_clouds" type="int" value="400" />
+    <param name="ignore_laser_skew" type="bool" value="true" />
+    <param name="fixed_frame" type="string" value="base_link" />
+  </node>
+-->
+<!--  
+  <node machine="c2" pkg="pr2_arm_navigation_perception" type="pr2_laser_snapshotter" output="screen" name="snapshotter">
+    <remap from="laser_scanner_signal" to="laser_tilt_controller/laser_scanner_signal"/>
+    <remap from="build_cloud" to="point_cloud_assembler/build_cloud" />
+    <remap from="full_cloud" to="full_cloud_filtered" />
+  </node>
+-->
+  
+  <!-- start collision map -->
+<!--  <include file="$(find pr2_arm_navigation_perception)/launch/collision_map_self_occ.launch" />    -->
+  
+</launch>

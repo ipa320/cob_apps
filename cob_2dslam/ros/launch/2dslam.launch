@@ -5,11 +5,23 @@
 	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
 		<remap from="scan" to="scan_front"/>
 		<param name="maxUrange" type="int" value="8"/>
-		<param name="xmin" type="int" value="-20"/>
-		<param name="ymin" type="int" value="-20"/>
-		<param name="xmax" type="int" value="20"/>
-		<param name="ymax" type="int" value="20"/>
+		<param name="xmin" type="int" value="-8"/>
+		<param name="ymin" type="int" value="-8"/>
+		<param name="xmax" type="int" value="8"/>
+		<param name="ymax" type="int" value="8"/>
 		<param name="odom_frame" type="string" value="odom_combined"/>
+	</node>
+
+	<!-- Robot pose ekf -->
+	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
+		<param name="freq" value="30.0"/>
+		<param name="sensor_timeout" value="1.0"/>
+		<param name="publish_tf" value="true"/>
+		<param name="odom_used" value="true"/>
+		<param name="imu_used" value="true"/>
+		<param name="vo_used" value="false"/>
+		<remap from="odom" to="base_odometry/odom" />
+		<remap from="imu_data" to="torso_lift_imu/data" />
 	</node>
 
 </launch>

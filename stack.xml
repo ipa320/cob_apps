@@ -8,19 +8,20 @@
   <license>LGPL</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_apps</url>
-  <depend stack="cob_common" /> <!-- cob_utilities, cob_msgs, cob_actions, cob_machine, cob_srvs -->
-  <depend stack="cob_driver" /> <!-- cob_relayboard, cob_platform, cob_sick_s300, cob_arm, cob_hokuyo, cob_tf_broadcaster, cob_tray, cob_joy, cob_undercarriage_ctrl, cob_camera_sensors, cob_sdh, cob_camera_axis, cob_base_drive_chain, cob_point_cloud_publisher, cob_torso -->
+  <depend stack="cob_common" /> <!-- cob_utilities, cob_msgs, cob_machine, cob_srvs -->
+  <depend stack="cob_driver" /> <!-- cob_relayboard, cob_sick_s300, cob_base, cob_hokuyo, cob_tray, cob_joy, cob_arm, cob_head_axis, cob_camera_sensors, cob_sdh, cob_base_drive_chain, cob_point_cloud_publisher, cob_torso -->
   <depend stack="cob_simulation" /> <!-- cob_gazebo -->
   <depend stack="common" /> <!-- actionlib -->
   <depend stack="common_msgs" /> <!-- sensor_msgs, geometry_msgs -->
-  <depend stack="geometry" /> <!-- kdl, tf, tf_conversions -->
+  <depend stack="geometry" /> <!-- tf, kdl, tf_conversions -->
   <depend stack="kinematics" /> <!-- kinematics_msgs -->
   <depend stack="navigation" /> <!-- move_base_msgs, move_base -->
   <depend stack="pr2_controllers" /> <!-- trajectory_msgs, pr2_controllers_msgs -->
-  <depend stack="robot_model" /> <!-- kdl_parser -->
+  <depend stack="robot_model" /> <!-- robot_state_publisher, kdl_parser -->
   <depend stack="ros" /> <!-- std_msgs, rospy, roscpp -->
   <depend stack="slam_gmapping" /> <!-- gmapping -->
   <depend stack="sound_drivers" /> <!-- sound_play -->
+  <depend stack="vision_opencv" /> <!-- opencv2, cv_bridge -->
   <depend stack="visualization_common" /> <!-- visualization_msgs -->
 
 </stack>

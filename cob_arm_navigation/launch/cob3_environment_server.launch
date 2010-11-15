@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- send additional description parameters -->
+  <include file="$(find cob_arm_navigation)/launch/cob3_planning_environment.launch" />
+
+  <node pkg="planning_environment" type="environment_server" output="screen" name="cob3_environment_server">      
+    <remap from="collision_map" to="collision_map_occ" />
+		<remap from="collision_map_update" to="collision_map_occ_update" />
+    
+    <param name="group" type="string" value="arm" />
+    <param name="allow_valid_collisions" type="bool" value="false" />
+
+    <param name="collision_map_safety_timeout" type="double" value="100000.0" />
+    <param name="joint_states_safety_timeout" type="double" value="1.0" />
+    <param name="bounding_planes" type="string" value="0 0 1 -0.01" />
+
+    <param name="pointcloud_padd" type="double" value="0.00" />
+
+    <param name="contacts_to_compute_for_display" type="int" value="50" />
+
+		<param name="use_collision_map" type="bool" value="false" />
+
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_environment_server_padding.yaml" />		
+
+  </node>
+
+</launch>
+

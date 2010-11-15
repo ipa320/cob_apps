@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find cob_machine)/cob3-sim.machine" />  
+  <node machine="pc1" pkg="ompl_planning" type="motion_planner" name="ompl_planning" respawn="true" output="screen">
+    <remap from="robot_description" to="robot_description" />  
+    <remap from="collision_map" to="collision_map_occ" />
+    <remap from="collision_map_update" to="collision_map_occ_update" />
+    
+    <!-- if we are moving the base, it is best to maintain the map in a fixed frame since identified objects that are being published
+	 are not necessarily updated -->
+    <!--    <param name="planner_frame_id" type="string" value="odom_combined" /> -->
+
+    <!-- planner configs -->
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_ompl_planning_configs.yaml" />
+
+    <param name="state_delay" type="double" value="0.01" />
+    <param name="pointcloud_padd" type="double" value="0.00" />
+    
+    <param name="refresh_interval_collision_map" type="double" value="5.0" />
+    <param name="refresh_interval_kinematic_state" type="double" value="1.0" />
+    <param name="bounding_planes" type="string" value="0 0 1 -0.01" />
+    <param name="verbose_collisions" type="bool" value="false" />
+
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_robot_padding.yaml" />			
+  </node>
+
+  <node machine="pc1" pkg="ompl_search" type="search_state" name="ompl_search" respawn="true" output="screen">
+    <remap from="robot_description" to="robot_description" />
+    <remap from="collision_map" to="collision_map_occ" />
+    <remap from="collision_map_update" to="collision_map_occ_update" />    
+    <!-- if we are moving the base, it is best to maintain the map in a fixed frame since identified objects that are being published
+         are not necessarily updated -->
+    <!--    <param name="planner_frame_id" type="string" value="odom_combined" /> -->
+    <!-- planner configs -->
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_ompl_planning_configs.yaml" />
+
+    <param name="pointcloud_padd" type="double" value="0.00" />
+
+    <param name="refresh_interval_collision_map" type="double" value="5.0" />
+    <param name="refresh_interval_kinematic_state" type="double" value="1.0" />
+    <param name="bounding_planes" type="string" value="0 0 1 -0.01" />
+    <param name="verbose_collisions" type="bool" value="false" />
+
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_robot_padding.yaml" />			
+
+  </node>
+
+</launch>
