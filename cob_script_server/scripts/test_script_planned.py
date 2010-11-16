@@ -21,12 +21,17 @@ class TestScript(script):
 		#self.sss.move("sdh","home",False)
 		#self.sss.move("tray","down")
 		handle01.wait()
-		#self.sss.move("base","home")
+		self.sss.move("base","rc_table_planning")
+		if not self.sss.parse:
+			print "Please RE-add known objects"
+		self.sss.wait_for_input()
 
 		#planned motion
-		self.sss.move_planned("arm","pregrasp")
+		#self.sss.move_planned("arm","over_table")
+		#self.sss.move_planned("arm","under_table")
+		self.sss.move("arm","under_table")
 
-		self.sss.move_planned("arm","overtablet")
+		#self.sss.move_planned("arm","overtablet")
 
 
 		
