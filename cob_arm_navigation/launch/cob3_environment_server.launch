@@ -18,7 +18,9 @@
 
     <param name="contacts_to_compute_for_display" type="int" value="50" />
 
-		<param name="use_collision_map" type="bool" value="false" />
+	<param name="use_collision_map" type="bool" value="false" />
+
+	<param name="global_frame" type="string" value="/map" />
 
     <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_environment_server_padding.yaml" />		
 
