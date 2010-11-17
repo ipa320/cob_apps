@@ -37,7 +37,7 @@ class GraspScript(script):
 	
 		# prepare for grasping
 		#self.sss.move("base","kitchen")
-		self.sss.move("base","rc_table")
+		self.sss.move("base","rc_table_planning")
 		self.sss.move_planned("arm","pregrasp")
 		self.sss.move("sdh","cylopen")
 
