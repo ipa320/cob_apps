@@ -8,11 +8,13 @@
   [init,trigger,base,init],
   [recover,trigger,base,recover],
   [home,move,base,home],
-  [entrance,move,base,rc_entrance],
-  [table,move,base,rc_table],
-  [window,move,base,rc_window],
-  [cob1initial,move,base,cob1initial],
-  [cob1graspafter,move,base,cob1graspafter]]
+  [order,move,base,order],
+  [kitchen,move,base,kitchen]]
+#  [entrance,move,base,rc_entrance],
+#  [table,move,base,rc_table],
+#  [window,move,base,rc_window],
+#  [cob1initial,move,base,cob1initial],
+#  [cob1graspafter,move,base,cob1graspafter]]
 1 torso:
   [[stop,trigger,torso,stop],
   [init,trigger,torso,init],
