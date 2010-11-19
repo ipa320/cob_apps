@@ -693,11 +693,13 @@ class simple_script_server:
 	# The color is given by a parameter on the parameter server.
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
-	def set_light(self,parameter_name):
-		ah = action_handle()
-		ah.component_name = "light"
-		ah.parameter_name = parameter_name
-		
+	def set_light(self,parameter_name,blocking=False):
+		ah = action_handle("light", "", parameter_name, blocking, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+
 		rospy.loginfo("Set light to %s",parameter_name)
 		
 		# get joint values from parameter server
@@ -798,11 +800,11 @@ class simple_script_server:
 					rospy.logdebug("accepted parameter <<%s>> for <<%s>>",i,component_name)
 
 		rospy.loginfo("Saying <<%s>>",text)
-		#self.soundhandle.say(text)
 		if blocking:
 			os.system("echo " + text + " | text2wave | aplay -q")
 		else:
-			os.system("echo " + text + " | text2wave | aplay -q &")
+			self.soundhandle.say(text)
+			#os.system("echo " + text + " | text2wave | aplay -q &")
 		ah.set_succeeded()
 		return ah
 
