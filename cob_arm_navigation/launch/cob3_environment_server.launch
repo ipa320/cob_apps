@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <!-- send additional description parameters -->
-  <include file="$(find cob_planning)/launch/cob3_planning_environment.launch" />
+  <include file="$(find cob_arm_navigation)/launch/cob3_planning_environment.launch" />
 
   <node pkg="planning_environment" type="environment_server" output="screen" name="cob3_environment_server">      
     <remap from="collision_map" to="collision_map_occ" />
@@ -20,7 +20,7 @@
 
 		<param name="use_collision_map" type="bool" value="false" />
 
-    <rosparam command="load" file="$(find cob_planning)/config/cob3_environment_server_padding.yaml" />		
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_environment_server_padding.yaml" />		
 
   </node>
 

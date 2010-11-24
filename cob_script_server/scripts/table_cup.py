@@ -27,6 +27,7 @@ class GraspScript(script):
 		self.sss.init("base")
 		
 		self.thumb_sub = rospy.Subscriber("/sdh_thumb_2_bumper/state",ContactsState,self.callback)
+		self.thumb_sub = rospy.Subscriber("/sdh_controller/tactile_data",TactileSensor,self.callback_hw)
 		
 		# move to initial positions
 		

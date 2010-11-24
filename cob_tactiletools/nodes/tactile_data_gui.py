@@ -169,7 +169,7 @@ try:
     window.present()
     #ROS Subscribes
     rospy.init_node('TactileSensorView', anonymous=True)
-    rospy.Subscriber("/sdh/tactile_data", TactileSensor, roscb)
+    rospy.Subscriber("/sdh_controller/tactile_data", TactileSensor, roscb)
     gtk.main()
 except KeyboardInterrupt:
     main_quit("tut", "tut")

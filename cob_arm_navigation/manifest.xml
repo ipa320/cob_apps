@@ -11,6 +11,13 @@
 	<depend package="pr2_arm_navigation_tutorials"/>
 	<depend package="actionlib"/>
 	<depend package="pr2_controllers_msgs"/>
+	<depend package="tinyxml"/>
+	<depend package="planning_models"/>
+	<depend package="planning_environment"/>
+	<depend package="assimp"/>
+	<depend package="bullet"/>
+	<depend package= "tf"/>
+	<depend package= "gazebo"/>
 
 </package>
 

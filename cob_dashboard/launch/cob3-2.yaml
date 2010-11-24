@@ -6,6 +6,7 @@
 0 base:
   [[stop,trigger,base,stop],
   [init,trigger,base,init],
+  [recover,trigger,base,recover],
   [home,move,base,home],
   [order,move,base,order],
   [kitchen,move,base,kitchen]]

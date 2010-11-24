@@ -81,7 +81,7 @@ class CalibCam(script):
 				R32 = cpitch*sroll
 				R33 = cpitch*croll
 				fout = open(file_path+'calpic'+str(i)+'.coords','w')
-				fout.write(str(R11)+' '+str(R12)+' '+str(R13)+' '+str(trans[0])+'\n'+str(R21)+' '+str(R22)+' '+str(R23)+' '+str(trans[1])+'\n'+str(R31)+' '+str(R32)+' '+str(R33)+' '+str(trans[2]))
+				fout.write(str(R11)+' '+str(R12)+' '+str(R13)+' '+str(trans[0]*1000)+'\n'+str(R21)+' '+str(R22)+' '+str(R23)+' '+str(trans[1]*1000)+'\n'+str(R31)+' '+str(R32)+' '+str(R33)+' '+str(trans[2]*1000))
 				fout.close()
 			except (tf.LookupException, tf.ConnectivityException):
 				print "tf exception"
