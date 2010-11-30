@@ -24,8 +24,9 @@ class CalibCam(script):
 		self.bridge = CvBridge()
 		self.image_sub = rospy.Subscriber("/stereo/right/image_color",Image,self.callback)
 		self.cv_image = cv.CreateImage((1,1), 1 , 3)
-		self.sss.init("torso")
 		self.sss.init("head")
+		self.sss.init("torso")
+		self.sss.init("sdh")
 
 	def Run(self):
 		print "start"
