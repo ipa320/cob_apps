@@ -25,6 +25,7 @@ class CalibCam(script):
 		self.image_sub = rospy.Subscriber("/stereo/right/image_color",Image,self.callback)
 		self.cv_image = cv.CreateImage((1,1), 1 , 3)
 		self.sss.init("torso")
+		self.sss.init("head")
 
 	def Run(self):
 		print "start"
@@ -35,6 +36,7 @@ class CalibCam(script):
 		nr_images = 14
 
 		# move components to initial position
+		self.sss.move("head","back")
 		self.sss.move("arm","calib")
 		self.sss.move("torso","home")
 		self.sss.move("sdh","home")
