@@ -14,7 +14,5 @@
   <depend package="cob_teleop"/>
   <depend package="cob_sick_s300"/>
   <depend package="cob_hokuyo"/>
-  <depend package="cob_camera_sensors"/>
-  <depend package="cob_point_cloud_publisher"/>
 
 </package>

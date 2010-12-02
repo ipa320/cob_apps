@@ -62,6 +62,7 @@ import os
 import sys
 import types
 import thread
+import commands
 
 # ROS imports
 import roslib
@@ -83,7 +84,6 @@ from sound_play.libsoundplay import SoundClient
 # care-o-bot includes
 from cob_msgs.msg import *
 from cob_srvs.srv import *
-#from cob_actions.msg import *
 
 # graph includes
 import pygraphviz as pgv
@@ -681,9 +681,9 @@ class simple_script_server:
 			set_operation_mode = rospy.ServiceProxy("/" + component_name + "_controller/set_operation_mode", SetOperationMode)
 			req = SetOperationModeRequest()
 			req.operationMode.data = mode
-			print req
+			#print req
 			resp = set_operation_mode(req)
-			print resp
+			#print resp
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
 			
@@ -693,11 +693,13 @@ class simple_script_server:
 	# The color is given by a parameter on the parameter server.
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
-	def set_light(self,parameter_name):
-		ah = action_handle()
-		ah.component_name = "light"
-		ah.parameter_name = parameter_name
-		
+	def set_light(self,parameter_name,blocking=False):
+		ah = action_handle("light", "", parameter_name, blocking, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+
 		rospy.loginfo("Set light to %s",parameter_name)
 		
 		# get joint values from parameter server
@@ -769,6 +771,7 @@ class simple_script_server:
 		text = ""
 		
 		# get values from parameter server
+		language = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/language","en")
 		if type(parameter_name) is str:
 			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name):
 				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + language + "/" + parameter_name)
@@ -797,11 +800,11 @@ class simple_script_server:
 					rospy.logdebug("accepted parameter <<%s>> for <<%s>>",i,component_name)
 
 		rospy.loginfo("Saying <<%s>>",text)
-		#self.soundhandle.say(text)
 		if blocking:
 			os.system("echo " + text + " | text2wave | aplay -q")
 		else:
-			os.system("echo " + text + " | text2wave | aplay -q &")
+			self.soundhandle.say(text)
+			#os.system("echo " + text + " | text2wave | aplay -q &")
 		ah.set_succeeded()
 		return ah
 
@@ -817,8 +820,9 @@ class simple_script_server:
 		else:
 			ah.set_active()
 		
-		wav_path = "~/git/care-o-bot/cob_apps/cob_script_server/common/files/wav_de/"
-		filename = wav_path + parameter_name + ".wav"
+		language = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/language","en")
+		wav_path = commands.getoutput("rospack find cob_script_server")
+		filename = wav_path + "/common/files/" + language + "/" + parameter_name + ".wav"
 		
 		rospy.loginfo("Playing <<%s>>",filename)
 		#self.soundhandle.playWave(filename)

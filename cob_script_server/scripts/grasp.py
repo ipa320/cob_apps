@@ -36,8 +36,8 @@ class GraspScript(script):
 		listener = tf.TransformListener(True, rospy.Duration(10.0))
 	
 		# prepare for grasping
-		self.sss.move("base","kitchen")
-		#self.sss.move("base","rc_table")
+		#self.sss.move("base","kitchen")
+		self.sss.move("base","table")
 		self.sss.move("arm","pregrasp")
 		self.sss.move("sdh","cylopen")
 
@@ -45,12 +45,15 @@ class GraspScript(script):
 		cup = PointStamped()
 		cup.header.stamp = rospy.Time.now()
 		cup.header.frame_id = "/map"
-		cup.point.x = -2.95
-		cup.point.y = 0.1
-		cup.point.z = 0.98
+		#cup.point.x = -2.95
+		#cup.point.y = 0.1
+		#cup.point.z = 0.98
 		#cup.point.x = 2.48
 		#cup.point.y = 1.22
 		#cup.point.z = 0.85
+		cup.point.x = -0.2
+		cup.point.y = -0.7
+		cup.point.z = 1.2
 		self.sss.sleep(2)
 		
 		if not self.sss.parse:
@@ -67,6 +70,7 @@ class GraspScript(script):
 		handle01 = self.sss.move("arm","grasp-to-tablet",False)
 		self.sss.move("tray","up")
 		handle01.wait()
+		self.sss.move("arm","tablet")
 		self.sss.move("sdh","cylopen")
 		self.sss.move_cart_rel("arm",[[0.0, 0.0, -0.2], [0, 0, 0]])
 		handle01 = self.sss.move("arm","tablet-to-folded",False)
@@ -75,8 +79,8 @@ class GraspScript(script):
 		handle01.wait()
 
 		# deliver cup to home
-		self.sss.move("base","table")
-		self.sss.move("base","rc_entrance")
+		#self.sss.move("base","rc_entrance")
+		self.sss.move("base","order")
 		#say("here's your drink")
 		self.sss.move("torso","nod")
 
