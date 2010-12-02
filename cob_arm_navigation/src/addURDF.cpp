@@ -115,7 +115,6 @@ int main(int argc, char** argv) {
   collision_object.poses.resize(URDF_links.size());
   
 
-  //BEACTE: Reihenfolge Joints, Reihenfolge Links!!! Linkreihenfolge nicht wie in urdf-file! leave2root? (model.getParentJoint, model.getChildJoint nur deklariert, nicht implementiert)
   joints_it=URDF_joints.begin();
   for (unsigned int i=1; i<URDF_links.size(); i++)
   {
@@ -145,23 +144,12 @@ int main(int argc, char** argv) {
 									   		 current_parent_joint->parent_to_joint_origin_transform.position.z));
 	  tf::Pose pose2;
 	  pose2.mult(world2dummy, dummy2link);
-	  //tf::Vector3 origin = pose2.getOrigin();
-	  //ROS_INFO("Composed Pose: (%f, %f, %f)", origin.getX(), origin.getY(), origin.getZ());
-	  //pose = tf::Transform(tf::Quaternion(current_link.collision->origin.rotation.x, current_link.collision->origin.rotation.y, current_link.collision->origin.rotation.z, current_link.collision->origin.rotation.w), tf::Vector3(current_link.collision->origin.position.x, current_link.collision->origin.position.y, current_link.collision->origin.position.z));
-	  /*pose = tf::Transform(tf::Quaternion(current_parent_joint->parent_to_joint_origin_transform.rotation.x, 
-										  current_parent_joint->parent_to_joint_origin_transform.rotation.y, 
-										  current_parent_joint->parent_to_joint_origin_transform.rotation.z, 
-										  current_parent_joint->parent_to_joint_origin_transform.rotation.w), 
-						   tf::Vector3(current_parent_joint->parent_to_joint_origin_transform.position.x + srv.response.pose.position.x, 
-									   current_parent_joint->parent_to_joint_origin_transform.position.y + srv.response.pose.position.y, 
-									   current_parent_joint->parent_to_joint_origin_transform.position.z + srv.response.pose.position.z));*/
+
 	  tf::Stamped<tf::Pose> stamped_pose_in;
 	  stamped_pose_in.stamp_ = ros::Time::now();
 	  stamped_pose_in.frame_id_ = frame_id;
 	  stamped_pose_in.setData(pose2);
 	  
-	  //transformation necessary!!!
-	  //use information from joints and get_model_state (see above!)
 
 
 	  //// TODO: fill in collision_object
