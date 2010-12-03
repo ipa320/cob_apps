@@ -94,14 +94,14 @@ class GtkGeneralPanel(gtk.Frame):
     self.add(self.vbox)
     #hbox=gtk.HBox(True, 0)
     #image = gtk.Image()
-    #image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/share/icons/batti-040.png")
+    #image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/batti-040.png")
     #hbox.pack_start(image, False, False, 0)
     #label = gtk.Label("40 %")
     #hbox.pack_start(label, False, False, 0)
     #self.vbox.pack_start(hbox, False, False, 5)    
     hbox=gtk.HBox(True, 0)
     self.status_image = gtk.Image()
-    self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/share/icons/weather-clear.png")
+    self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
     hbox.pack_start(self.status_image, False, False, 0)
     self.status_label = gtk.Label("Status OK")
     hbox.pack_start(self.status_label, False, False, 0)
@@ -118,7 +118,7 @@ class GtkGeneralPanel(gtk.Frame):
   def setEMStop(self, em):
     if(em):
       #print "Emergency Stop Active"
-      self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/share/icons/weather-storm.png")
+      self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-storm.png")
       self.status_label.set_text("EM Stop !")
       if(self.em_stop == False):
         self.em_stop = True
@@ -127,7 +127,7 @@ class GtkGeneralPanel(gtk.Frame):
         n.show()
     else:
       #print "Status OK"
-      self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/share/icons/weather-clear.png")
+      self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
       self.status_label.set_text("Status OK")
       if(self.em_stop == True):
         self.em_stop = False

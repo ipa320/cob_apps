@@ -4,7 +4,7 @@
      This package contain special launch files used by the web interface 
 
   </description>
-  <author>Ulrich Reiser, email: ulrich.reiser@ipa.fraunhofer.de</author>
+  <author>Ulrich Reiser</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_webportal</url>
