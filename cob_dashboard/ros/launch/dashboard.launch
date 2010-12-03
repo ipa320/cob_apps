@@ -3,7 +3,7 @@
 
 	<!-- upload button parameters, but delete the old ones before -->
 	<rosparam command="delete" param="dashboard/buttons"/>
-	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/launch/$(env ROBOT).yaml"/>
+	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_dashboard)/ros/launch/$(env ROBOT).yaml"/>
 	
 	<!-- upload script server parameters -->
 	<include ns="script_server" file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
