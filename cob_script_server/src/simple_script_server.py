@@ -223,22 +223,35 @@ class simple_script_server:
 		rospy.loginfo("<<%s>> <<%s>>", service_name, component_name)
 		rospy.loginfo("Wait for <<%s>> to <<%s>>...", component_name, service_name)
 		service_full_name = "/" + component_name + "_controller/" + service_name
+		
+		# check if service is available
 		try:
 			rospy.wait_for_service(service_full_name,rospy.get_param('server_timeout',3))
 		except rospy.ROSException, e:
-			print "Service not available: %s"%e
+			error_message = "%s"%e
+			rospy.logerr("...<<%s>> service of <<%s>> not available, error: %s",service_name, component_name, error_message)
 			ah.set_failed(4)
 			return ah
+		
+		# check if service is callable
 		try:
 			init = rospy.ServiceProxy(service_full_name,Trigger)
 			#print init()
-			init()
+			resp = init()
 		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
+			error_message = "%s"%e
+			rospy.logerr("...calling <<%s>> service of <<%s>> not successfull, error: %s",service_name, component_name, error_message)
 			ah.set_failed(10)
 			return ah
-		rospy.loginfo("...<<%s>> is <<%s>>", component_name, service_name)
 		
+		# evaluate sevice response
+		if not resp.success.data:
+			rospy.logerr("...<<%s>> <<%s>> not successfull, error: %s",service_name, component_name, resp.error_message.data) 
+			ah.set_failed(10)
+			return ah
+		
+		# full success
+		rospy.loginfo("...<<%s>> is <<%s>>", component_name, service_name)
 		ah.set_succeeded() # full success
 		return ah
 

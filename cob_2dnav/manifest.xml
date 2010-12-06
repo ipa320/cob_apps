@@ -4,7 +4,7 @@
      This Package provides launch files for running Care-O-bot with the ROS navigation stack.
 
   </description>
-  <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
+  <author>Florian Weisshardt</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_2dnav</url>

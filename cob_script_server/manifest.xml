@@ -4,7 +4,7 @@
      The cob_script_server package provides a simple interface to operate Care-O-bot. It can be used via the python API or the actionlib interface.
 
   </description>
-  <author>Florian Weisshardt, email:florian.weisshardt@ipa.fhg.de</author>
+  <author>Florian Weisshardt</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_script_server</url>
@@ -27,4 +27,5 @@
   <depend package="gazebo_plugins"/>
   
   <rosdep name="pygraphviz"/>
+  
 </package>

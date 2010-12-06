@@ -12,13 +12,9 @@
   <include file="$(find cob_sick_s300)/ros/launch/rear.launch" />
   <include file="$(find cob_hokuyo)/ros/launch/hokuyo.launch" />
 
-  <!-- start tof_camera and cob_point_cloud_publisher -->
-  <!--include file="$(find cob_camera_sensors)/ros/launch/cob3-2_tof.launch" /-->
-  <!--include file="$(find cob_point_cloud_publisher)/ros/launch/point_cloud_publisher.launch" /-->
-  
   <!-- start teleoperated base -->
   <include file="$(find cob_base)/ros/launch/base.launch" />
-  <include file="$(find cob_teleop)/ros/launch/cob_teleop.launch" />
+  <include file="$(find cob_teleop)/ros/launch/teleop.launch" />
  
   <!-- start move base -->
   <include file="$(find cob_2dnav)/ros/launch/move_base.launch" />

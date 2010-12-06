@@ -160,7 +160,7 @@ int NodeClass::init(){
 	cob_srvs::Trigger data;
     srvClient_InitPltf.call(data);
 
-    if(data.response.success != true) {
+    if(data.response.success.data != true) {
         ROS_ERROR("Failed to initialize Platform using base_drive_chain_node");
         return 1;
     } else ROS_INFO("Successfully initialized base_drive_chain_node");

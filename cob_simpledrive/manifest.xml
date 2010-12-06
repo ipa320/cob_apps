@@ -1,13 +1,13 @@
 <package>
-  <description brief="drive_identification">
+  <description brief="cob_simpledrive">
 
-     drive_identification
+     cob_simpledrive
 
   </description>
-  <author>Christian Connette, email:christian.connette@ipa.fhg.de</author>
+  <author>Christian Connette</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/drive_identification</url>
+  <url>http://ros.org/wiki/cob_simpledrive</url>
   
   <depend package="roscpp"/>
   <depend package="cob_base_drive_chain"/>

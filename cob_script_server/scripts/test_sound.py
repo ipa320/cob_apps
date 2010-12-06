@@ -18,7 +18,7 @@ class Test_Sound(script):
 			rospy.loginfo("If you can't hear something, check soundcard number (#card) with:")
 			rospy.loginfo("    cat /proc/asound/cards")
 			rospy.loginfo("Initialize card with:")
-			rospy.loginfo("    alsactrl init #card")
+			rospy.loginfo("    alsactl init #card")
 		for i in range(1):
 			self.sss.say(["Hello, my name is Care-O-bot."])
 			
