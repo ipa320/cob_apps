@@ -178,7 +178,6 @@ class simple_script_server:
 
 		# base
 		self.pub_base = rospy.Publisher('base_controller/command', Twist)
-
 		rospy.sleep(1)
 
 #------------------- Init section -------------------#
@@ -687,13 +686,13 @@ class simple_script_server:
 	# \param mode Name of the operation mode to set.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def set_operation_mode(self,component_name,mode,blocking=False):
-		rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
+		#rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
 		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo remove and only use service call
 		#rospy.wait_for_service("/" + component_name + "_controller/set_operation_mode")
 		try:
 			set_operation_mode = rospy.ServiceProxy("/" + component_name + "_controller/set_operation_mode", SetOperationMode)
 			req = SetOperationModeRequest()
-			req.operationMode.data = mode
+			req.operation_mode.data = mode
 			#print req
 			resp = set_operation_mode(req)
 			#print resp
