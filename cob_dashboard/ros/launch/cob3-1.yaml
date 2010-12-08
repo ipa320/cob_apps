@@ -59,8 +59,9 @@
   [recover,trigger,sdh,recover],
   [home,move,sdh,home],
   [cyl. closed,move,sdh,cylclosed],
-  [spher. open,move,sdh,spheropen],
-  [spher. closed,move,sdh,spherclosed]]
+  [cyl. open,move,sdh,cylopen],
+  [spher. closed,move,sdh,spherclosed],
+  [spher. open,move,sdh,spheropen]]
 7 eyes:
   [[stop,trigger,head,stop],
   [init,trigger,head,init],

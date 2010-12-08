@@ -1293,5 +1293,5 @@ class action_handle:
 			rospy.logwarn("Execution of <<%s>> to <<%s>> was aborted, wait not possible. Continuing...",self.component_name, self.parameter_name)
 			self.set_failed(self.error_code)
 			return
-		
+			
 		self.set_succeeded() # full success
