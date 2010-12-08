@@ -23,9 +23,8 @@
   <depend stack="pr2_controllers" /> <!-- trajectory_msgs, pr2_controllers_msgs -->
   <depend stack="robot_model" /> <!-- assimp, robot_state_publisher, kdl_parser -->
   <depend stack="ros" /> <!-- std_msgs, rospy, roscpp -->
-  <depend stack="simulator_gazebo" /> <!-- gazebo, gazebo_plugins -->
+  <depend stack="simulator_gazebo" /> <!-- gazebo -->
   <depend stack="slam_gmapping" /> <!-- gmapping -->
-  <depend stack="vision_opencv" /> <!-- opencv2, cv_bridge -->
   <depend stack="visualization_common" /> <!-- visualization_msgs -->
 
 </stack>
