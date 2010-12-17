@@ -13,6 +13,7 @@
   <depend package="geometry_msgs"/>
   <depend package="sensor_msgs"/>
   <depend package="trajectory_msgs"/>
+  <depend package="brics_actuator"/>
   <depend package="cob_joy"/>
   <depend package="cob_torso"/>
   <depend package="cob_tray"/>
