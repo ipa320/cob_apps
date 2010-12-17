@@ -132,7 +132,9 @@ public:
   ros::Publisher torso_pub_; //publish topic torso_controller/command
   ros::Publisher torso_vel_pub_; //publish topic torso_controller/command_vel
   ros::Publisher tray_pub_; //publish topic tray_controller/command
+  ros::Publisher tray_vel_pub_; //publish topic tray_controller/command_vel
   ros::Publisher arm_pub_; //publish topic arm_controller/command
+  ros::Publisher arm_vel_pub_; //publish topic arm_controller/command_vel
   ros::Publisher base_pub_; //publish topic base_controller/command
 
   bool got_init_values_;
@@ -247,7 +249,9 @@ void TeleopCOB::init()
   torso_pub_ = n_.advertise<trajectory_msgs::JointTrajectory> ("/torso_controller/command", 1);
   torso_vel_pub_ = n_.advertise<brics_actuator::JointVelocities> ("/torso_controller/command_vel", 1);
   tray_pub_ = n_.advertise<trajectory_msgs::JointTrajectory> ("/tray_controller/command", 1);
+  tray_vel_pub_ = n_.advertise<brics_actuator::JointVelocities> ("/tray_controller/command_vel", 1);
   arm_pub_ = n_.advertise<trajectory_msgs::JointTrajectory> ("/arm_controller/command", 1);
+  arm_vel_pub_ = n_.advertise<brics_actuator::JointVelocities> ("/arm_controller/command_vel", 1);
   base_pub_ = n_.advertise<geometry_msgs::Twist> ("/base_controller/command", 1);
 }
 
@@ -662,17 +666,17 @@ void TeleopCOB::update_torso()
   // joint 2
   joint_vel.joint_uri = "torso_lower_neck_tilt_joint";
   joint_vel.unit = "rad";
-  joint_vel.value = req_lower_pan_vel_;
+  joint_vel.value = req_lower_tilt_vel_;
   cmd_vel.velocities.push_back(joint_vel);
   // joint 3
   joint_vel.joint_uri = "torso_upper_neck_pan_joint";
   joint_vel.unit = "rad";
-  joint_vel.value = req_lower_pan_vel_;
+  joint_vel.value = req_upper_pan_vel_;
   cmd_vel.velocities.push_back(joint_vel);
   // joint 4
   joint_vel.joint_uri = "torso_upper_neck_tilt_joint";
   joint_vel.unit = "rad";
-  joint_vel.value = req_lower_pan_vel_;
+  joint_vel.value = req_upper_tilt_vel_;
   cmd_vel.velocities.push_back(joint_vel);
 
   torso_vel_pub_.publish(cmd_vel);
@@ -701,6 +705,17 @@ void TeleopCOB::update_tray()
   traj.points[0].time_from_start = ros::Duration(horizon);
 
   tray_pub_.publish(traj);
+
+  brics_actuator::JointVelocities cmd_vel;
+  brics_actuator::JointValue joint_vel;
+  joint_vel.timeStamp = traj.header.stamp;
+  // joint 1
+  joint_vel.joint_uri = "torso_tray_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_tray_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+
+  tray_vel_pub_.publish(cmd_vel);
 
   //update current position
   req_tray_ += req_tray_vel_ * dt;
@@ -740,8 +755,50 @@ void TeleopCOB::update_arm()
   traj.points[0].velocities.push_back(req_j7_vel_); //joint7
   traj.points[0].time_from_start = ros::Duration(horizon);
 
+  brics_actuator::JointVelocities cmd_vel;
+  brics_actuator::JointValue joint_vel;
+  joint_vel.timeStamp = traj.header.stamp;
+  // joint 1
+  joint_vel.joint_uri = "arm_1_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_j1_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+  // joint 2
+  joint_vel.joint_uri = "arm_2_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_j2_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+  // joint 3
+  joint_vel.joint_uri = "arm_3_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_j3_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+  // joint 4
+  joint_vel.joint_uri = "arm_4_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_j4_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+  // joint 5
+  joint_vel.joint_uri = "arm_5_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_j5_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+  // joint 6
+  joint_vel.joint_uri = "arm_6_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_j6_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+  // joint 7
+  joint_vel.joint_uri = "arm_7_joint";
+  joint_vel.unit = "rad";
+  joint_vel.value = req_j7_vel_;
+  cmd_vel.velocities.push_back(joint_vel);
+
   if (publish_arm_)
+  {
     arm_pub_.publish(traj);
+    arm_vel_pub_.publish(cmd_vel);
+  }
 
   //update current position
   req_j1_ += req_j1_vel_ * dt;
