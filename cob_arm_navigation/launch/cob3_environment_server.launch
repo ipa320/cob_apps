@@ -17,7 +17,9 @@
 
     <!--param name="pointcloud_padd" type="double" value="0.00" /-->
 
-    <param name="contacts_to_compute_for_display" type="int" value="50" />
+    <!-- it's enough to find one single contact to say that an collision occured -->
+    <!-- don't spend unecessary effort to compute more contact points -->
+    <param name="contacts_to_compute_for_display" type="int" value="1" />
 
 	<param name="use_collision_map" type="bool" value="false" />
 	
