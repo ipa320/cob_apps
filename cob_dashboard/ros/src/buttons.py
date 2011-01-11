@@ -85,6 +85,8 @@ class buttons:
 				print button
 				if button[1] == "move":
 					buttons.append(self.CreateButton(button[0],self.sss.move,button[2],button[3]))
+				elif button[1] == "move_planned":
+					buttons.append(self.CreateButton(button[0],self.sss.move_planned,button[2],button[3]))
 				elif button[1] == "trigger":
 					buttons.append(self.CreateButton(button[0],self.sss.trigger,button[2],button[3]))
 				elif button[1] == "mode":

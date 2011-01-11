@@ -275,7 +275,7 @@ class simple_script_server:
 
 		if component_name == "arm":
 			rospy.loginfo("Move Arm Planned!")
-			client = actionlib.SimpleActionClient('move_arm', MoveArmAction)
+			client = actionlib.SimpleActionClient('/move_arm', MoveArmAction)
 			client.wait_for_server()
 
 			joint_names = ["arm_1_joint", "arm_2_joint", "arm_3_joint", "arm_4_joint", "arm_5_joint", "arm_6_joint", "arm_7_joint"]
@@ -287,7 +287,9 @@ class simple_script_server:
 			goal.motion_plan_request.allowed_planning_time = rospy.Duration(5.0)
 
 			goal.motion_plan_request.planner_id= ""
+			#choose planner
 			goal.planner_service_name = "ompl_planning/plan_kinematic_path"
+			#goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
 			goal.motion_plan_request.goal_constraints.joint_constraints=[]
 			
 			for i in range(len(joint_names)):
