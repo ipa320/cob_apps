@@ -287,7 +287,7 @@ void TeleopCOB::setInitValues()
   req_vx_ = req_vy_ = req_vth_ = 0.0;
   vx_old_ = vy_old_ = vth_old_ = 0.0;
 
-  for (int i = 0; i < joint_names_.size(); i++)
+  for (unsigned int i = 0; i < joint_names_.size(); i++)
   {
     ROS_DEBUG("joint_name = %s, joint_init_value = %f",joint_names_[i].c_str(),joint_init_values_[i]);
   }
@@ -307,9 +307,9 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
   if (!got_init_values_ && stopped_ && joy_active_)
   {
     ROS_DEBUG("joint_states_cb: getting init values");
-    for (int j = 0; j < joint_names_.size(); j++)
+    for (unsigned int j = 0; j < joint_names_.size(); j++)
     {
-      for (int i = 0; i < joint_states_msg->name.size(); i++)
+      for (unsigned int i = 0; i < joint_states_msg->name.size(); i++)
       {
         if (joint_states_msg->name[i] == joint_names_[j])
         {
@@ -607,7 +607,7 @@ void TeleopCOB::update()
   // set initial values
   if (!got_init_values_)
   {
-    if (time_for_init_ < 5.0) // wait for 5 sec, then set init values to 0.0
+    if (time_for_init_ < 1.0) // wait for 1.0 sec, then set init values to 0.0
     {
       ROS_DEBUG("still waiting for initial values, time_for_init_ = %f",time_for_init_);
       time_for_init_ = time_for_init_ + 1.0 / PUBLISH_FREQ;
