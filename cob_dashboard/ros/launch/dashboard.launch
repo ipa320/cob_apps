@@ -4,8 +4,8 @@
 	<!-- upload button parameters, but delete the old ones before -->
 	<rosparam command="delete" param="dashboard/buttons"/>
 	<rosparam command="delete" param="dashboard/nav_buttons"/>
-	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_default/config)/dashboards/control_buttons_$(env ROBOT).yaml"/>
-	<rosparam command="load" ns="dashboard/nav_buttons" file="$(find cob_default/config)/dashboards/nav_buttons_$(env ROBOT_ENV).yaml"/>
+	<rosparam command="load" ns="dashboard/buttons" file="$(find cob_default_config)/dashboards/control_buttons_$(env ROBOT).yaml"/>
+	<rosparam command="load" ns="dashboard/nav_buttons" file="$(find cob_default_config)/dashboards/nav_buttons_$(env ROBOT_ENV).yaml"/>
 	
 	<!-- upload script server parameters -->
 	<include ns="script_server" file="$(find cob_script_server)/launch/upload_param_$(env ROBOT).launch"/>
