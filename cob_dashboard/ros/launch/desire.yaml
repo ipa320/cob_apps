@@ -10,26 +10,19 @@
   [home,move,base,home],
   [order,move,base,order],
   [kitchen,move,base,kitchen]]
-1 torso:
-  [[stop,trigger,torso,stop],
-  [init,trigger,torso,init],
-  [recover,trigger,torso,recover],
-  [enable joystick,mode,torso,velocity],
-  [home,move,torso,home],
-  [front,move,torso,front],
-  [back,move,torso,back],
-  [left,move,torso,left],
-  [right,move,torso,right],
-  [shake,move,torso,shake],
-  [nod,move,torso,nod]]
-2 tray:
-  [[stop,trigger,tray,stop],
-  [init,trigger,tray,init],
-  [recover,trigger,tray,recover],
-  [enable joystick,mode,tray,velocity],
-  [up,move,tray,up],
-  [down,move,tray,down]]
-3 arm settings:
+1 head:
+  [[stop,trigger,head,stop],
+  [init,trigger,head,init],
+  [recover,trigger,head,recover],
+  [enable joystick,mode,head,velocity],
+  [home,move,head,home],
+  [front,move,head,front],
+  [back,move,head,back],
+  [left,move,head,left],
+  [right,move,head,right],
+  [shake,move,head,shake],
+  [nod,move,head,nod]]
+2 arm settings:
   [[stop,trigger,arm,stop],
   [init,trigger,arm,init],
   [recover,trigger,arm,recover],
@@ -40,31 +33,37 @@
   [velocity mode,mode,arm,velocity],
   [gravcomp mode,mode,arm,gravcomp],
   [positionhold mode,mode,arm,positionhold]]
-4 arm pos:
-  [[stop,trigger,arm,stop],
-  [home,move,arm,home],
-  [folded,move,arm,folded],
-  [pregrasp,move,arm,pregrasp],
-  [grasp,move,arm,grasp],
-  [overtablet,move,arm,overtablet],
-  [tablet,move,arm,tablet]]
-5 arm traj:
-  [[stop,trigger,arm,stop],
-  [folded-to-pregrasp,move,arm,folded-to-pregrasp],
-  [grasp-to-tablet,move,arm,grasp-to-tablet],
-  [tablet-to-folded,move,arm,tablet-to-folded]]
-6 sdh:
-  [[stop,trigger,sdh,stop],
-  [init,trigger,sdh,init],
-  [recover,trigger,sdh,recover],
-  [home,move,sdh,home],
-  [cyl. closed,move,sdh,cylclosed],
-  [cyl. open,move,sdh,cylopen],
-  [spher. closed,move,sdh,spherclosed],
-  [spher. open,move,sdh,spheropen]]
-7 eyes:
-  [[stop,trigger,head,stop],
-  [init,trigger,head,init],
-  [recover,trigger,head,recover],
-  [front,move,head,front],
-  [back,move,head,back]]
+3 arm left pos:
+  [[stop,trigger,arm_left,stop],
+  [home,move,arm_left,home],
+  [folded,move,arm_left,folded],
+  [pregrasp,move,arm_left,pregrasp],
+  [grasp,move,arm_left,grasp],
+  [overtablet,move,arm_left,overtablet],
+  [tablet,move,arm_left,tablet]]
+4 arm right pos:
+  [[stop,trigger,arm_right,stop],
+  [home,move,arm_right,home],
+  [folded,move,arm_right,folded],
+  [pregrasp,move,arm_right,pregrasp],
+  [grasp,move,arm_right,grasp],
+  [overtablet,move,arm_right,overtablet],
+  [tablet,move,arm_right,tablet]]
+5 sdh left:
+  [[stop,trigger,sdh_left,stop],
+  [init,trigger,sdh_left,init],
+  [recover,trigger,sdh_left,recover],
+  [home,move,sdh_left,home],
+  [cyl. closed,move,sdh_left,cylclosed],
+  [cyl. open,move,sdh_left,cylopen],
+  [spher. closed,move,sdh_left,spherclosed],
+  [spher. open,move,sdh_left,spheropen]]
+6 sdh right:
+  [[stop,trigger,sdh_right,stop],
+  [init,trigger,sdh_right,init],
+  [recover,trigger,sdh_right,recover],
+  [home,move,sdh_right,home],
+  [cyl. closed,move,sdh_right,cylclosed],
+  [cyl. open,move,sdh_right,cylopen],
+  [spher. closed,move,sdh_right,spherclosed],
+  [spher. open,move,sdh_right,spheropen]]
