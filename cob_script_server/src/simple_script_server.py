@@ -535,10 +535,18 @@ class simple_script_server:
 			joint_names = ["torso_tray_joint"]
 		elif component_name == "torso":
 			joint_names = ["torso_lower_neck_pan_joint","torso_lower_neck_tilt_joint","torso_upper_neck_pan_joint","torso_upper_neck_tilt_joint"]
+		elif component_name == "arm_right":
+			joint_names = ["arm_right_1_joint","arm_right_2_joint","arm_right_3_joint","arm_right_4_joint","arm_right_5_joint","arm_right_6_joint","arm_right_7_joint"]
+		elif component_name == "arm_left":
+			joint_names = ["arm_left_1_joint","arm_left_2_joint","arm_left_3_joint","arm_left_4_joint","arm_left_5_joint","arm_left_6_joint","arm_left_7_joint"]
 		elif component_name == "arm":
 			joint_names = ["arm_1_joint","arm_2_joint","arm_3_joint","arm_4_joint","arm_5_joint","arm_6_joint","arm_7_joint"]
 		elif component_name == "sdh":
 			joint_names = ["sdh_thumb_2_joint", "sdh_thumb_3_joint", "sdh_finger_11_joint", "sdh_finger_12_joint", "sdh_finger_13_joint", "sdh_finger_21_joint", "sdh_finger_22_joint", "sdh_finger_23_joint"]
+		elif component_name == "sdh_left":
+			joint_names = ["sdh_left_thumb_2_joint", "sdh_left_thumb_3_joint", "sdh_left_finger_11_joint", "sdh_left_finger_12_joint", "sdh_left_finger_13_joint", "sdh_left_finger_21_joint", "sdh_left_finger_22_joint", "sdh_left_finger_23_joint"]
+		elif component_name == "sdh_right":
+			joint_names = ["sdh_right_thumb_2_joint", "sdh_right_thumb_3_joint", "sdh_right_finger_11_joint", "sdh_right_finger_12_joint", "sdh_right_finger_13_joint", "sdh_right_finger_21_joint", "sdh_right_finger_22_joint", "sdh_right_finger_23_joint"]
 		elif component_name == "head":
 			joint_names = ["head_axis_joint"]
 		else:
