@@ -564,51 +564,68 @@ class simple_script_server:
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
 		else:
 			param = parameter_name
-		
+
 		# check trajectory parameters
 		if not type(param) is list: # check outer list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
 				ah.set_failed(3)
 				return ah
-		else:
-			for i in param:
-				#print i,"type1 = ", type(i)
-				if not type(i) is list: # check inner list
-					rospy.logerr("no valid parameter for %s: not a list of lists, aborting...",component_name)
+
+		traj = []
+
+		for point in param:
+			#print point,"type1 = ", type(point)
+			if type(point) is str:
+				if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + point):
+					rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + point)
+					ah.set_failed(2)
+					return ah
+				point = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + point)
+				point = point[0] # \todo hack because only first point is used, no support for trajectories inside trajectories
+				#print point
+			elif type(point) is list:
+				rospy.logdebug("point is a list")
+			else:
+				rospy.logerr("no valid parameter for %s: not a list of lists or strings, aborting...",component_name)
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			# here: point should be list of floats/ints
+			print point
+			if not len(point) == len(joint_names): # check dimension
+				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(point))
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			for value in point:
+				#print value,"type2 = ", type(value)
+				if not ((type(value) is float) or (type(value) is int)): # check type
+					#print type(value)
+					rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 					print "parameter is:",param
 					ah.set_failed(3)
 					return ah
-				else:
-					if not len(i) == len(joint_names): # check dimension
-						rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(i))
-						print "parameter is:",param
-						ah.set_failed(3)
-						return ah
-					else:
-						for j in i:
-							#print j,"type2 = ", type(j)
-							if not ((type(j) is float) or (type(j) is int)): # check type
-								#print type(j)
-								rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
-								print "parameter is:",param
-								ah.set_failed(3)
-								return ah
-							else:
-								rospy.logdebug("accepted parameter %f for %s",j,component_name)
+			
+				rospy.logdebug("accepted value %f for %s",value,component_name)
+			traj.append(point)
+
+		rospy.logdebug("accepted trajectory for %s",component_name)
 		
-		# convert to trajectory message
-		traj = JointTrajectory()
-		traj.header.stamp = rospy.Time.now()+rospy.Duration(0.5)
-		traj.joint_names = joint_names
+		# convert to ROS trajectory message
+		traj_msg = JointTrajectory()
+		traj_msg.header.stamp = rospy.Time.now()+rospy.Duration(0.5)
+		traj_msg.joint_names = joint_names
 		point_nr = 0
-		for i in param:
+		for point in traj:
 			point_nr = point_nr + 1
-			point = JointTrajectoryPoint()
-			point.positions = i
-			point.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
-			traj.points.append(point)
-		
+			point_msg = JointTrajectoryPoint()
+			point_msg.positions = point
+			point_msg.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
+			traj_msg.points.append(point_msg)
+
 		# call action server
 		operation_mode_name = "/" + component_name + '_controller/OperationMode'
 		action_server_name = "/" + component_name + '_controller/joint_trajectory_action'
@@ -630,7 +647,7 @@ class simple_script_server:
 		# sending goal
 		self.check_pause()
 		client_goal = JointTrajectoryGoal()
-		client_goal.trajectory = traj
+		client_goal.trajectory = traj_msg
 		#print client_goal
 		self.client.send_goal(client_goal)
 		ah.set_client(self.client)

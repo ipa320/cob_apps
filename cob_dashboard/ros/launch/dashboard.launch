@@ -8,8 +8,8 @@
 	<rosparam command="load" ns="dashboard/nav_buttons" file="$(find cob_default_config)/dashboards/nav_buttons_$(env ROBOT_ENV).yaml"/>
 	
 	<!-- upload script server parameters -->
-	<include ns="script_server" file="$(find cob_default_config)/robots/$(env ROBOT)/upload_param.launch"/>
-	<include ns="script_server" file="$(find cob_default_config)/envs/$(env ROBOT_ENV)/upload_param.launch"/>
+	<include file="$(find cob_default_config)/robots/$(env ROBOT)/upload_param.launch"/>
+	<include file="$(find cob_default_config)/envs/$(env ROBOT_ENV)/upload_param.launch"/>
 	
 	<!-- start dashboard -->
 	<node pkg="cob_dashboard" type="knoeppkes.py" name="$(anon dashboard_node)" ns="dashboard" cwd="node" respawn="false" output="screen" />
