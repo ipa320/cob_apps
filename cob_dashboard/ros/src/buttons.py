@@ -65,11 +65,11 @@ class buttons:
 	def __init__(self):
 		self.sss = simple_script_server()
 		self.panels = []
-		self.CreatePanel()
+		self.CreateControlPanel()
 
-	## Creates the panel out of configuration from ROS parameter server
-	def CreatePanel(self):
-		param_prefix = "/dashboard/buttons"
+	## Creates the control panel out of configuration from ROS parameter server
+	def CreateControlPanel(self):
+		param_prefix = "/dashboard/control_buttons"
 		if not rospy.has_param(param_prefix):
 			rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",param_prefix)
 			return False
@@ -79,27 +79,39 @@ class buttons:
 		#print group_param
 		
 		for group in group_param:
-			print group[0]
+			group_name = group[1]["group_name"]
+			component_name = group[1]["component_name"] # \todo check component name with robot_components.yaml files
+			button_list = group[1]["buttons"]
 			buttons = []
-			for button in group[1]:
-				print button
+			for button in button_list:
+				#print "button = ",button
 				if button[1] == "move":
-					buttons.append(self.CreateButton(button[0],self.sss.move,button[2],button[3]))
-				elif button[1] == "move_planned":
-					buttons.append(self.CreateButton(button[0],self.sss.move_planned,button[2],button[3]))
+					buttons.append(self.CreateButton(button[0],self.sss.move,component_name,button[2]))
 				elif button[1] == "trigger":
-					buttons.append(self.CreateButton(button[0],self.sss.trigger,button[2],button[3]))
+					buttons.append(self.CreateButton(button[0],self.sss.trigger,component_name,button[2]))
 				elif button[1] == "mode":
-					buttons.append(self.CreateButton(button[0],self.sss.set_operation_mode,button[2],button[3]))
+					buttons.append(self.CreateButton(button[0],self.sss.set_operation_mode,component_name,button[2]))
 				else:
 					rospy.logerr("Function <<%s>> not known to dashboard",button[1])
 					return False
-			group = (group[0],buttons)
+			group = (group_name,buttons)
+			
+			# add nav buttons
+			if component_name == "base": # \todo get base name from robot_components.yaml
+				param_prefix = "/dashboard/nav_buttons"
+				if not rospy.has_param(param_prefix):
+					rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",param_prefix)
+					return False
+				nav_buttons_param = rospy.get_param(param_prefix)
+				nav_button_list = nav_buttons_param["buttons"]
+				#print nav_button_list
+				for button in nav_button_list:
+					#print "button = ",button
+					buttons.append(self.CreateButton(button[0],self.sss.move,component_name,button[2]))
 			self.panels.append(group)
 	
 	## Creates one button with functionality
 	def CreateButton(self,button_name,function,component_name,parameter_name):
-		#button = ([(button_name,function,(component_name,parameter_name)),])
 		button = (button_name,function,(component_name,parameter_name,False))
 		return button
 	
