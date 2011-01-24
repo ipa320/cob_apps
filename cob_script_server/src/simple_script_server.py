@@ -593,7 +593,7 @@ class simple_script_server:
 				return ah
 
 			# here: point should be list of floats/ints
-			print point
+			#print point
 			if not len(point) == len(joint_names): # check dimension
 				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(point))
 				print "parameter is:",param
