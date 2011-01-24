@@ -24,7 +24,7 @@
 # \date Date of creation: Aug 2010
 #
 # \brief
-#   Implementation of ROS node for script_server.
+#   Implements scrit server functionalities.
 #
 #################################################################
 #
@@ -151,6 +151,7 @@ class script():
 		self.graph_pub.publish(graph.string())
 		rospy.loginfo("...parsing finished")
 		function_counter = 0
+		return graph.string()
 
 ## Simple script server class.
 #
