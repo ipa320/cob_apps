@@ -24,7 +24,7 @@
 # \date Date of creation: Aug 2010
 #
 # \brief
-#   Implements scrit server functionalities.
+#   Implements script server functionalities.
 #
 #################################################################
 #
@@ -157,17 +157,12 @@ class script():
 #
 # Implements the python interface for the script server.
 class simple_script_server:
-	# Decides wether do use the ROS sound_play package play sound and speech or to start the services
-	#	directly via command line. The command line version has the great advantage that it works!
-	use_ROS_sound_play = False
-
 	## Initializes simple_script_server class.
 	#
 	# \param parse Defines wether to run script in simulation for graph generation or not
 	def __init__(self, parse=False):
 		global graph
 		self.ns_global_prefix = "/script_server"
-		#self.ns_global_prefix = ""
 		self.parse = parse
 		
 		# sound
@@ -175,11 +170,10 @@ class simple_script_server:
 		
 		# light
 		self.pub_light = rospy.Publisher('light_controller/command', Light)
-		rospy.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
 
 		# base
 		self.pub_base = rospy.Publisher('base_controller/command', Twist)
-		rospy.sleep(1)
+		rospy.sleep(1) # we have to wait here until publisher is ready, don't ask why
 
 #------------------- Init section -------------------#
 	## Initializes different components.
@@ -442,7 +436,6 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		self.check_pause()
 		client_goal = MoveBaseGoal()
 		client_goal.target_pose = pose
 		#print client_goal
@@ -646,7 +639,6 @@ class simple_script_server:
 		self.set_operation_mode(component_name,"position")
 		
 		# sending goal
-		self.check_pause()
 		client_goal = JointTrajectoryGoal()
 		client_goal.trajectory = traj_msg
 		#print client_goal
@@ -695,7 +687,6 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		#self.check_pause()
 		client_goal = MoveCartGoal()
 		client_goal.goal_pose = pose
 		#print client_goal
@@ -1119,28 +1110,6 @@ class simple_script_server:
 		ah.set_succeeded()
 		return retVal
 
-	## Checks if script is in pause mode
-	#
-	# Check if pause is globally set. If yes, enter a wait loop until the parameter is reset.
-	# 
-	# \todo check if pause is working
-	def check_pause(self):
-		pause_was_active = False
-		
-		if not rospy.has_param("/script_server/pause"):
-			return 1
-		while rospy.get_param("/script_server/pause"):
-			if not pause_was_active:
-				rospy.loginfo("ActionServer set to pause mode. Waiting for resume...")
-				pause_was_active = True
-			rospy.sleep(1)
-
-		if pause_was_active:
-			rospy.loginfo("Resuming...")
-			return 1
-		else:
-			return 0
-
 #------------------- action_handle section -------------------#	
 ## Action handle class.
 #
@@ -1168,14 +1137,26 @@ class action_handle:
 	def set_client(self,client):
 		self.client = client
 
-	## Sets the execution state to active.
+	## Sets the execution state to active, if not paused
 	def set_active(self):
+		self.check_pause()
 		self.state = ScriptState.ACTIVE
 		self.error_code = -1
 		self.PublishState()
 		
 		global ah_counter
 		ah_counter += 1
+		
+	## Checks for pause
+	def check_pause(self):
+		param_string = "/script_server/pause"
+		while bool(rospy.get_param(param_string,False)):
+			rospy.logwarn("Script is paused...")
+			self.state = ScriptState.PAUSED
+			self.PublishState()
+			rospy.sleep(1)
+		if self.state == ScriptState.PAUSED:
+			rospy.loginfo("...continuing script")
 		
 	## Sets the execution state to succeeded.
 	def set_succeeded(self):

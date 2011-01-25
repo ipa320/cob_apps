@@ -116,6 +116,8 @@ def state_cb(msg):
 		n.attr['fillcolor']='green'
 	elif msg.state == ScriptState.FAILED:
 		n.attr['fillcolor']='red'
+	elif msg.state == ScriptState.PAUSED:
+		n.attr['fillcolor']='orange'
 	else:
 		n.attr['fillcolor']='blue'
 	dotcode = G.string()
