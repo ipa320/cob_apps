@@ -24,7 +24,7 @@
 # \date Date of creation: Aug 2010
 #
 # \brief
-#   Implementation of ROS node for script_server.
+#   Implements script server functionalities.
 #
 #################################################################
 #
@@ -151,22 +151,18 @@ class script():
 		self.graph_pub.publish(graph.string())
 		rospy.loginfo("...parsing finished")
 		function_counter = 0
+		return graph.string()
 
 ## Simple script server class.
 #
 # Implements the python interface for the script server.
 class simple_script_server:
-	# Decides wether do use the ROS sound_play package play sound and speech or to start the services
-	#	directly via command line. The command line version has the great advantage that it works!
-	use_ROS_sound_play = False
-
 	## Initializes simple_script_server class.
 	#
 	# \param parse Defines wether to run script in simulation for graph generation or not
 	def __init__(self, parse=False):
 		global graph
 		self.ns_global_prefix = "/script_server"
-		#self.ns_global_prefix = ""
 		self.parse = parse
 		
 		# sound
@@ -174,11 +170,10 @@ class simple_script_server:
 		
 		# light
 		self.pub_light = rospy.Publisher('light_controller/command', Light)
-		rospy.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
 
 		# base
 		self.pub_base = rospy.Publisher('base_controller/command', Twist)
-		rospy.sleep(1)
+		rospy.sleep(1) # we have to wait here until publisher is ready, don't ask why
 
 #------------------- Init section -------------------#
 	## Initializes different components.
@@ -443,7 +438,6 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		self.check_pause()
 		client_goal = MoveBaseGoal()
 		client_goal.target_pose = pose
 		#print client_goal
@@ -566,51 +560,68 @@ class simple_script_server:
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
 		else:
 			param = parameter_name
-		
+
 		# check trajectory parameters
 		if not type(param) is list: # check outer list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
 				ah.set_failed(3)
 				return ah
-		else:
-			for i in param:
-				#print i,"type1 = ", type(i)
-				if not type(i) is list: # check inner list
-					rospy.logerr("no valid parameter for %s: not a list of lists, aborting...",component_name)
+
+		traj = []
+
+		for point in param:
+			#print point,"type1 = ", type(point)
+			if type(point) is str:
+				if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + point):
+					rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + point)
+					ah.set_failed(2)
+					return ah
+				point = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + point)
+				point = point[0] # \todo hack because only first point is used, no support for trajectories inside trajectories
+				#print point
+			elif type(point) is list:
+				rospy.logdebug("point is a list")
+			else:
+				rospy.logerr("no valid parameter for %s: not a list of lists or strings, aborting...",component_name)
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			# here: point should be list of floats/ints
+			#print point
+			if not len(point) == len(joint_names): # check dimension
+				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(point))
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			for value in point:
+				#print value,"type2 = ", type(value)
+				if not ((type(value) is float) or (type(value) is int)): # check type
+					#print type(value)
+					rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 					print "parameter is:",param
 					ah.set_failed(3)
 					return ah
-				else:
-					if not len(i) == len(joint_names): # check dimension
-						rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(i))
-						print "parameter is:",param
-						ah.set_failed(3)
-						return ah
-					else:
-						for j in i:
-							#print j,"type2 = ", type(j)
-							if not ((type(j) is float) or (type(j) is int)): # check type
-								#print type(j)
-								rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
-								print "parameter is:",param
-								ah.set_failed(3)
-								return ah
-							else:
-								rospy.logdebug("accepted parameter %f for %s",j,component_name)
+			
+				rospy.logdebug("accepted value %f for %s",value,component_name)
+			traj.append(point)
+
+		rospy.logdebug("accepted trajectory for %s",component_name)
 		
-		# convert to trajectory message
-		traj = JointTrajectory()
-		traj.header.stamp = rospy.Time.now()+rospy.Duration(0.5)
-		traj.joint_names = joint_names
+		# convert to ROS trajectory message
+		traj_msg = JointTrajectory()
+		traj_msg.header.stamp = rospy.Time.now()+rospy.Duration(0.5)
+		traj_msg.joint_names = joint_names
 		point_nr = 0
-		for i in param:
+		for point in traj:
 			point_nr = point_nr + 1
-			point = JointTrajectoryPoint()
-			point.positions = i
-			point.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
-			traj.points.append(point)
-		
+			point_msg = JointTrajectoryPoint()
+			point_msg.positions = point
+			point_msg.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
+			traj_msg.points.append(point_msg)
+
 		# call action server
 		operation_mode_name = "/" + component_name + '_controller/OperationMode'
 		action_server_name = "/" + component_name + '_controller/joint_trajectory_action'
@@ -630,9 +641,8 @@ class simple_script_server:
 		self.set_operation_mode(component_name,"position")
 		
 		# sending goal
-		self.check_pause()
 		client_goal = JointTrajectoryGoal()
-		client_goal.trajectory = traj
+		client_goal.trajectory = traj_msg
 		#print client_goal
 		self.client.send_goal(client_goal)
 		ah.set_client(self.client)
@@ -679,7 +689,6 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		#self.check_pause()
 		client_goal = MoveCartGoal()
 		client_goal.goal_pose = pose
 		#print client_goal
@@ -1103,28 +1112,6 @@ class simple_script_server:
 		ah.set_succeeded()
 		return retVal
 
-	## Checks if script is in pause mode
-	#
-	# Check if pause is globally set. If yes, enter a wait loop until the parameter is reset.
-	# 
-	# \todo check if pause is working
-	def check_pause(self):
-		pause_was_active = False
-		
-		if not rospy.has_param("/script_server/pause"):
-			return 1
-		while rospy.get_param("/script_server/pause"):
-			if not pause_was_active:
-				rospy.loginfo("ActionServer set to pause mode. Waiting for resume...")
-				pause_was_active = True
-			rospy.sleep(1)
-
-		if pause_was_active:
-			rospy.loginfo("Resuming...")
-			return 1
-		else:
-			return 0
-
 #------------------- action_handle section -------------------#	
 ## Action handle class.
 #
@@ -1152,14 +1139,26 @@ class action_handle:
 	def set_client(self,client):
 		self.client = client
 
-	## Sets the execution state to active.
+	## Sets the execution state to active, if not paused
 	def set_active(self):
+		self.check_pause()
 		self.state = ScriptState.ACTIVE
 		self.error_code = -1
 		self.PublishState()
 		
 		global ah_counter
 		ah_counter += 1
+		
+	## Checks for pause
+	def check_pause(self):
+		param_string = "/script_server/pause"
+		while bool(rospy.get_param(param_string,False)):
+			rospy.logwarn("Script is paused...")
+			self.state = ScriptState.PAUSED
+			self.PublishState()
+			rospy.sleep(1)
+		if self.state == ScriptState.PAUSED:
+			rospy.loginfo("...continuing script")
 		
 	## Sets the execution state to succeeded.
 	def set_succeeded(self):

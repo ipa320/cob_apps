@@ -2,8 +2,7 @@
 <launch>
 
 	<!-- upload button parameters, but delete the old ones before -->
-	<rosparam command="delete" param="dashboard/buttons"/>
-	<rosparam command="delete" param="dashboard/nav_buttons"/>
+	<rosparam command="delete" param="dashboard"/>
 	<rosparam command="load" ns="dashboard/control_buttons" file="$(find cob_default_config)/dashboards/control_buttons_$(env ROBOT).yaml"/>
 	<rosparam command="load" ns="dashboard/nav_buttons" file="$(find cob_default_config)/dashboards/nav_buttons_$(env ROBOT_ENV).yaml"/>
 	
