@@ -275,7 +275,7 @@ class simple_script_server:
 
 		if component_name == "arm":
 			rospy.loginfo("Move Arm Planned!")
-			client = actionlib.SimpleActionClient('move_arm', MoveArmAction)
+			client = actionlib.SimpleActionClient('/move_arm', MoveArmAction)
 			client.wait_for_server()
 
 			joint_names = ["arm_1_joint", "arm_2_joint", "arm_3_joint", "arm_4_joint", "arm_5_joint", "arm_6_joint", "arm_7_joint"]
@@ -287,7 +287,9 @@ class simple_script_server:
 			goal.motion_plan_request.allowed_planning_time = rospy.Duration(5.0)
 
 			goal.motion_plan_request.planner_id= ""
+			#choose planner
 			goal.planner_service_name = "ompl_planning/plan_kinematic_path"
+			#goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
 			goal.motion_plan_request.goal_constraints.joint_constraints=[]
 			
 			for i in range(len(joint_names)):
@@ -530,29 +532,30 @@ class simple_script_server:
 		
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		
-		# selecting component
-		if component_name == "tray":
-			joint_names = ["torso_tray_joint"]
-		elif component_name == "torso":
-			joint_names = ["torso_lower_neck_pan_joint","torso_lower_neck_tilt_joint","torso_upper_neck_pan_joint","torso_upper_neck_tilt_joint"]
-		elif component_name == "arm_right":
-			joint_names = ["arm_right_1_joint","arm_right_2_joint","arm_right_3_joint","arm_right_4_joint","arm_right_5_joint","arm_right_6_joint","arm_right_7_joint"]
-		elif component_name == "arm_left":
-			joint_names = ["arm_left_1_joint","arm_left_2_joint","arm_left_3_joint","arm_left_4_joint","arm_left_5_joint","arm_left_6_joint","arm_left_7_joint"]
-		elif component_name == "arm":
-			joint_names = ["arm_1_joint","arm_2_joint","arm_3_joint","arm_4_joint","arm_5_joint","arm_6_joint","arm_7_joint"]
-		elif component_name == "sdh":
-			joint_names = ["sdh_thumb_2_joint", "sdh_thumb_3_joint", "sdh_finger_11_joint", "sdh_finger_12_joint", "sdh_finger_13_joint", "sdh_finger_21_joint", "sdh_finger_22_joint", "sdh_finger_23_joint"]
-		elif component_name == "sdh_left":
-			joint_names = ["sdh_left_thumb_2_joint", "sdh_left_thumb_3_joint", "sdh_left_finger_11_joint", "sdh_left_finger_12_joint", "sdh_left_finger_13_joint", "sdh_left_finger_21_joint", "sdh_left_finger_22_joint", "sdh_left_finger_23_joint"]
-		elif component_name == "sdh_right":
-			joint_names = ["sdh_right_thumb_2_joint", "sdh_right_thumb_3_joint", "sdh_right_finger_11_joint", "sdh_right_finger_12_joint", "sdh_right_finger_13_joint", "sdh_right_finger_21_joint", "sdh_right_finger_22_joint", "sdh_right_finger_23_joint"]
-		elif component_name == "head":
-			joint_names = ["head_axis_joint"]
+		# get joint_names from parameter server
+		param_string = self.ns_global_prefix + "/" + component_name + "/joint_names"
+		if not rospy.has_param(param_string):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",param_string)
+				ah.set_failed(2)
+				return ah
+		joint_names = rospy.get_param(param_string)
+		
+		# check joint_names parameter
+		if not type(joint_names) is list: # check list
+				rospy.logerr("no valid joint_names for %s: not a list, aborting...",component_name)
+				print "joint_names are:",joint_names
+				ah.set_failed(3)
+				return ah
 		else:
-			rospy.logerr("component %s not known to script_server",component_name)
-			ah.set_failed(1)
-			return ah
+			for i in joint_names:
+				#print i,"type1 = ", type(i)
+				if not type(i) is str: # check string
+					rospy.logerr("no valid joint_names for %s: not a list of strings, aborting...",component_name)
+					print "joint_names are:",param
+					ah.set_failed(3)
+					return ah
+				else:
+					rospy.logdebug("accepted joint_names for component %s",component_name)
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
