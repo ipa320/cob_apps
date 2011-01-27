@@ -22,6 +22,7 @@
   <depend package="move_base_msgs"/>
   <depend package="move_arm_msgs"/>
   <depend package="motion_planning_msgs"/>
+  <depend package="sound_play"/>
   
   <rosdep name="pygraphviz"/>
   
