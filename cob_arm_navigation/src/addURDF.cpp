@@ -94,7 +94,8 @@ int main(int argc, char** argv) {
   //access to tranformation /world to /root_link (table_top)
   ros::ServiceClient client = nh.serviceClient<gazebo::GetModelState>("/gazebo/get_model_state");
   gazebo::GetModelState srv;
-  srv.request.model_name = model_name + "_model";
+  //srv.request.model_name = model_name + "_model";
+  srv.request.model_name = model_name;
   if (client.call(srv))
   {
 	ROS_INFO("URDFPose (x,y,z): (%f,%f,%f)", srv.response.pose.position.x, srv.response.pose.position.y, srv.response.pose.position.z);

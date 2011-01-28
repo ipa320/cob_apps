@@ -48,14 +48,14 @@ int main(int argc, char **argv){
 	
 	//over-tablet
 	//[[2.9057230949401855, -1.0808877189967294, -2.8570542335510254, -1.4864857196807861, 0.57246458530426025, 1.069308876991272, -1.9589838981628416]]
-	goalB.motion_plan_request.goal_constraints.joint_constraints[0].position = 2.9057230949401855;
+/*	goalB.motion_plan_request.goal_constraints.joint_constraints[0].position = 2.9057230949401855;
 	goalB.motion_plan_request.goal_constraints.joint_constraints[1].position = -1.0808877189967294;
 	goalB.motion_plan_request.goal_constraints.joint_constraints[2].position = -2.8570542335510254;
 	goalB.motion_plan_request.goal_constraints.joint_constraints[3].position = -1.4864857196807861;
 	goalB.motion_plan_request.goal_constraints.joint_constraints[4].position = 0.57246458530426025;
 	goalB.motion_plan_request.goal_constraints.joint_constraints[5].position = 1.069308876991272;
 	goalB.motion_plan_request.goal_constraints.joint_constraints[6].position = -1.9589838981628416;
-
+*/
 
   if (nh.ok())
   {
