@@ -7,6 +7,7 @@ int main(int argc, char **argv){
   ros::NodeHandle nh;
   actionlib::SimpleActionClient<move_arm_msgs::MoveArmAction> move_arm("move_arm",true);
 
+  ROS_INFO("waiting for action server...");
   move_arm.waitForServer();
   ROS_INFO("Connected to server");
 
