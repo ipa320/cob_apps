@@ -1,0 +1,9 @@
+head: {
+  joint_names: ['head_pan_joint','head_tilt_joint'],
+  joint_step: [0.075, 0.075]
+}
+
+base: {
+  max_velocity: [0.3, 0.2, 0.3],
+  max_acceleration: [0.5, 0.5, 0.7]
+}
