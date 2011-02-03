@@ -783,7 +783,6 @@ void TeleopCOB::update()
 				for(int i=0; i<module_it->second.req_joint_vel_.size();i++)
 				{
 					module_it->second.req_joint_vel_[i] = 0.0;
-					module_it->second.req_joint_pos_[i] = 0.0;
 				}
 			}
 
