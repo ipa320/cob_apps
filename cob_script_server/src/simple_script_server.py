@@ -81,31 +81,42 @@ from tf.transformations import *
 from std_msgs.msg import String
 from sound_play.libsoundplay import SoundClient
 
-# care-o-bot includes
+# care-o-bot imports
 from cob_msgs.msg import *
 from cob_srvs.srv import *
 
+# script server imports
+import action_handle
+
 # graph includes
 import pygraphviz as pgv
-
-graph=""
-graph_wait_list=[]
-function_counter = 0
-ah_counter = 0
-graph = pgv.AGraph()
-graph.node_attr['shape']='box'
-last_node = "Start"
 
 ## Script class from which all script inherit.
 #
 # Implements basic functionalities for all scripts.
 class script():
 	def __init__(self):
+		self.graph=""
+		self.graph_wait_list=[]
+		self.function_counter = 0
+		self.ah_counter = 0
+		self.graph = pgv.AGraph()
+		self.graph.node_attr['shape']='box'
+		self.last_node = "Start"
+	
 		# use filename as nodename
 		filename = os.path.basename(sys.argv[0])
 		self.basename, extension = os.path.splitext(filename)
 		rospy.init_node(self.basename)
 		self.graph_pub = rospy.Publisher("/script_server/graph", String)
+
+	# Sets the graph.
+	def set_graph(self,graph):
+		self.graph = graph
+
+	# Gets the graph.
+	def get_graph(self):
+		return self.graph
 
 	## Dummy function for initialization
 	def Initialize(self):
@@ -123,6 +134,7 @@ class script():
 		global ah_counter
 		ah_counter = 0
 		self.sss = simple_script_server()
+		self.graph = self.sss.action_handle.get_graph()
 		rospy.loginfo("Starting <<%s>> script...",self.basename)
 		self.Initialize()
 		self.Run()
@@ -147,7 +159,7 @@ class script():
 		
 		# save graph on parameter server for further processing
 #		self.graph = graph
-		rospy.set_param("/script_server/graph", graph.string())
+		rospy.set_param("/script_server/graph", self.graph.string())
 		self.graph_pub.publish(graph.string())
 		rospy.loginfo("...parsing finished")
 		function_counter = 0
@@ -161,7 +173,6 @@ class simple_script_server:
 	#
 	# \param parse Defines wether to run script in simulation for graph generation or not
 	def __init__(self, parse=False):
-		global graph
 		self.ns_global_prefix = "/script_server"
 		self.parse = parse
 		
@@ -208,7 +219,7 @@ class simple_script_server:
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
 	def trigger(self,component_name,service_name,blocking=True):
-		ah = action_handle(service_name, component_name, "", blocking, self.parse)
+		ah = action_handle.action_handle(service_name, component_name, "", blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -366,7 +377,7 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_base(self,component_name,parameter_name,blocking):
-		ah = action_handle("move", component_name, parameter_name, blocking, self.parse)
+		ah = action_handle.action_handle("move", component_name, parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -456,7 +467,7 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_base_direct(self,component_name,parameter_name,blocking=False):
-		ah = action_handle("move_direct", component_name, parameter_name, blocking, self.parse)
+		ah = action_handle.action_handle("move_direct", component_name, parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -518,7 +529,7 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move_traj(self,component_name,parameter_name,blocking):
-		ah = action_handle("move", component_name, parameter_name, blocking, self.parse)
+		ah = action_handle.action_handle("move", component_name, parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -651,7 +662,7 @@ class simple_script_server:
 		return ah
 
 	def move_cart_rel(self, component_name, parameter_name=[[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
-		ah = action_handle("move_rel", component_name, parameter_name, blocking, self.parse)
+		ah = action_handle.action_handle("move_rel", component_name, parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -726,7 +737,7 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
 	def set_light(self,parameter_name,blocking=False):
-		ah = action_handle("light", "", parameter_name, blocking, self.parse)
+		ah = action_handle.action_handle("light", "", parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -794,7 +805,7 @@ class simple_script_server:
 	# \param language Language to use for the TTS system
 	def say(self,parameter_name,blocking=True):
 		component_name = "sound"
-		ah = action_handle("say", component_name, parameter_name, False, self.parse)
+		ah = action_handle.action_handle("say", component_name, parameter_name, False, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -846,7 +857,7 @@ class simple_script_server:
 	# \param language Language to use
 	def play(self,parameter_name,blocking=True):
 		component_name = "sound"
-		ah = action_handle("play", component_name, parameter_name, False, self.parse)
+		ah = action_handle.action_handle("play", component_name, parameter_name, False, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -865,221 +876,13 @@ class simple_script_server:
 		ah.set_succeeded()
 		return ah
 
-	def Speak(self,parameter_name,mode="DEFAULT"):
-#		ah = action_handle()
-#		if(self.parse):
-#			return ah
-
-		""" Speak sound specified by 'parameter_name' either via TTS or by playing a WAV-File
-		Possible modes are:
-		DEFAULT - use mode set by a global parameter (default)
-		WAV_DE	- play wav-Files with German Text
-		WAV_EN	- play wav-FIles with English Text
-		FEST_EN	- use Text-to-speech with the English Festival voice
-		CEPS_EN	- use Text-to-speech with the English Cepstral voice David
-		CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
-		MUTE	- play no sound at all
-		"""
-		rospy.logdebug("Speak <<%s>> in mode <<%s>>",parameter_name,mode)
-		
-		# get mode from global parameter if necessary
-		if mode == "DEFAULT":
-			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_mode"):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_mode")
-				ah.error_code = 2
-				return ah
-			mode = rospy.get_param(self.ns_global_prefix + "/sound/speech_mode")
-		
-		# play sound depending on the mode that was chosen
-		if mode == "WAV_DE":
-			rospy.loginfo("Playing German WAV file %s",parameter_name)
-			
-			# get path for German WAV files
-			if not rospy.has_param(self.ns_global_prefix + "/sound/wav_de_path"):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/wav_de_path")
-				ah.error_code = 2
-				return ah
-			wav_path = rospy.get_param(self.ns_global_prefix + "/sound/wav_de_path")
-			
-			# play sound
-			rospy.loginfo("Playing file %s",wav_path + parameter_name + ".wav")
-			if self.use_ROS_sound_play:
-				self.soundhandle.playWave(wav_path + parameter_name + ".wav")
-				ah.error_code = 0
-			else:
-				retVal = os.system("aplay -q " + wav_path + parameter_name + ".wav")
-				if retVal == 127:
-					rospy.logerr("Calling audio player 'aplay' caused a failure. Check if it is installed and works properly!")
-					ah.error_code = 4
-				elif retVal == 1:
-					rospy.logerr("Calling audio player 'aplay' caused a failure. Check if wave file is existing and the path is valid!")
-					ah.error_code = 3
-				else:
-					ah.error_code = 0
-			return ah 
-			
-		elif mode == "WAV_EN":
-			rospy.loginfo("Playing English WAV file %s",parameter_name)
-			
-			# get path for English WAV files
-			if not rospy.has_param(self.ns_global_prefix + "/sound/wav_en_path"):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/wav_en_path")
-				ah.error_code = 2
-				return ah
-			wav_path = rospy.get_param(self.ns_global_prefix + "/sound/wav_en_path")
-			
-			# play sound
-			rospy.loginfo("Playing file %s",wav_path + parameter_name + ".wav")
-			if self.use_ROS_sound_play:
-				self.soundhandle.playWave(wav_path + parameter_name + ".wav")
-				ah.error_code = 0
-			else:
-				retVal = os.system("aplay -q " + wav_path + parameter_name + ".wav")
-				if retVal == 127:
-					rospy.logerr("Calling audio player 'aplay' returned a failure. Check if it is installed and works properly!")
-					ah.error_code = 4
-				elif retVal == 1:
-					rospy.logerr("Calling audio player 'aplay' returned a failure. Check if wave file is existing and the path is valid!")
-					ah.error_code = 3
-				else:
-					ah.error_code = 0
-			return ah 
-			
-		elif mode == "FEST_EN":
-			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-				ah.error_code = 2
-				return ah 
-			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-			
-			# send text string to TTS system
-			ah.error_code = self.SpeakStr(text_string,mode)
-			return ah
-	
-		elif mode == "CEPS_EN":
-			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-				ah.error_code = 2
-				return ah 
-			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_en/"+parameter_name)
-			
-			# send text string to TTS system
-			ah.error_code = self.SpeakStr(text_string,mode)
-			return ah
-
-		elif mode == "CEPS_DE":
-			# get the text string to speak
-			if not rospy.has_param(self.ns_global_prefix + "/sound/speech_de/"+parameter_name):
-				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
-				ah.error_code = 2
-				return ah 
-			text_string = rospy.get_param(self.ns_global_prefix + "/sound/speech_de/"+parameter_name)
-			
-			# send text string to TTS system
-			ah.error_code = self.SpeakStr(text_string,mode)
-			return ah
-
-		elif mode == "MUTE":
-			rospy.loginfo("Playing sound %s (muted)",parameter_name)
-			ah.error_code = 0
-			return ah
-		
-		else:
-			rospy.logerr("ROS has no sound mode %s!",mode)
-			ah.error_code = 2
-			return ah
-
-	def SpeakStr(self,text,mode):
-	
-		""" Speak the string 'text' via the TTS system specified by mode
-		Possible modes are:
-		FEST_EN	- use Text-to-speech with the English Festival voice
-		CEPS_EN	- use Text-to-speech with the English Cepstral voice David
-		CEPS_DE	- use Text-to-speech with the German Cepstral voice Matthias
-		MUTE	- play no sound at all
-		"""
-		# verify that argument 'text' is a string
-		if not type(text) == str:
-			rospy.logerr("no valid parameter for text-to-speech system: Not a string, aborting...")
-			return 3
-		
-		# get parameter for temporary wav file
-		param_name = self.ns_global_prefix +"/sound/temp_wav_file"
-		if not rospy.has_param(param_name):
-			rospy.logerr("parameter <<%s>> does not exist on ROS Parameter Server, aborting...",param_name)
-			return 2
-		temp_wav_file = rospy.get_param(self.ns_global_prefix +"/sound/temp_wav_file")
-
-		# play sound depending on the mode that was chosen
-		if mode == "FEST_EN":
-			rospy.loginfo("Using English Festival Voice for speaking '%s'",text)
-			
-			# send text string to TTS system
-			if self.use_ROS_sound_play:
-				self.soundhandle.say(text)
-				return 0
-			else:
-				retVal = os.system("echo "+text+" | text2wave | aplay -q")
-				if retVal != 0:
-					rospy.logerr("calling Festival TTS system returned failure. Check if it is installed and works properly!")
-					return 4
-				else:
-					return 0	
-
-		elif mode == "CEPS_EN":
-			rospy.loginfo("Using English Cepstral Voice David for speaking '%s'",text)
-			
-			# send text string to TTS system
-			retVal = os.system("swift -n \"David\" -e \"utf-8\" \"" + text + "\" -o " + temp_wav_file)
-			if retVal != 0:
-				rospy.logerr("Calling Cepstral TTS system returned failure. Check if Cepstral voice \"David\" is set up properly!")
-				return 4
-			retVal = os.system("aplay -q " + temp_wav_file)
-			if retVal == 127:
-				rospy.logerr("Calling audio player 'aplay' returned a failure. Check if it is installed and works properly!")
-				return 4
-			elif retVal == 1:
-				rospy.logerr("Calling audio player 'aplay' returned a failure. Check the directory for temporary file is existing and has write access!")
-				return 3
-			else:
-				return 0
-
-		elif mode == "CEPS_DE":
-			rospy.loginfo("Using German Cepstral Voice Matthias for speaking '%s'",text)
-			
-			# send text string to TTS system
-			retVal = os.system("swift -n \"Matthias\" -e \"utf-8\" \"" + text + "\" -o " + temp_wav_file)
-			if retVal != 0:
-				rospy.logerr("Calling Cepstral TTS system returned failure. Check if Cepstral voice \"Matthias\" is set up properly!")
-				return 4
-			retVal = os.system("aplay -q " + temp_wav_file)
-			if retVal == 127:
-				rospy.logerr("Calling audio player 'aplay' returned a failure. Check if it is installed and works properly!")
-				return 4
-			elif retVal == 1:
-				rospy.logerr("Calling audio player 'aplay' returned a failure. Check the directory for temporary file is existing and has write access!")
-				return 3
-			else:
-				return 0
-			return 0
-
-		elif mode == "MUTE":
-			rospy.loginfo("Playing sound %s (muted)",text)
-			return 0
-
-		else:
-			rospy.logerr("ROS has no sound mode %s!",mode)
-			return 2
-
 #------------------- General section -------------------#
 	## Sleep for a certain time.
 	#
 	# \param duration Duration in seconds to sleep.
 	#
 	def sleep(self,duration):
-		ah = action_handle("sleep", "", str(duration), True, self.parse)
+		ah = action_handle.action_handle("sleep", "", str(duration), True, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -1097,7 +900,7 @@ class simple_script_server:
 	# 
 	# \todo implement waiting for timeout
 	def wait_for_input(self,duration=0):
-		ah = action_handle("wait", "input", str(duration), True, self.parse)
+		ah = action_handle.action_handle("wait", "input", str(duration), True, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -1111,197 +914,3 @@ class simple_script_server:
 		rospy.loginfo("...got string <<%s>>",retVal)
 		ah.set_succeeded()
 		return retVal
-
-#------------------- action_handle section -------------------#	
-## Action handle class.
-#
-# The action handle is used to implement asynchronous behaviour within the script.
-class action_handle:
-	## Initializes the action handle.
-	def __init__(self, function_name, component_name, parameter_name, blocking, parse):
-		global graph
-		global function_counter
-		self.parent_node = ""
-		self.error_code = -1
-		self.wait_log = False
-		self.function_counter = function_counter
-		self.function_name = function_name
-		self.component_name = component_name
-		self.parameter_name = parameter_name
-		self.state = ScriptState.UNKNOWN
-		self.blocking = blocking
-		self.parse = parse
-		self.level = int(rospy.get_param("/script_server/level",100))
-		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
-		self.AppendNode(blocking)
-
-	## Sets the actionlib client.
-	def set_client(self,client):
-		self.client = client
-
-	## Sets the execution state to active, if not paused
-	def set_active(self):
-		self.check_pause()
-		self.state = ScriptState.ACTIVE
-		self.error_code = -1
-		self.PublishState()
-		
-		global ah_counter
-		ah_counter += 1
-		
-	## Checks for pause
-	def check_pause(self):
-		param_string = "/script_server/pause"
-		while bool(rospy.get_param(param_string,False)):
-			rospy.logwarn("Script is paused...")
-			self.state = ScriptState.PAUSED
-			self.PublishState()
-			rospy.sleep(1)
-		if self.state == ScriptState.PAUSED:
-			rospy.loginfo("...continuing script")
-		
-	## Sets the execution state to succeeded.
-	def set_succeeded(self):
-		self.state = ScriptState.SUCCEEDED
-		self.error_code = 0
-		self.PublishState()
-		
-		global ah_counter
-		ah_counter -= 1
-		
-	## Sets the execution state to failed.
-	def set_failed(self,error_code):
-		self.state = ScriptState.FAILED
-		self.error_code = error_code
-		self.PublishState()
-
-		global ah_counter
-		ah_counter -= 1
-		
-	## Gets the state of an action handle.
-	def get_state(self):
-		return self.state
-
-	## Gets the error code of an action handle.
-	def get_error_code(self):
-		return self.error_code
-	
-	## Returns the graphstring.
-	def GetGraphstring(self):
-		if type(self.parameter_name) is types.StringType:
-			graphstring = str(self.function_counter)+"_"+self.function_name+"_"+self.component_name+"_"+self.parameter_name
-		else:
-			graphstring = str(self.function_counter)+"_"+self.function_name+"_"+self.component_name
-		return graphstring
-
-	## Gets level of function name.
-	def GetLevel(self,function_name):
-		if (function_name == "move"):
-			level = 0
-		elif (function_name == "init"):
-			level = 1
-		elif (function_name == "stop"):
-			level = 1
-		elif (function_name == "sleep"):
-			level = 2
-		else:
-			level = 100
-		return level
-		
-	## Appends a registered function to the graph.
-	def AppendNode(self, blocking=True):
-		global graph
-		global graph_wait_list
-		global function_counter
-		global last_node
-		graphstring = self.GetGraphstring()
-		if self.parse:
-			if ( self.level >= self.GetLevel(self.function_name)):
-				#print "adding " + graphstring + " to graph"
-				graph.add_edge(last_node, graphstring)
-				for waiter in graph_wait_list:
-					graph.add_edge(waiter, graphstring)
-				graph_wait_list=[]
-				if blocking:
-					last_node = graphstring
-				else:
-					self.parent_node = graphstring
-			#else:
-				#print "not adding " + graphstring + " to graph"
-		#else:
-			#self.PublishState()
-		function_counter += 1
-		
-	## Publishs the state of the action handle
-	def PublishState(self):
-		script_state = ScriptState()
-		script_state.header.stamp = rospy.Time.now()
-		script_state.number = self.function_counter
-		script_state.function_name = self.function_name
-		script_state.component_name = self.component_name
-		script_state.full_graph_name = self.GetGraphstring()
-		if ( type(self.parameter_name) is str ):
-			script_state.parameter_name = self.parameter_name
-		else:
-			script_state.parameter_name = ""
-		script_state.state = self.state
-		script_state.error_code = self.error_code
-		self.state_pub.publish(script_state)
-		
-	## Handles wait.
-	#
-	# This function is meant to be uses directly in the script.
-	#
-	# \param duration Duration for timeout.
-	def wait(self, duration=None):
-		global ah_counter
-		ah_counter += 1
-		self.blocking = True
-		self.wait_for_finished(duration,True)
-
-	## Handles inside wait.
-	#
-	# This function is meant to be uses inside the simple_script_server.
-	#
-	# \param duration Duration for timeout.
-	def wait_inside(self, duration=None):
-		if self.blocking:
-			self.wait_for_finished(duration,True)
-		else:
-			thread.start_new_thread(self.wait_for_finished,(duration,False,))
-		return self.error_code
-	
-	## Waits for the action to be finished.
-	#
-	# If duration is specified, waits until action is finished or timeout is reached.
-	#
-	# \param duration Duration for timeout.
-	# \param logging Enables or disables logging for this wait.
-	def wait_for_finished(self, duration, logging):
-		global graph_wait_list
-		if(self.parse):
-			if(self.parent_node != ""):
-				graph_wait_list.append(self.parent_node)
-			return
-
-		if self.error_code <= 0:			
-			if duration is None:
-				if logging:
-					rospy.loginfo("Wait for <<%s>> reaching <<%s>>...",self.component_name, self.parameter_name)
-				self.client.wait_for_result()
-			else:
-				if logging:
-					rospy.loginfo("Wait for <<%s>> reached <<%s>> (max %f secs)...",self.component_name, self.parameter_name,duration)
-				if not self.client.wait_for_result(rospy.Duration(duration)):
-					if logging:
-						rospy.logerr("Timeout while waiting for <<%s>> to reach <<%s>>. Continuing...",self.component_name, self.parameter_name)
-					self.error_code = 10
-					return
-			if logging:
-				rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
-		else:
-			rospy.logwarn("Execution of <<%s>> to <<%s>> was aborted, wait not possible. Continuing...",self.component_name, self.parameter_name)
-			self.set_failed(self.error_code)
-			return
-			
-		self.set_succeeded() # full success
