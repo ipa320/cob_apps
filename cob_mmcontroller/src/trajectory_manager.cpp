@@ -11,7 +11,7 @@
 #include <brics_actuator/JointPositions.h>
 
 
-#define HZ 10
+#define HZ 50
 
 class trajectory_manager
 {
@@ -87,20 +87,6 @@ public:
     {
         if(executing_)
         {
-            if(traj_time_ >= traj_.points[current_point_].time_from_start.toSec())
-            {
-                if(current_point_ == traj_.points.size()-1)
-                {
-                    ROS_INFO("Trajecory finished");
-                    executing_ = false;
-                    return;
-                }
-                else
-                {
-                    current_point_ +=1;
-                    ROS_INFO("Next Point in trajectory");
-                }
-            }
             //calculate current cartpos
             KDL::Frame F_ist;
 		    fksolver1_->JntToCart(q_current, F_ist);
@@ -124,6 +110,7 @@ public:
             //calculate current intermediate joint position
             brics_actuator::JointPositions target_joint_position;
             sensor_msgs::JointState target_joint_state;
+            target_joint_state.header.stamp = ros::Time();
             target_joint_position.positions.resize(traj_.points[current_point_].positions.size());
             target_joint_state.position.resize(traj_.points[current_point_].positions.size());
             for (unsigned int i = 0; i < traj_.points[current_point_].positions.size(); i += 1)
@@ -143,7 +130,22 @@ public:
             joint_state_pub_.publish(target_joint_state);
             
             traj_time_ += 1./HZ;
-            std::cerr << ".";
+            //std::cerr << ".";
+            if(traj_time_ >= traj_.points[current_point_].time_from_start.toSec())
+			{
+				//std::cout << "DEBUG: time from start" << traj_.points[current_point_].time_from_start.toSec() << " , Traj_time: " << traj_time_ << "\n";
+				if(current_point_ == traj_.points.size()-1)
+				{
+					ROS_INFO("Trajecory finished");
+					executing_ = false;
+					return;
+				}
+				else
+				{
+					current_point_ +=1;
+					//ROS_INFO("Next Point in trajectory");
+				}
+			}
         }
         
     }
