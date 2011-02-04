@@ -269,7 +269,9 @@ void showHelp()
   	puts("Use '8' and 'i' for tray");
   	puts("Use 'a'-'f' and 'y'-'v' for torso");
   	puts("---------------------------");
-  	puts("Use 'h' to show this help");  	
+  	puts("Use 'h' to show this help");
+  	puts("Hit 'SPACE' to stop movement");
+    puts("");   	
 }
 
 
@@ -293,7 +295,9 @@ int main(int argc, char **argv)
   	puts("Use '8' and 'i' for tray");
   	puts("Use 'a'-'f' and 'y'-'v' for torso");
   	puts("---------------------------");
-  	puts("Use 'h' to show this help");  
+  	puts("Use 'h' to show this help");
+  	puts("Hit 'SPACE' to stop movement");  	
+    puts("");   	
 
   signal(SIGINT,quit);
 
@@ -317,6 +321,8 @@ int main(int argc, char **argv)
 
   while (ros::ok())
   {
+    ros::spinOnce();  
+  
   	joy::Joy msg;
 	msg.axes.resize(6);
 	msg.buttons.resize(12);
@@ -367,8 +373,6 @@ int main(int argc, char **argv)
 	composeJoyMessage(msg, c);
 
     keyboard_pub.publish(msg);
-
-    ros::spinOnce();
   }
 
 
