@@ -32,3 +32,4 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/ros/lib)
 # add project executable
 rosbuild_add_executable(${PROJECT_NAME} ros/src/${PROJECT_NAME}.cpp)
 rosbuild_add_executable(${PROJECT_NAME}_keyboard ros/src/${PROJECT_NAME}_keyboard.cpp)
+rosbuild_add_executable(keyboard_publisher ros/src/keyboard_publisher.cpp)
