@@ -16,6 +16,7 @@
     <remap from="get_joints_in_group" to="cob3_environment_server/get_joints_in_group" />	
     <remap from="get_robot_state" to="cob3_environment_server/get_robot_state" />	
     <remap from="get_state_validity" to="cob3_environment_server/get_state_validity" />	
+    <remap from="get_group_info" to="cob3_environment_server/get_group_info" />	
 
     <param name="group" type="string" value="arm" />
     <param name="ik_allowed_time" type="double" value="2.0" />
