@@ -71,6 +71,14 @@ from cob_msgs.msg import *
 # graph includes
 import pygraphviz as pgv
 
+graph=""
+graph_wait_list=[]
+function_counter = 0
+ah_counter = 0
+graph = pgv.AGraph()
+graph.node_attr['shape']='box'
+last_node = "Start"
+
 #------------------- action_handle section -------------------#	
 ## Action handle class.
 #
@@ -90,6 +98,21 @@ class action_handle:
 		self.level = int(rospy.get_param("/script_server/level",100))
 		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
 		self.AppendNode(blocking)
+
+	# Sets the graph.
+	def set_graph(self,graph):
+		rospy.set_param("/script_server/graph", graph.string())
+
+	# Gets the graph.
+	def get_graph(self):
+		# check, if graph is available on parameter server
+		if rospy.has_param('script_server/graph'):
+			dotcode = rospy.get_param("script_server/graph")
+			graph=pgv.AGraph(dotcode)
+		else:
+			graph=pgv.AGraph()
+			graph.add_node('no graph available')
+		return graph
 
 	## Sets the actionlib client.
 	def set_client(self,client):
@@ -144,10 +167,11 @@ class action_handle:
 	
 	## Returns the graphstring.
 	def GetGraphstring(self):
+		global function_counter
 		if type(self.parameter_name) is types.StringType:
-			graphstring = str(self.function_counter)+"_"+self.function_name+"_"+self.component_name+"_"+self.parameter_name
+			graphstring = str(function_counter)+"_"+self.function_name+"_"+self.component_name+"_"+self.parameter_name
 		else:
-			graphstring = str(self.function_counter)+"_"+self.function_name+"_"+self.component_name
+			graphstring = str(function_counter)+"_"+self.function_name+"_"+self.component_name
 		return graphstring
 
 	## Gets level of function name.
@@ -166,13 +190,17 @@ class action_handle:
 		
 	## Appends a registered function to the graph.
 	def AppendNode(self, blocking=True):
+		global graph
+		global last_node
+		global graph_wait_list
+		global function_counter
 		graphstring = self.GetGraphstring()
 		if self.parse:
 			if ( self.level >= self.GetLevel(self.function_name)):
 				#print "adding " + graphstring + " to graph"
-				self.graph.add_edge(self.last_node, graphstring)
-				for waiter in self.graph_wait_list:
-					self.graph.add_edge(waiter, graphstring)
+				graph.add_edge(last_node, graphstring)
+				for waiter in graph_wait_list:
+					graph.add_edge(waiter, graphstring)
 				self.graph_wait_list=[]
 				if blocking:
 					self.last_node = graphstring
@@ -182,7 +210,7 @@ class action_handle:
 				#print "not adding " + graphstring + " to graph"
 		#else:
 			#self.PublishState()
-		self.function_counter += 1
+		function_counter += 1
 		
 	## Publishs the state of the action handle
 	def PublishState(self):
@@ -206,7 +234,8 @@ class action_handle:
 	#
 	# \param duration Duration for timeout.
 	def wait(self, duration=None):
-		self.ah_counter += 1
+		global ah_counter
+		ah_counter += 1
 		self.blocking = True
 		self.wait_for_finished(duration,True)
 
