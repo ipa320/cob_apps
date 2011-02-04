@@ -12,6 +12,7 @@
 
 #define KEYCODE_N 0x6E	//run
 #define KEYCODE_M 0x6D	//mode
+#define KEYCODE_H 0x68	//help
 
 
 //platform
@@ -81,155 +82,218 @@ void composeJoyMessage(joy::Joy &msg, char c)
 
 	if(mode)	//joint_mode
 	{
-		msg.buttons[5]=1;	//deadman
 		switch(c)
 		{
 		//positive
 		case KEYCODE_1:	//arm
 		  msg.buttons[0]=1;
 		  msg.axes[4]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_2:
 		  msg.buttons[0]=1;
 		  msg.axes[5]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_3:
 		  msg.buttons[1]=1;
 		  msg.axes[4]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_4:
 		  msg.buttons[1]=1;
 		  msg.axes[5]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_5:
 		  msg.buttons[2]=1;
 		  msg.axes[4]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_6:
 		  msg.buttons[2]=1;
 		  msg.axes[5]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_7:
 		  msg.buttons[3]=1;
 		  msg.axes[4]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_8:	//tray
 		  msg.buttons[3]=1;
 		  msg.axes[5]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_Y:	//torso
 		  msg.buttons[6]=1;
 		  msg.axes[4]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_S:
 		  msg.buttons[6]=1;
 		  msg.axes[5]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_C:
 		  msg.buttons[4]=1;
 		  msg.axes[4]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_F:
 		  msg.buttons[4]=1;
 		  msg.axes[5]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		//case KEYCODE_G:	//head
 		//  msg.buttons[2]=1;
 		//  msg.axes[4]=1.0;
+		//  msg.buttons[5]=1;
 		//  break;		  
 		
 		//negative  
 		case KEYCODE_Q:	//arm
 		  msg.buttons[0]=1;
 		  msg.axes[4]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_W:
 		  msg.buttons[0]=1;
 		  msg.axes[5]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_E:
 		  msg.buttons[1]=1;
 		  msg.axes[4]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_R:
 		  msg.buttons[1]=1;
 		  msg.axes[5]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_T:
 		  msg.buttons[2]=1;
 		  msg.axes[4]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_Z:
 		  msg.buttons[2]=1;
 		  msg.axes[5]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_U:
 		  msg.buttons[3]=1;
 		  msg.axes[4]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_I:	//tray
 		  msg.buttons[3]=1;
 		  msg.axes[5]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_A:	//torso
 		  msg.buttons[6]=1;
 		  msg.axes[4]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_X:
 		  msg.buttons[6]=1;
 		  msg.axes[5]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_D:
 		  msg.buttons[4]=1;
 		  msg.axes[4]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_V:
 		  msg.buttons[4]=1;
 		  msg.axes[5]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		//case KEYCODE_B:	//head
 		//  msg.buttons[2]=1;
 		//  msg.axes[4]=-1.0;
+		//  msg.buttons[5]=1;
 		//  break;			  		  		  
 		}
 	}
 	else		//platform_mode
 	{
-		msg.buttons[5]=1;	//deadman
 		switch(c)
 		{
 		case KEYCODE_W:
 		  msg.axes[1]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_S:
-		  msg.axes[1]=-1.0;    
+		  msg.axes[1]=-1.0;
+		  msg.buttons[5]=1;    
 		  break;
 		case KEYCODE_A:
 		  msg.axes[0]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_D:
 		  msg.axes[0]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_Q:
 		  msg.axes[2]=1.0;
+		  msg.buttons[5]=1;
 		  break;
 		case KEYCODE_E:
 		  msg.axes[2]=-1.0;
+		  msg.buttons[5]=1;
 		  break;
 		}
 	}
-
-
 }
 
 
-
+void showHelp()
+{
+    puts(""); 
+    puts("Reading from keyboard");
+  	puts("---------------------------");
+  	puts("Use 'm' to toggle modes (joint/platform)");
+  	puts("Use 'n' to toggle run");
+  	puts("---------------------------");
+  	puts("In platform_mode");
+  	puts("Use 'wasd' to translate");
+  	puts("Use 'qe' to yaw");
+  	puts("---------------------------");
+  	puts("In joint_mode");
+  	puts("Use '1'-'7' and 'q'-'u' for arm");
+  	puts("Use '8' and 'i' for tray");
+  	puts("Use 'a'-'f' and 'y'-'v' for torso");
+  	puts("---------------------------");
+  	puts("Use 'h' to show this help");  	
+}
 
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "keyboard_publisher");
   ros::NodeHandle n;
+  
+    puts(""); 
+    puts("Reading from keyboard");
+  	puts("---------------------------");
+  	puts("Use 'm' to toggle modes (joint/platform)");
+  	puts("Use 'n' to toggle run");
+  	puts("---------------------------");
+  	puts("In platform_mode");
+  	puts("Use 'wasd' to translate");
+  	puts("Use 'qe' to yaw");
+  	puts("---------------------------");
+  	puts("In joint_mode");
+  	puts("Use '1'-'7' and 'q'-'u' for arm");
+  	puts("Use '8' and 'i' for tray");
+  	puts("Use 'a'-'f' and 'y'-'v' for torso");
+  	puts("---------------------------");
+  	puts("Use 'h' to show this help");  
 
   signal(SIGINT,quit);
 
@@ -247,7 +311,6 @@ int main(int argc, char **argv)
   
   fast_toggle=false;
   mode=false;
-  
 
   ros::Publisher keyboard_pub = n.advertise<joy::Joy>("joy", 1);
   char c;
@@ -294,6 +357,9 @@ int main(int argc, char **argv)
         mode=true;
         ROS_INFO("Mode: Joint_Mode");
       } 
+	  break;
+	case KEYCODE_H:
+	  showHelp();
 	  break;
 	}            
       
