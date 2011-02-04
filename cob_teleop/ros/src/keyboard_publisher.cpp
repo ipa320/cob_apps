@@ -74,6 +74,8 @@ void quit(int sig)
 
 void composeJoyMessage(joy::Joy &msg, char c)
 {
+	msg.buttons[5]=0;	
+	
 	if(fast_toggle)
 		msg.buttons[7]=1;
 
