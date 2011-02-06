@@ -182,7 +182,7 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def init(self,component_name,blocking=True):
-		self.trigger(component_name,"init",blocking)
+		return self.trigger(component_name,"init",blocking)
 
 	## Stops different components.
 	#
@@ -190,7 +190,7 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def stop(self,component_name):
-		self.trigger(component_name,"stop")
+		return self.trigger(component_name,"stop")
 
 	## Recovers different components.
 	#
@@ -198,7 +198,7 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def recover(self,component_name):
-		self.trigger(component_name,"recover")
+		return self.trigger(component_name,"recover")
 
 	## Deals with all kind of trigger services for different components.
 	#
