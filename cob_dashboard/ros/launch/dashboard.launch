@@ -13,4 +13,8 @@
 	<!-- start dashboard -->
 	<node pkg="cob_dashboard" type="knoeppkes.py" name="$(anon dashboard_node)" ns="dashboard" cwd="node" respawn="false" output="screen" />
 	
+        <!-- include rostest -->
+        <include file="$(find cob_script_server)/launch/script_server.test" />
+
+
 </launch>
