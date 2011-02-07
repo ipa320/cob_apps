@@ -18,14 +18,10 @@ class PythonAPITest(unittest.TestCase):
 		rospy.init_node('test_python_api_test')
 		self.sss=simple_script_server()
 		self.as_cb_executed = False
+		self.ss_stop_cb_executed = False
 		self.ns_global_prefix = "/script_server"
 
 	def test_python_api(self):
-		# init action server
-		#as_name = "/tray_controller/joint_trajectory_action"
-		#as_name, JointTrajectoryAction
-		#self.as_server = actionlib.SimpleActionServer(as_name, JointTrajectoryAction, execute_cb=self.as_cb)
-
 		# get parameters
 		try:
 			# component
@@ -35,30 +31,53 @@ class PythonAPITest(unittest.TestCase):
 		except KeyError, e:
 			self.fail('Parameters not set properly')		
 
-		# call sss functions
+		# choose command to test
 		if command == "move":
 			component_name = "arm"
 			# init action server (as)
 			as_name = "/" + component_name + "_controller/joint_trajectory_action"
 			self.as_server = actionlib.SimpleActionServer(as_name, JointTrajectoryAction, execute_cb=self.as_cb)
-			#execute test
+			#execute test (as allcomponents have the same trajectory interface, we only test for arm)
 			self.move_test(component_name,"home")
-			self.move_test(component_name,"folded")
-			self.move_test(component_name,"pregrasp")
-			
-		elif (command == "init" or command == "stop" or command == "recover"):
-			# init stop service server (ss)
-			ss_name = "/script_server/test_stop_service"
-			self.stop_service = rospy.Service(ss_name, Trigger, self.ss_trigger_cb)
-			# execute test
-			self.trigger_test(ss_name)
-			
+			self.move_test(component_name,"folded") # \todo test trajectories with multiple points (grasp-to-tray)
+			self.move_test(component_name,"pregrasp") # \todo test trajectories out of other points (wave)
+		elif command == "stop":
+			# prepare service server (ss)
+			ss_name = "/arm_controller/" + command
+			self.ss_cb_executed = False
+			rospy.Service(ss_name, Trigger, self.ss_cb)
+			# call sss function
+			self.sss.stop("arm")
+			# check result
+			if not self.ss_cb_executed:
+				self.fail('Service Server not called')
+		elif command == "init":
+			# prepare service server (ss)
+			ss_name = "/arm_controller/" + command
+			self.ss_cb_executed = False
+			rospy.Service(ss_name, Trigger, self.ss_cb)
+			# call sss function
+			self.sss.init("arm")
+			# check result
+			if not self.ss_cb_executed:
+				self.fail('Service Server not called')
+		elif command == "recover":
+			# prepare service server (ss)
+			ss_name = "/arm_controller/" + command
+			self.ss_cb_executed = False
+			rospy.Service(ss_name, Trigger, self.ss_cb)
+			# call sss function
+			self.sss.recover("arm")
+			# check result
+			if not self.ss_cb_executed:
+				self.fail('Service Server not called')
 		else:
 			self.fail("Command not known to test script")
 
 	def move_test(self,component_name, parameter_name):
 		self.as_cb_executed = False
 		
+		# call sss functions
 		self.sss.move(component_name,parameter_name)		
 		
 		# check result
@@ -108,16 +127,7 @@ class PythonAPITest(unittest.TestCase):
 			for j in range(len(traj_msg.points[i].positions)):
 				if not (traj_msg.points[i].positions[j] == self.traj.points[i].positions[j]):
 					self.fail('Not the same values in point')
-
-	def trigger_test(self,ss_name):
-		try:
-			client = rospy.ServiceProxy(ss_name, Trigger)
-			req = TriggerRequest()
-			resp = client(req)
-		except rospy.ServiceException, e:
-			error_msg = "Service call failed: %s"%e
-			self.fail(error_msg)
-
+		
 	def as_cb(self, goal):
 		result = JointTrajectoryResult()
 		#self.as_server.set_preempted(result)
@@ -126,8 +136,10 @@ class PythonAPITest(unittest.TestCase):
 		print "action server callback"
 		self.as_server.set_succeeded(result)
 	
-	def ss_trigger_cb(self,req):
+	def ss_cb(self,req):
+		self.ss_cb_executed = True
 		res = TriggerResponse()
+		res.success.data = True
 		return res
 
 if __name__ == '__main__':
