@@ -268,7 +268,7 @@ bool TeleopCOB::assign_joint_module(std::string mod_name, XmlRpc::XmlRpcValue mo
 			{
 				ROS_ASSERT(joint_steps[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 				double step((double)joint_steps[i]);
-				ROS_INFO("joint_step found = %f",step);
+				ROS_DEBUG("joint_step found = %f",step);
 				tempModule.steps.push_back(step);
 			}
 		}
@@ -476,7 +476,7 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 					if(joint_names_[j]!=combined_joints_.joint_names_[j])
 						ROS_ERROR("error in new joint name collection, name miss match.");
 					combined_joints_.joint_init_values_[j] = joint_states_msg->position[i]; //new
-					ROS_INFO("joint %s found. init value = %f",joint_names_[j].c_str(),joint_init_values_[j]);
+					ROS_DEBUG("joint %s found. init value = %f",joint_names_[j].c_str(),joint_init_values_[j]);
 					break;
 				}
 			}
@@ -783,7 +783,6 @@ void TeleopCOB::update()
 				for(int i=0; i<module_it->second.req_joint_vel_.size();i++)
 				{
 					module_it->second.req_joint_vel_[i] = 0.0;
-					module_it->second.req_joint_pos_[i] = 0.0;
 				}
 			}
 

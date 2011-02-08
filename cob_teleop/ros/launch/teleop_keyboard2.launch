@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<launch>
+        
+    <node pkg="cob_teleop" type="keyboard_publisher" name="spawn_teleop_keyboard" output="screen"></node>
+
+    <include file="$(find cob_teleop)/ros/launch/teleop.launch" />
+</launch>
+
