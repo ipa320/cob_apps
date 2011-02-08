@@ -17,6 +17,6 @@
   <include file="$(find cob_teleop)/ros/launch/teleop.launch" />
  
   <!-- start move base -->
-  <include file="$(find cob_2dnav)/ros/launch/move_base.launch" />
+  <include file="$(find cob_2dnav)/ros/launch/2dnav.launch" />
  
 </launch>
