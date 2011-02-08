@@ -24,7 +24,7 @@
 # \date Date of creation: Aug 2010
 #
 # \brief
-#   Implementation of ROS node for script_server.
+#   Implements script server functionalities.
 #
 #################################################################
 #
@@ -151,22 +151,18 @@ class script():
 		self.graph_pub.publish(graph.string())
 		rospy.loginfo("...parsing finished")
 		function_counter = 0
+		return graph.string()
 
 ## Simple script server class.
 #
 # Implements the python interface for the script server.
 class simple_script_server:
-	# Decides wether do use the ROS sound_play package play sound and speech or to start the services
-	#	directly via command line. The command line version has the great advantage that it works!
-	use_ROS_sound_play = False
-
 	## Initializes simple_script_server class.
 	#
 	# \param parse Defines wether to run script in simulation for graph generation or not
 	def __init__(self, parse=False):
 		global graph
 		self.ns_global_prefix = "/script_server"
-		#self.ns_global_prefix = ""
 		self.parse = parse
 		
 		# sound
@@ -174,11 +170,10 @@ class simple_script_server:
 		
 		# light
 		self.pub_light = rospy.Publisher('light_controller/command', Light)
-		rospy.sleep(0.5) # we have to wait here until publisher is ready, don't ask why
 
 		# base
 		self.pub_base = rospy.Publisher('base_controller/command', Twist)
-		rospy.sleep(1)
+		rospy.sleep(1) # we have to wait here until publisher is ready, don't ask why
 
 #------------------- Init section -------------------#
 	## Initializes different components.
@@ -187,7 +182,7 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def init(self,component_name,blocking=True):
-		self.trigger(component_name,"init",blocking)
+		return self.trigger(component_name,"init",blocking)
 
 	## Stops different components.
 	#
@@ -195,7 +190,7 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def stop(self,component_name):
-		self.trigger(component_name,"stop")
+		return self.trigger(component_name,"stop")
 
 	## Recovers different components.
 	#
@@ -203,7 +198,7 @@ class simple_script_server:
 	#
 	# \param component_name Name of the component.
 	def recover(self,component_name):
-		self.trigger(component_name,"recover")
+		return self.trigger(component_name,"recover")
 
 	## Deals with all kind of trigger services for different components.
 	#
@@ -267,99 +262,6 @@ class simple_script_server:
 			return self.move_base(component_name,parameter_name,blocking)
 		else:
 			return self.move_traj(component_name,parameter_name,blocking)
-
-	#todo: decide about success/failure return value
-	def move_planned(self, component_name, parameter_name, blocking=True):
-		if(self.parse):
-			return -1		
-
-		if component_name == "arm":
-			rospy.loginfo("Move Arm Planned!")
-			client = actionlib.SimpleActionClient('move_arm', MoveArmAction)
-			client.wait_for_server()
-
-			joint_names = ["arm_1_joint", "arm_2_joint", "arm_3_joint", "arm_4_joint", "arm_5_joint", "arm_6_joint", "arm_7_joint"]
-
-			goal = MoveArmGoal()
-			# Fill in the goal here
-			goal.motion_plan_request.group_name = "arm"
-			goal.motion_plan_request.num_planning_attempts = 1
-			goal.motion_plan_request.allowed_planning_time = rospy.Duration(5.0)
-
-			goal.motion_plan_request.planner_id= ""
-			goal.planner_service_name = "ompl_planning/plan_kinematic_path"
-			goal.motion_plan_request.goal_constraints.joint_constraints=[]
-			
-			for i in range(len(joint_names)):
-				new_constraint = JointConstraint()
-				new_constraint.joint_name = joint_names[i]
-				new_constraint.position = 0.0
-				new_constraint.tolerance_below = 0.1
-				new_constraint.tolerance_above = 0.1
-				goal.motion_plan_request.goal_constraints.joint_constraints.append(new_constraint)
-
-			# get joint values from parameter server
-			if type(parameter_name) is str:
-				if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
-					rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
-				param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
-			else:
-				param = parameter_name
-				rospy.loginfo("Getting joint values from parameter server failed")
-
-			# check trajectory parameters
-			if not type(param) is list: # check outer list
-					rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
-					print "parameter is:",param
-			else:
-				for i in param:
-					#print i,"type1 = ", type(i)
-					if not type(i) is list: # check inner list
-						rospy.logerr("no valid parameter for %s: not a list of lists, aborting...",component_name)
-						print "parameter is:",param
-					else:
-						if not len(i) == len(joint_names): # check dimension
-							rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(i))
-							print "parameter is:",param
-						else:
-							for j in i:
-								#print j,"type2 = ", type(j)
-								if not ((type(j) is float) or (type(j) is int)): # check type
-									#print type(j)
-									rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
-									print "parameter is:",param
-								else:
-									rospy.logdebug("accepted parameter %f for %s",j,component_name)
-
-			#fill into message
-			#pregrasp hardcoded			
-			#goal.motion_plan_request.goal_constraints.joint_constraints[0].position = 	-1.2986303567886353
-			#goal.motion_plan_request.goal_constraints.joint_constraints[1].position = 	-1.9999999245021005
-			#goal.motion_plan_request.goal_constraints.joint_constraints[2].position = 	-2.0263538360595703
-			#goal.motion_plan_request.goal_constraints.joint_constraints[3].position = 	-1.3672049045562744
-			#goal.motion_plan_request.goal_constraints.joint_constraints[4].position = 	0.88282591104507446
-			#goal.motion_plan_request.goal_constraints.joint_constraints[5].position = 	1.0767384767532349
-			#goal.motion_plan_request.goal_constraints.joint_constraints[6].position = 	-2.2612252235412598
-
-			#no need for trajectories anymore, since planning (will) guarantee collision-free motion!
-			traj_endpoint = param[len(param)-1]
-			for k in range(len(traj_endpoint)):
-				#print "traj_endpoint[%d]: %f", k, traj_endpoint[k]
-				goal.motion_plan_request.goal_constraints.joint_constraints[k].position = traj_endpoint[k]
-
-			#print "goal_position: "
-			#print goal.motion_plan_request.goal_constraints.joint_constraints
-	
-			finished_within_time = False
-			client.send_goal(goal)
-			finished_within_time = client.wait_for_result(rospy.Duration(200.0))
-			if finished_within_time:
-				rospy.loginfo("Planned motion finished within time!")
-			else:
-				rospy.loginfo("This all takes too long...!")
-		else:
-			rospy.loginfo("Planned motion only available for component 'arm'! Aborting...")
-
 
 	## Deals with movements of the base.
 	#
@@ -441,7 +343,6 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		self.check_pause()
 		client_goal = MoveBaseGoal()
 		client_goal.target_pose = pose
 		#print client_goal
@@ -530,21 +431,30 @@ class simple_script_server:
 		
 		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
 		
-		# selecting component
-		if component_name == "tray":
-			joint_names = ["torso_tray_joint"]
-		elif component_name == "torso":
-			joint_names = ["torso_lower_neck_pan_joint","torso_lower_neck_tilt_joint","torso_upper_neck_pan_joint","torso_upper_neck_tilt_joint"]
-		elif component_name == "arm":
-			joint_names = ["arm_1_joint","arm_2_joint","arm_3_joint","arm_4_joint","arm_5_joint","arm_6_joint","arm_7_joint"]
-		elif component_name == "sdh":
-			joint_names = ["sdh_thumb_2_joint", "sdh_thumb_3_joint", "sdh_finger_11_joint", "sdh_finger_12_joint", "sdh_finger_13_joint", "sdh_finger_21_joint", "sdh_finger_22_joint", "sdh_finger_23_joint"]
-		elif component_name == "head":
-			joint_names = ["head_axis_joint"]
+		# get joint_names from parameter server
+		param_string = self.ns_global_prefix + "/" + component_name + "/joint_names"
+		if not rospy.has_param(param_string):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",param_string)
+				ah.set_failed(2)
+				return ah
+		joint_names = rospy.get_param(param_string)
+		
+		# check joint_names parameter
+		if not type(joint_names) is list: # check list
+				rospy.logerr("no valid joint_names for %s: not a list, aborting...",component_name)
+				print "joint_names are:",joint_names
+				ah.set_failed(3)
+				return ah
 		else:
-			rospy.logerr("component %s not known to script_server",component_name)
-			ah.set_failed(1)
-			return ah
+			for i in joint_names:
+				#print i,"type1 = ", type(i)
+				if not type(i) is str: # check string
+					rospy.logerr("no valid joint_names for %s: not a list of strings, aborting...",component_name)
+					print "joint_names are:",param
+					ah.set_failed(3)
+					return ah
+				else:
+					rospy.logdebug("accepted joint_names for component %s",component_name)
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
@@ -555,53 +465,69 @@ class simple_script_server:
 			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
 		else:
 			param = parameter_name
-		
+
 		# check trajectory parameters
 		if not type(param) is list: # check outer list
 				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
 				print "parameter is:",param
 				ah.set_failed(3)
 				return ah
-		else:
-			for i in param:
-				#print i,"type1 = ", type(i)
-				if not type(i) is list: # check inner list
-					rospy.logerr("no valid parameter for %s: not a list of lists, aborting...",component_name)
+
+		traj = []
+
+		for point in param:
+			#print point,"type1 = ", type(point)
+			if type(point) is str:
+				if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + point):
+					rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + point)
+					ah.set_failed(2)
+					return ah
+				point = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + point)
+				point = point[0] # \todo hack because only first point is used, no support for trajectories inside trajectories
+				#print point
+			elif type(point) is list:
+				rospy.logdebug("point is a list")
+			else:
+				rospy.logerr("no valid parameter for %s: not a list of lists or strings, aborting...",component_name)
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			# here: point should be list of floats/ints
+			#print point
+			if not len(point) == len(joint_names): # check dimension
+				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(point))
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			for value in point:
+				#print value,"type2 = ", type(value)
+				if not ((type(value) is float) or (type(value) is int)): # check type
+					#print type(value)
+					rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
 					print "parameter is:",param
 					ah.set_failed(3)
 					return ah
-				else:
-					if not len(i) == len(joint_names): # check dimension
-						rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(i))
-						print "parameter is:",param
-						ah.set_failed(3)
-						return ah
-					else:
-						for j in i:
-							#print j,"type2 = ", type(j)
-							if not ((type(j) is float) or (type(j) is int)): # check type
-								#print type(j)
-								rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
-								print "parameter is:",param
-								ah.set_failed(3)
-								return ah
-							else:
-								rospy.logdebug("accepted parameter %f for %s",j,component_name)
+			
+				rospy.logdebug("accepted value %f for %s",value,component_name)
+			traj.append(point)
+
+		rospy.logdebug("accepted trajectory for %s",component_name)
 		
-		# convert to trajectory message
-		traj = JointTrajectory()
-		traj.header.stamp = rospy.Time.now()+rospy.Duration(0.5)
-		traj.joint_names = joint_names
+		# convert to ROS trajectory message
+		traj_msg = JointTrajectory()
+		traj_msg.header.stamp = rospy.Time.now()+rospy.Duration(0.5)
+		traj_msg.joint_names = joint_names
 		point_nr = 0
-		for i in param:
+		for point in traj:
 			point_nr = point_nr + 1
-			point = JointTrajectoryPoint()
-			point.positions = i
-			point.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
-			traj.points.append(point)
-		
+			point_msg = JointTrajectoryPoint()
+			point_msg.positions = point
+			point_msg.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
+			traj_msg.points.append(point_msg)
+
 		# call action server
-		operation_mode_name = "/" + component_name + '_controller/OperationMode'
 		action_server_name = "/" + component_name + '_controller/joint_trajectory_action'
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, JointTrajectoryAction)
@@ -619,9 +545,153 @@ class simple_script_server:
 		self.set_operation_mode(component_name,"position")
 		
 		# sending goal
-		self.check_pause()
 		client_goal = JointTrajectoryGoal()
-		client_goal.trajectory = traj
+		client_goal.trajectory = traj_msg
+		#print client_goal
+		self.client.send_goal(client_goal)
+		ah.set_client(self.client)
+
+		ah.wait_inside()
+		return ah
+		
+	def move_planned(self, component_name, parameter_name, blocking=True):
+		ah = action_handle("move_planned", component_name, parameter_name, blocking, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		rospy.loginfo("Move planned <<%s>> to <<%s>>",component_name,parameter_name)
+		
+		# get joint_names from parameter server
+		param_string = self.ns_global_prefix + "/" + component_name + "/joint_names"
+		if not rospy.has_param(param_string):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",param_string)
+				ah.set_failed(2)
+				return ah
+		joint_names = rospy.get_param(param_string)
+		
+		# check joint_names parameter
+		if not type(joint_names) is list: # check list
+				rospy.logerr("no valid joint_names for %s: not a list, aborting...",component_name)
+				print "joint_names are:",joint_names
+				ah.set_failed(3)
+				return ah
+		else:
+			for i in joint_names:
+				#print i,"type1 = ", type(i)
+				if not type(i) is str: # check string
+					rospy.logerr("no valid joint_names for %s: not a list of strings, aborting...",component_name)
+					print "joint_names are:",param
+					ah.set_failed(3)
+					return ah
+				else:
+					rospy.logdebug("accepted joint_names for component %s",component_name)
+		
+		# get joint values from parameter server
+		if type(parameter_name) is str:
+			if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name):
+				rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
+				ah.set_failed(2)
+				return ah
+			param = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + parameter_name)
+		else:
+			param = parameter_name
+
+		# check trajectory parameters
+		if not type(param) is list: # check outer list
+				rospy.logerr("no valid parameter for %s: not a list, aborting...",component_name)
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+		traj = []
+
+		for point in param:
+			#print point,"type1 = ", type(point)
+			if type(point) is str:
+				if not rospy.has_param(self.ns_global_prefix + "/" + component_name + "/" + point):
+					rospy.logerr("parameter %s does not exist on ROS Parameter Server, aborting...",self.ns_global_prefix + "/" + component_name + "/" + point)
+					ah.set_failed(2)
+					return ah
+				point = rospy.get_param(self.ns_global_prefix + "/" + component_name + "/" + point)
+				point = point[0] # \todo hack because only first point is used, no support for trajectories inside trajectories
+				#print point
+			elif type(point) is list:
+				rospy.logdebug("point is a list")
+			else:
+				rospy.logerr("no valid parameter for %s: not a list of lists or strings, aborting...",component_name)
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			# here: point should be list of floats/ints
+			#print point
+			if not len(point) == len(joint_names): # check dimension
+				rospy.logerr("no valid parameter for %s: dimension should be %d and is %d, aborting...",component_name,len(joint_names),len(point))
+				print "parameter is:",param
+				ah.set_failed(3)
+				return ah
+
+			for value in point:
+				#print value,"type2 = ", type(value)
+				if not ((type(value) is float) or (type(value) is int)): # check type
+					#print type(value)
+					rospy.logerr("no valid parameter for %s: not a list of float or int, aborting...",component_name)
+					print "parameter is:",param
+					ah.set_failed(3)
+					return ah
+			
+				rospy.logdebug("accepted value %f for %s",value,component_name)
+			traj.append(point)
+
+		rospy.logdebug("accepted trajectory for %s",component_name)
+		
+		# convert to ROS Move arm message
+		motion_plan = MotionPlanRequest()
+		motion_plan.group_name = "arm"
+		motion_plan.num_planning_attempts = 1
+		motion_plan.allowed_planning_time = rospy.Duration(5.0)
+
+		motion_plan.planner_id= ""
+		motion_plan.goal_constraints.joint_constraints=[]
+		
+		for i in range(len(joint_names)):
+			new_constraint = JointConstraint()
+			new_constraint.joint_name = joint_names[i]
+			new_constraint.position = 0.0
+			new_constraint.tolerance_below = 0.1
+			new_constraint.tolerance_above = 0.1
+			motion_plan.goal_constraints.joint_constraints.append(new_constraint)
+		#no need for trajectories anymore, since planning (will) guarantee collision-free motion!
+		traj_endpoint = traj[len(traj)-1]
+		for k in range(len(traj_endpoint)):
+			#print "traj_endpoint[%d]: %f", k, traj_endpoint[k]
+			motion_plan.goal_constraints.joint_constraints[k].position = traj_endpoint[k]
+
+
+		# call action server
+		action_server_name = "/move_arm"
+		rospy.logdebug("calling %s action server",action_server_name)
+		self.client = actionlib.SimpleActionClient(action_server_name, MoveArmAction)
+		# trying to connect to server
+		rospy.logdebug("waiting for %s action server to start",action_server_name)
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			# error: server did not respond
+			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
+			ah.set_failed(4)
+			return ah
+		else:
+			rospy.logdebug("%s action server ready",action_server_name)
+		
+		# set operation mode to position
+		self.set_operation_mode(component_name,"position")
+		
+		# sending goal
+		client_goal = MoveArmGoal()
+		client_goal.planner_service_name = "ompl_planning/plan_kinematic_path"		#choose planner
+		#goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
+		client_goal.motion_plan_request = motion_plan
 		#print client_goal
 		self.client.send_goal(client_goal)
 		ah.set_client(self.client)
@@ -668,7 +738,6 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 
 		# sending goal
-		#self.check_pause()
 		client_goal = MoveCartGoal()
 		client_goal.goal_pose = pose
 		#print client_goal
@@ -1092,28 +1161,6 @@ class simple_script_server:
 		ah.set_succeeded()
 		return retVal
 
-	## Checks if script is in pause mode
-	#
-	# Check if pause is globally set. If yes, enter a wait loop until the parameter is reset.
-	# 
-	# \todo check if pause is working
-	def check_pause(self):
-		pause_was_active = False
-		
-		if not rospy.has_param("/script_server/pause"):
-			return 1
-		while rospy.get_param("/script_server/pause"):
-			if not pause_was_active:
-				rospy.loginfo("ActionServer set to pause mode. Waiting for resume...")
-				pause_was_active = True
-			rospy.sleep(1)
-
-		if pause_was_active:
-			rospy.loginfo("Resuming...")
-			return 1
-		else:
-			return 0
-
 #------------------- action_handle section -------------------#	
 ## Action handle class.
 #
@@ -1141,14 +1188,26 @@ class action_handle:
 	def set_client(self,client):
 		self.client = client
 
-	## Sets the execution state to active.
+	## Sets the execution state to active, if not paused
 	def set_active(self):
+		self.check_pause()
 		self.state = ScriptState.ACTIVE
 		self.error_code = -1
 		self.PublishState()
 		
 		global ah_counter
 		ah_counter += 1
+		
+	## Checks for pause
+	def check_pause(self):
+		param_string = "/script_server/pause"
+		while bool(rospy.get_param(param_string,False)):
+			rospy.logwarn("Script is paused...")
+			self.state = ScriptState.PAUSED
+			self.PublishState()
+			rospy.sleep(1)
+		if self.state == ScriptState.PAUSED:
+			rospy.loginfo("...continuing script")
 		
 	## Sets the execution state to succeeded.
 	def set_succeeded(self):

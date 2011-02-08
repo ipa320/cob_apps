@@ -24,7 +24,7 @@
 # \date Date of creation: Aug 2010
 #
 # \brief
-#   Generates a visual graph (*.png) out of a script.
+#   Implements general script functionalities.
 #
 #################################################################
 #
@@ -57,72 +57,79 @@
 #
 #################################################################
 
-import roslib
-roslib.load_manifest('cob_script_server')
-import rospy
-import sys
-import types
-import string
-import os
-from simple_script_server import script
+# script server imports
+import simple_script_server
 
-# graph includes
-import pygraphviz as pgv
-
-
-if __name__ == "__main__":
-	if (len(sys.argv) <= 1 ):
-		print "Error: wrong number of input arguments"
-		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"
-		# \todo What does "level" do?
-		sys.exit(1)
-	elif (len(sys.argv) == 2):
-		filename = sys.argv[1]
-		level = 100
-	elif (len(sys.argv) == 3):
-		filename = sys.argv[1]
-		level = int(sys.argv[2])
-	else:
-		print "Error: to many arguments"
-		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"
-		sys.exit(1)
+## Script class from which all script inherit.
+#
+# Implements basic functionalities for all scripts.
+class script():
+	def __init__(self):
+		self.graph=""
+		self.graph_wait_list=[]
+		self.function_counter = 0
+		self.ah_counter = 0
+		self.graph = pgv.AGraph()
+		self.graph.node_attr['shape']='box'
+		self.last_node = "Start"
 	
-	print "Script file = ", filename
-	print "Graph level = ", level
-	rospy.set_param("/script_server/level",level)
+		# use filename as nodename
+		filename = os.path.basename(sys.argv[0])
+		self.basename, extension = os.path.splitext(filename)
+		rospy.init_node(self.basename)
+		self.graph_pub = rospy.Publisher("/script_server/graph", String)
+
+	# Sets the graph.
+	def set_graph(self,graph):
+		self.graph = graph
+
+	# Gets the graph.
+	def get_graph(self):
+		return self.graph
+
+	## Dummy function for initialization
+	def Initialize(self):
+		pass
+
+	## Dummy function for main run function
+	def Run(self):
+		pass
+
+	## Function to start the script
+	#
+	# First does a simulated turn and then calls Initialize() and Run().
+	def Start(self):
+		self.Parse()
+		global ah_counter
+		ah_counter = 0
+		self.sss = simple_script_server.simple_script_server()
+		self.graph = self.sss.action_handle.get_graph()
+		rospy.loginfo("Starting <<%s>> script...",self.basename)
+		self.Initialize()
+		self.Run()
+		# wait until last threaded action finishes
+		rospy.loginfo("Wait for script to finish...")
+		while ah_counter != 0:
+			rospy.sleep(1)
+		rospy.loginfo("...script finished.")
 	
-	filename_splitted = string.split(filename, "/")
-	#print filename_splitted
-	scriptfile = filename_splitted[-1]
-	if(len(filename_splitted) > 1):
-		filename_splitted.pop(len(filename_splitted)-1)
-		scriptdir = ""
-		for name in filename_splitted:
-			scriptdir += name + "/"
-		#print scriptdir
-		sys.path.insert(0,scriptdir)
-	scriptfile_woext = string.split(scriptfile, ".")[0]
-	#print scriptfile_woext
-
-	try:
-		__import__(scriptfile_woext, globals(), locals(), [], -1)
-		scriptmodule = sys.modules[scriptfile_woext]
-		for classname in dir(scriptmodule):
-			subclass = scriptmodule.__getattribute__(classname)
-			if(isinstance(subclass, types.ClassType)):
-				if(issubclass(subclass, script)):
-					if(classname != "script"):
-						s = subclass()
-						dotcode = s.Parse()
-						print "dotcode = ",dotcode
-						graph=pgv.AGraph(dotcode)
-						graph.layout('dot')
-						basename, extension = os.path.splitext(filename)
-						if (level == 100):
-							graph.draw(basename + ".png")
-						else:
-							graph.draw(basename + "_" + str(level) + ".png")
-	except ImportError:
-		print "Unable to import script file"
-		print "usage: rosrun cob_script_server script_to_graph.py <<SCRIPTFILE>> [level]"
-
+	## Function to generate graph view of script.
+	#
+	# Starts the script in simulation mode and calls Initialize() and Run().
+	def Parse(self):
+		rospy.loginfo("Start parsing...")
+		global graph
+		global function_counter
+		function_counter = 0
+		# run script in simulation mode
+		self.sss = simple_script_server.simple_script_server(parse=True)
+		self.Initialize()
+		self.Run()
+		
+		# save graph on parameter server for further processing
+#		self.graph = graph
+		rospy.set_param("/script_server/graph", self.graph.string())
+		self.graph_pub.publish(graph.string())
+		rospy.loginfo("...parsing finished")
+		function_counter = 0
+		return graph.string()
