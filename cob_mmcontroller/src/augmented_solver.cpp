@@ -35,6 +35,7 @@ namespace KDL
         eps(_eps),
         maxiter(_maxiter)
     {
+		base_is_actived_ = false;
     }
 
 	augmented_solver::~augmented_solver()
@@ -42,52 +43,71 @@ namespace KDL
     }
 
 
-    int augmented_solver::CartToJnt(const JntArray& q_in, const JntArray& q_in_base, const Twist& v_in, JntArray& qdot_out)
+    int augmented_solver::CartToJnt(const JntArray& q_in, const JntArray& q_in_base, Twist& v_in, JntArray& qdot_out)
     {
+    	//testcase:
+    	double velx = v_in.vel.x() + 0.1;
+    	v_in.vel.x(velx);
+
         //Let the ChainJntToJacSolver calculate the jacobian "jac" for
         //the current joint positions "q_in"
         jnt2jac.JntToJac(q_in,jac);
 
-        std::cout << "Arm jacobian: " << jac.data << "\n";
-
-
         //Create standard platform jacobian
         Eigen::Matrix<double,6,3> jac_base;
         jac_base.setZero();
-        jac_base(0,0) = 1;
-        jac_base(1,1) = 1;
-        jac_base(6,2) = 1;
-
-        std::cout << "Platform jacobian: " << jac_base << "\n";
+        if(base_is_actived_)
+        {
+        	jac_base(0,0) = 1.0;
+        	jac_base(1,1) = 1.0;
+        	jac_base(5,2) = 1.0;
+        }
 
         //Put full jacobian matrix together
         Eigen::Matrix<double, 6, Eigen::Dynamic> jac_full;
-        jac_full.resize(6,chain.getNrOfJoints()+3);
+        jac_full.resize(6,chain.getNrOfJoints() + jac_base.cols());
         jac_full << jac.data, jac_base;
 
-        std::cout << "Combined jacobian: " << jac_full << "\n";
+        std::cout << "Combined jacobian:\n " << jac_full << "\n";
 
         //Weighting Matrices
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> W_v;
-        W_v.resize(chain.getNrOfJoints()+3,chain.getNrOfJoints()+3);
-        W_v.setIdentity(chain.getNrOfJoints()+3,chain.getNrOfJoints()+3);
+        W_v.resize(chain.getNrOfJoints() + jac_base.cols(),chain.getNrOfJoints() + jac_base.cols());
+        W_v.setIdentity(chain.getNrOfJoints() + jac_base.cols(),chain.getNrOfJoints() + jac_base.cols());
 
         Eigen::Matrix<double, 6,6> W_e;
         W_e.setIdentity(6,6);
 
-        //Inversion
+        //Inversion TODO: noch ohne augmented tasks just the infrastructure
         // qdot_out = (jac_full^T * W_e * jac_full + jac_augmented^T * W_c * jac_augmented + W_v)^-1(jac_full^T * W_e * v_in + jac_augmented^T * W_c * z_in)
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> testmatrix;
+        testmatrix.resize(chain.getNrOfJoints() + jac_base.cols(),chain.getNrOfJoints() + jac_base.cols());
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> testmatrix_inv;
+        testmatrix_inv.resize(chain.getNrOfJoints() + jac_base.cols(),chain.getNrOfJoints() + jac_base.cols());
         testmatrix = (jac_full.transpose() * W_e * jac_full) + W_v;
+        testmatrix_inv = testmatrix.inverse() ;
 
-        std::cout << "TestMatrix: " << testmatrix;
+        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> testmatrix2, test2, test3;
+        Eigen::Matrix<double, 6, 1> v_in_eigen;
+        v_in_eigen.setZero();
+        v_in_eigen(0,0) = v_in.vel.x();
+        v_in_eigen(1,0) = v_in.vel.y();
+        v_in_eigen(2,0) = v_in.vel.z();
+        v_in_eigen(3,0) = v_in.rot.x();
+        v_in_eigen(4,0) = v_in.rot.y();
+        v_in_eigen(5,0) = v_in.rot.z();
+        testmatrix2 = testmatrix_inv *  jac_full.transpose() * W_e ;
+        test2 = testmatrix2 * v_in_eigen;
 
+        std::cout << "TestMatrix:\n " << testmatrix2 << "\n ================\n";
+        std::cout << "Endergebnis: \n" << test2 << "\n ====\n";
 
         //Do a singular value decomposition of "jac" with maximum
         //iterations "maxiter", put the results in "U", "S" and "V"
         //jac = U*S*Vt
         int ret = svd.calculate(jac,U,S,V,maxiter);
-
+        /*test3 = V*S*U; // TODO: convert to eigen data types for comparison
+        std::cout << "Out of SVD: \n" << test3 << "\n";*/
         double sum;
         unsigned int i,j;
 
@@ -103,7 +123,8 @@ namespace KDL
             }
             //If the singular value is too small (<eps), don't invert it but
             //set the inverted singular value to zero (truncated svd)
-            tmp(i) = sum*(fabs(S(i))<eps?0.0:1.0/S(i));
+            //tmp(i) = sum*(fabs(S(i))<eps?0.0:1.0/S(i));
+            tmp(i) = sum*1.0/S(i);
         }
         //tmp is now: tmp=S_pinv*Ut*v_in, we still have to premultiply
         //it with V to get qdot_out

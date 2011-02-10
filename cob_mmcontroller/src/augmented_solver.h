@@ -4,6 +4,7 @@
 #include <kdl/chainiksolver.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl/utilities/svd_HH.hpp>
+#include <Eigen/LU>
 
 namespace KDL
 {
@@ -33,7 +34,7 @@ namespace KDL
     	augmented_solver(const Chain& chain,double eps=0.00001,int maxiter=150);
         ~augmented_solver();
 
-        virtual int CartToJnt(const JntArray& q_in, const JntArray& q_in_base, const Twist& v_in, JntArray& qdot_out);
+        virtual int CartToJnt(const JntArray& q_in, const JntArray& q_in_base, Twist& v_in, JntArray& qdot_out);
         /**
          * not (yet) implemented.
          *
@@ -52,7 +53,7 @@ namespace KDL
         JntArray tmp;
         double eps;
         int maxiter;
-
+        bool base_is_actived_;
     };
 }
 #endif
