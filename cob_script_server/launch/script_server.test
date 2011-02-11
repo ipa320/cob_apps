@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- test python interface -->
+	<param name="python_api_move_test/command" value="move" />
+	<test test-name="move_test" pkg="cob_script_server" type="python_api.py" name="python_api_move_test" />
+
+	<param name="python_api_stop_test/command" value="stop" />
+	<test test-name="stop_test" pkg="cob_script_server" type="python_api.py" name="python_api_stop_test" />
+
+	<param name="python_api_init_test/command" value="init" />
+	<test test-name="init_test" pkg="cob_script_server" type="python_api.py" name="python_api_init_test" />
+
+	<param name="python_api_recover_test/command" value="recover" />
+	<test test-name="recover_test" pkg="cob_script_server" type="python_api.py" name="python_api_recover_test" />
+
+	<!-- test actionlib interface -->
+	<!-- todo -->
+</launch>
