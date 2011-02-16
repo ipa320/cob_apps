@@ -767,7 +767,24 @@ class simple_script_server:
 			#print resp
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
-			
+
+#------------------- Perception section -------------------#
+	## Detects an object and returns its pose.
+	#
+	# The object is given by its name.
+	#
+	# \param object_name Name of the object to be detected.
+	def detect(self,object_name,blocking=False):
+		ah = action_handle("detect", "", object_name, blocking, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+
+		rospy.loginfo("Detect <<%s>>",object_name)
+		
+
+		
 #------------------- LED section -------------------#
 	## Set the color of the cob_light component.
 	#
