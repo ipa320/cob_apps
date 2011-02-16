@@ -810,7 +810,7 @@ void TeleopCOB::update()
 	// set initial values
 	if(!got_init_values_)
 	{
-		if (time_for_init_ < 5.0) // wait for 5 sec, then set init values to 0.0
+		if (time_for_init_ < 1.0) // wait for 1 sec, then set init values to 0.0
 		{
 			ROS_DEBUG("still waiting for initial values, time_for_init_ = %f",time_for_init_);
 			time_for_init_ = time_for_init_ + 1.0/PUBLISH_FREQ;
