@@ -13,7 +13,7 @@
   <depend package="geometry_msgs"/>
   <depend package="sensor_msgs"/>
   <depend package="trajectory_msgs"/>
-  <depend package="pr2_teleop"/>
+  <depend package="brics_actuator"/>
   <depend package="cob_joy"/>
 
 </package>
