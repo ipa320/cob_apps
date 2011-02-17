@@ -1396,6 +1396,7 @@ class action_handle:
 					self.set_failed(10)
 					return
 			# check state of action server
+			print self.client.get_state()
 			if self.client.get_state() != 3:
 				if logging:
 					rospy.logerr("...<<%s>> could not reach <<%s>>, aborting...",self.component_name, self.parameter_name)
