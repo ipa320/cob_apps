@@ -64,7 +64,7 @@ roslib.load_manifest('cob_script_server')
 import rospy
 import actionlib
 
-from cob_msgs.msg import *
+from cob_script_server.msg import *
 from simple_script_server import *
 
 ## Script server class which inherits from script class.
@@ -77,7 +77,7 @@ class script_server(script):
 	def __init__(self):
 		script.__init__(self)
 		self.ns_global_prefix = "/script_server"
-		self.move_action_server = actionlib.SimpleActionServer(self.ns_global_prefix, MoveAction, self.execute_cb)
+		self.move_action_server = actionlib.SimpleActionServer(self.ns_global_prefix, MoveAction, self.execute_cb, False)
 		#time.sleep(1)
 	
 #------------------- Actionlib section -------------------#

@@ -83,6 +83,8 @@ from sound_play.libsoundplay import SoundClient
 
 # care-o-bot includes
 from cob_msgs.msg import *
+from cob_light.msg import *
+from cob_script_server.msg import *
 from cob_srvs.srv import *
 
 # graph includes
@@ -822,13 +824,13 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
 	def set_light(self,parameter_name,blocking=False):
-		ah = action_handle("light", "", parameter_name, blocking, self.parse)
+		ah = action_handle("set", "light", parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
 
-		rospy.loginfo("Set light to %s",parameter_name)
+		rospy.loginfo("Set light to <<%s>>",parameter_name)
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
