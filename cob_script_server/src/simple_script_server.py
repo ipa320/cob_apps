@@ -800,8 +800,16 @@ class simple_script_server:
 			ah.set_failed(1)
 			return ah
 
-		# \todo raise error, if requested object is not detected
+		# copy detected objects to object_list
 		self.object_list = resp.object_list
+
+		# check if object_list is not empty
+		if len(self.object_list.detections) <= 0:
+			rospy.logerr("No object detected, aborting...")
+			ah.set_failed(12)
+			return ah
+
+		# \todo raise error, if requested object is not detected
 
 		ah.set_succeeded()
 		ah.error_code = 0
@@ -810,6 +818,11 @@ class simple_script_server:
 	def get_object_pose(self,object_name):
 		pose = PoseStamped()
 		if(self.parse):
+			return pose
+
+		# check if object_list is not empty
+		if len(self.object_list.detections) <= 0:
+			rospy.logerr("Cannot get object pose because object is not in object list, aborting...")
 			return pose
 
 		# \todo parse for all detected objects
@@ -1396,7 +1409,7 @@ class action_handle:
 					self.set_failed(10)
 					return
 			# check state of action server
-			print self.client.get_state()
+			#print self.client.get_state()
 			if self.client.get_state() != 3:
 				if logging:
 					rospy.logerr("...<<%s>> could not reach <<%s>>, aborting...",self.component_name, self.parameter_name)

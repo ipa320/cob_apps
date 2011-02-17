@@ -59,7 +59,7 @@
 
 import roslib
 roslib.load_manifest('cob_dashboard')
-from cob_msgs.msg import EmergencyStopState
+from cob_relayboard.msg import EmergencyStopState
 from buttons import *
 import thread
 import pygtk
