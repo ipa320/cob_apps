@@ -7,6 +7,7 @@ groups:
     joints:
       base_joint
     links:
+      base_link
       base_laser_front_link
       base_laser_rear_link
       base_laser_top_link      
@@ -18,7 +19,6 @@ groups:
       torso_upper_neck_pan_joint
       torso_upper_neck_tilt_joint
     links:
-      base_link
       torso_lower_neck_tilt_link
       torso_upper_neck_tilt_link
       head_cover_link
