@@ -823,6 +823,7 @@ class simple_script_server:
 		# check if object_list is not empty
 		if len(self.object_list.detections) <= 0:
 			rospy.logerr("Cannot get object pose because object is not in object list, aborting...")
+			pose.header.frame_id = "/map"
 			return pose
 
 		# \todo parse for all detected objects
