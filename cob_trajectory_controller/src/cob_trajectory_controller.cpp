@@ -28,7 +28,7 @@ public:
     action_name_("joint_trajectory_action")
     {
         joint_pos_pub_ = n_.advertise<sensor_msgs::JointState>("target_joint_pos", 1);
-	joint_vel_pub_ = n_.advertise<brics_actuator::JointVelocities>("target_joint_vel", 1);
+	joint_vel_pub_ = n_.advertise<brics_actuator::JointVelocities>("command_vel", 1);
         controller_state_ = n_.subscribe("state", 1, &cob_trajectory_controller::state_callback, this);
         traj_time_ = 0.0;
         current_point_ = 0;
@@ -66,7 +66,7 @@ public:
         {
             if(traj_time_ >= traj_.points[current_point_].time_from_start.toSec())
             {
-                if(current_point_ == traj_.points.size())
+                if(current_point_ == traj_.points.size()-1)
                 {
                     ROS_INFO("Trajecory finished");
                     executing_ = false;
