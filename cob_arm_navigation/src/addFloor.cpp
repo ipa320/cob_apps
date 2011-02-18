@@ -24,8 +24,8 @@ int main(int argc, char** argv) {
   geometric_shapes_msgs::Shape object;
   object.type = geometric_shapes_msgs::Shape::BOX;
   object.dimensions.resize(3);
-  object.dimensions[0] = 50.0;
-  object.dimensions[1] = 50.0;
+  object.dimensions[0] = 10.0;
+  object.dimensions[1] = 10.0;
   object.dimensions[2] = 0.01;
   geometry_msgs::Pose pose;
   pose.position.x = 0.0;

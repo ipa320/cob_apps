@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros::Publisher object_in_map_pub_;
-  object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 10);
+  object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 20);
   
 
   if (argc != 3){
@@ -117,10 +117,16 @@ int main(int argc, char** argv) {
   
 
   joints_it=URDF_joints.begin();
-  for (unsigned int i=1; i<URDF_links.size(); i++)
+  for(unsigned int i=0; i<URDF_links.size(); i++)
   {
 	  urdf::Link current_link = *URDF_links[i];
 	  ROS_INFO("Current Link: %s", current_link.name.c_str());
+
+	  if(current_link.name == "dummy_link")
+	  {
+		  ROS_INFO("Dealing with dummy_link...");
+		  continue;
+	  }
 
 	  boost::shared_ptr< urdf::Joint > current_parent_joint = current_link.parent_joint;
 	  //ROS_INFO("Current Parent Joint: %s", current_parent_joint->name.c_str());
@@ -167,6 +173,8 @@ int main(int argc, char** argv) {
 	  object_in_map_pub_.publish(collision_object);
 	
 	  ROS_INFO("Should have published");
+	  
+	  ros::Duration(2.0).sleep();
   }
 
   ros::Duration(2.0).sleep();

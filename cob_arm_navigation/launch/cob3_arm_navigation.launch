@@ -9,6 +9,7 @@
 	<!-- displaying known model markers -->
  	<include file="$(find cob_arm_navigation)/launch/cob3_display_planner_collision_model.launch" />
   	<!-- model_ik.launch not working...no service get_collision_objects in /arm_controller namespace-->
+  	<!-- unknown what this is used for anyway...does not seem to be necessary -->
   	<!--include file="$(find cob_arm_navigation)/launch/cob3_display_planner_collision_model_ik.launch" /-->
 
 	<!-- load planning -->
