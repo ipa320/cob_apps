@@ -26,5 +26,9 @@
   <depend package="cob_light"/>
   
   <rosdep name="pygraphviz"/>
-  
+ 
+  <export>
+    <cpp cflags="-I${prefix}/msg/cpp"/>
+  </export>
+ 
 </package>
