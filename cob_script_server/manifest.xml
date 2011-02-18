@@ -11,7 +11,7 @@
   
   <depend package="rospy"/>
   <depend package="actionlib"/>
-  <depend package="actionlib_mgs"/>
+  <depend package="actionlib_msgs"/>
   <depend package="tf"/>
   <depend package="std_msgs"/>
   <depend package="cob_default_config"/>
