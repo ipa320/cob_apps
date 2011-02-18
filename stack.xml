@@ -19,6 +19,7 @@
   <depend stack="motion_planning_common" /> <!-- planning_models, motion_planning_msgs -->
   <depend stack="motion_planning_environment" /> <!-- planning_environment -->
   <depend stack="navigation" /> <!-- move_base_msgs, move_base -->
+  <depend stack="pr2_apps" /> <!-- pr2_teleop -->
   <depend stack="pr2_arm_navigation" /> <!-- pr2_arm_navigation_tutorials -->
   <depend stack="pr2_controllers" /> <!-- trajectory_msgs, pr2_controllers_msgs -->
   <depend stack="robot_model" /> <!-- assimp, robot_state_publisher, kdl_parser -->
