@@ -180,7 +180,7 @@ class simple_script_server:
 		self.pub_base = rospy.Publisher('base_controller/command', Twist)
 		rospy.sleep(1) # we have to wait here until publisher is ready, don't ask why
 
-#------------------- Init section -------------------#
+    #------------------- Init section -------------------#
 	## Initializes different components.
 	#
 	# Based on the component, the corresponding init service will be called.
@@ -212,7 +212,7 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param service_name Name of the trigger service.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
-	def trigger(self,component_name,service_name,blocking=True):
+	def trigger(self,component_name,service_name,blocking=True, planning=False):
 		ah = action_handle(service_name, component_name, "", blocking, self.parse)
 		if(self.parse):
 			return ah
@@ -262,9 +262,12 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
-	def move(self,component_name,parameter_name,blocking=True):
+	def move(self,component_name,parameter_name,blocking=True, planning=False):
+		print "planning: ", planning
 		if component_name == "base":
 			return self.move_base(component_name,parameter_name,blocking)
+		elif component_name == "arm" and planning:
+			return self.move_planned(component_name,parameter_name,blocking)
 		else:
 			return self.move_traj(component_name,parameter_name,blocking)
 
@@ -529,7 +532,7 @@ class simple_script_server:
 			point_nr = point_nr + 1
 			point_msg = JointTrajectoryPoint()
 			point_msg.positions = point
-			point_msg.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
+			point_msg.time_from_start=rospy.Duration(10*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
 			traj_msg.points.append(point_msg)
 
 		# call action server
@@ -665,8 +668,8 @@ class simple_script_server:
 			new_constraint = JointConstraint()
 			new_constraint.joint_name = joint_names[i]
 			new_constraint.position = 0.0
-			new_constraint.tolerance_below = 0.1
-			new_constraint.tolerance_above = 0.1
+			new_constraint.tolerance_below = 0.4
+			new_constraint.tolerance_above = 0.4
 			motion_plan.goal_constraints.joint_constraints.append(new_constraint)
 		#no need for trajectories anymore, since planning (will) guarantee collision-free motion!
 		traj_endpoint = traj[len(traj)-1]
@@ -759,7 +762,7 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param mode Name of the operation mode to set.
 	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
-	def set_operation_mode(self,component_name,mode,blocking=False):
+	def set_operation_mode(self,component_name,mode,blocking=False, planning=False):
 		#rospy.loginfo("setting <<%s>> to operation mode <<%s>>",component_name, mode)
 		rospy.set_param("/" + component_name + "_controller/OperationMode",mode) # \todo remove and only use service call
 		#rospy.wait_for_service("/" + component_name + "_controller/set_operation_mode")

@@ -70,13 +70,18 @@ import os
 import pynotify
 import sys 
 
+planning_enabled = False
+
 #Initializing the gtk's thread engine
 gtk.gdk.threads_init()
 
 ## Executes a button click in a new thread
 def start(func, args):
-#  print "starting", func
-  thread.start_new_thread(func,args)
+  global planning_enabled
+  largs = list(args)
+  largs.append(planning_enabled)
+  #print "Args", tuple(largs)
+  thread.start_new_thread(func,tuple(largs))
 
 def startGTK(widget, data):
   data()
@@ -109,8 +114,12 @@ class GtkGeneralPanel(gtk.Frame):
 
     #but = gtk.Button("Init all")
     #but.connect("clicked", lambda w: gtk.main_quit())
-    #self.vbox.pack_start(but, False, False, 5)    
-
+    #self.vbox.pack_start(but, False, False, 5)
+    
+    plan_check = gtk.CheckButton("Planning")#
+    plan_check.connect("toggled", self.planned_toggle)
+    self.vbox.pack_start(plan_check, False, False, 5)
+    
     but = gtk.Button(stock=gtk.STOCK_QUIT	)
     but.connect("clicked", lambda w: gtk.main_quit())
     self.vbox.pack_start(but, False, False, 5)
@@ -134,6 +143,13 @@ class GtkGeneralPanel(gtk.Frame):
         n = pynotify.Notification("Emergency Stop released!", "", "dialog-ok")
         n.set_timeout(1)
         n.show()
+        
+  def planned_toggle(self, b):
+    global planning_enabled
+    if(planning_enabled):
+      planning_enabled = False
+    else:
+      planning_enabled = True         
 		    
 
 ## Class for gtk panel implementation

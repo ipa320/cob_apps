@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <!-- send additional description parameters -->
-  <include file="$(find cob_arm_navigation)/launch/cob3_planning_environment.launch" />
+  <include file="$(find cob_arm_navigation)/launch/arm_planning_environment.launch" />
 
   <node pkg="planning_environment" type="environment_server" output="screen" name="cob3_environment_server">      
     <!--remap from="collision_map" to="collision_map_occ" /-->
@@ -24,7 +24,7 @@
 	<param name="use_collision_map" type="bool" value="false" />
 	
 	<!-- global_frame necessary for planning with static obstacles, otherwise known objects move with base_footprint -->
-	<param name="global_frame" type="string" value="/map" />
+	<!--param name="global_frame" type="string" value="/map" /-->
 	<!-- tf_safety_timeout necessary when global_frame is set -> planning_monitor_.includePose_ = true -> isPoseUpdated() in isEnvironmentSafe() -> tf_safety_timeout would be 0.0 by default -> planning fails -->
     <param name="tf_safety_timeout" type="double" value="1.0" />
 
