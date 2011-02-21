@@ -666,8 +666,8 @@ class simple_script_server:
 			new_constraint = JointConstraint()
 			new_constraint.joint_name = joint_names[i]
 			new_constraint.position = 0.0
-			new_constraint.tolerance_below = 0.1
-			new_constraint.tolerance_above = 0.1
+			new_constraint.tolerance_below = 0.4
+			new_constraint.tolerance_above = 0.4
 			motion_plan.goal_constraints.joint_constraints.append(new_constraint)
 		#no need for trajectories anymore, since planning (will) guarantee collision-free motion!
 		traj_endpoint = traj[len(traj)-1]
