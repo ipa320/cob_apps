@@ -165,6 +165,9 @@ class simple_script_server:
 		self.ns_global_prefix = "/script_server"
 		self.parse = parse
 		
+		# object detection
+		self.object_list = DetectionArray()
+
 		# sound
 		self.soundhandle = SoundClient()
 		
@@ -725,7 +728,7 @@ class simple_script_server:
 		pose.pose.orientation.z = q[2]
 		pose.pose.orientation.w = q[3]
 		#print pose
-		
+
 		# call action server
 		action_server_name = "/" + component_name + '_controller/move_cart_rel'
 		rospy.logdebug("calling %s action server",action_server_name)
@@ -777,7 +780,7 @@ class simple_script_server:
 	# The object is given by its name.
 	#
 	# \param object_name Name of the object to be detected.
-	def detect(self,object_name,blocking=False):
+	def detect(self,object_name,blocking=True):
 		ah = action_handle("detect", "", object_name, blocking, self.parse)
 		if(self.parse):
 			return ah
@@ -785,8 +788,35 @@ class simple_script_server:
 			ah.set_active()
 
 		rospy.loginfo("Detect <<%s>>",object_name)
-		
 
+		try:
+			detect = rospy.ServiceProxy("/object_detection/detect_object", DetectObjects)
+			req = DetectObjectsRequest()
+			req.object_name.data = object_name
+			#print req
+			resp = detect(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			ah.set_failed(1)
+			return ah
+
+		# \todo raise error, if requested object is not detected
+		self.object_list = resp.object_list
+
+		ah.set_succeeded()
+		ah.error_code = 0
+		return ah
+
+	def get_object_pose(self,object_name):
+		pose = PoseStamped()
+		if(self.parse):
+			return pose
+
+		# \todo parse for all detected objects
+		# \todo filter for object_name
+		pose = self.object_list.detections[0].pose
+		return pose
 		
 #------------------- LED section -------------------#
 	## Set the color of the cob_light component.
@@ -1364,8 +1394,15 @@ class action_handle:
 				if not self.client.wait_for_result(rospy.Duration(duration)):
 					if logging:
 						rospy.logerr("Timeout while waiting for <<%s>> to reach <<%s>>. Continuing...",self.component_name, self.parameter_name)
-					self.error_code = 10
+					self.set_failed(10)
 					return
+			# check state of action server
+			if self.client.get_state() != 3:
+				if logging:
+					rospy.logerr("...<<%s>> could not reach <<%s>>, aborting...",self.component_name, self.parameter_name)
+				self.set_failed(11)
+				return
+
 			if logging:
 				rospy.loginfo("...<<%s>> reached <<%s>>",self.component_name, self.parameter_name)
 		else:

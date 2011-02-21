@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
   ros::Publisher object_in_map_pub_;
   object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 20);
   
-
+/*
   if (argc != 3){
     ROS_ERROR("Need a urdf file as first argument and the model_name as in the launch file as second argument");
     return -1;
@@ -75,6 +75,18 @@ int main(int argc, char** argv) {
     ROS_ERROR("Failed to parse urdf file");
     return -1;
   }
+*/
+
+  std::string parameter_name = "world_description";
+  std::string model_name = "urdf_world_model";
+  
+  urdf::Model model;
+  if (!model.initParam(parameter_name))
+  {
+	  ROS_ERROR("Failed to parse %s from parameter server", parameter_name.c_str());
+	  return -1;
+  }
+
   ROS_INFO("Successfully parsed urdf file");
   
   std::vector< boost::shared_ptr< urdf::Link > > URDF_links;
@@ -94,7 +106,7 @@ int main(int argc, char** argv) {
   //access to tranformation /world to /root_link (table_top)
   ros::ServiceClient client = nh.serviceClient<gazebo::GetModelState>("/gazebo/get_model_state");
   gazebo::GetModelState srv;
-  //srv.request.model_name = model_name + "_model";
+
   srv.request.model_name = model_name;
   if (client.call(srv))
   {

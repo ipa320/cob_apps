@@ -46,15 +46,15 @@ class GraspScript(script):
 		cup.header.stamp = rospy.Time.now()
 		cup.header.frame_id = "/map"
 		cup.point.x = -3.0
-		cup.point.y = 0.05
-		cup.point.z = 0.93
+		cup.point.y = 0.08
+		cup.point.z = 1.02
 		self.sss.sleep(2) # wait for transform to be calculated
 		handle_sdh.wait()
 		
 		if not self.sss.parse:
 			cup = listener.transformPoint('/arm_7_link',cup)
 			# transform grasp point to sdh center
-			cup.point.z = cup.point.z - 0.17
+			cup.point.z = cup.point.z - 0.2
 
 		# move in front of cup
 		pregrasp_distance = 0.2
@@ -65,7 +65,7 @@ class GraspScript(script):
 		# grasp cup
 		self.sss.move("sdh","china_cup")
 		# lift cup
-		self.sss.move_cart_rel("arm",[[0.2, 0, 0], [0, 0, 0]])
+		self.sss.move_cart_rel("arm",[[0.2, -0.1, -0.2], [0, 0, 0]])
 	
 
 		# place cup on tray
@@ -74,7 +74,7 @@ class GraspScript(script):
 		handle01.wait()
 		self.sss.move("arm","tray")
 		self.sss.move("sdh","cylopen")
-		self.sss.move_cart_rel("arm",[[0.0, 0.0, -0.2], [0, 0, 0]])
+		self.sss.move_cart_rel("arm",[[0.0, 0.0, -0.1], [0, 0, 0]])
 		handle01 = self.sss.move("arm","tray-to-folded",False)
 		self.sss.sleep(4)
 		self.sss.move("sdh","cylclosed",False)
