@@ -4,6 +4,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <pr2_controllers_msgs/JointTrajectoryAction.h>
 #include <brics_actuator/JointVelocities.h>
+#include <control_toolbox/pid.h>
 
 
 #define HZ 100
@@ -21,10 +22,12 @@ private:
     trajectory_msgs::JointTrajectory traj_;
     double traj_time_;
     int current_point_;
-    std::vector<double> q_current, startposition_, joint_distance_;
+    std::vector<double> q_current, q_last, startposition_, joint_distance_;
 	double traj_end_time_;
 	double traj_step_;
-
+	std::vector<control_toolbox::Pid> pids;
+	std::vector<double> target_speed_;
+	int zero_counter_;
 public:
     cob_trajectory_controller():as_(n_, "joint_trajectory_action", boost::bind(&cob_trajectory_controller::executeTrajectory, this, _1), true),
     action_name_("joint_trajectory_action")
@@ -36,8 +39,15 @@ public:
         current_point_ = 0;
         executing_ = false;
 		q_current.resize(7);
+		q_last.resize(7);
 		traj_end_time_ = 0;
 		traj_step_ = 0;
+		target_speed_.resize(7);
+		zero_counter_ = 0;
+		for(unsigned int i =0; i<7; i++)
+		{	
+			pids.push_back(control_toolbox::Pid(1.0, 0.1, 0.0, 0.3, -0.3));
+		}
 	}
 
   void state_callback(const pr2_controllers_msgs::JointTrajectoryControllerStatePtr& message)
@@ -59,6 +69,7 @@ public:
             traj_ = goal->trajectory;
             traj_time_ = 0.0;
             current_point_ = 0;
+			zero_counter_ = 4;
             executing_ = true;
             startposition_ = q_current;
 			joint_distance_.resize(7);
@@ -97,9 +108,9 @@ public:
     {
         if(executing_)
         {
-            if(traj_time_ >= (current_point_ * traj_step_)-0.04)
+            if(traj_time_ >= ((current_point_+1) * traj_step_)-0.04)
             {
-                if(current_point_ >= traj_.points.size()-5)
+                if(current_point_ >= traj_.points.size()-1)
                 {
                     ROS_INFO("Trajecory finished");
                     executing_ = false;
@@ -108,7 +119,11 @@ public:
                 else
                 {
 					ROS_INFO("Next Point");
-                    current_point_ +=4;
+                    current_point_ +=1;
+					for(unsigned int i = 0; i < 7; i++)
+					{
+						 target_speed_[i] = (traj_.points[current_point_].positions[i] - traj_.points[current_point_-1].positions[i])/traj_step_;
+					} 
 					return;
                 }
             }
@@ -118,7 +133,7 @@ public:
                 delta_time = current_point_ * traj_step_ - traj_.points[current_point_-1].time_from_start.toSec();
             else
             	delta_time = current_point_ * traj_step_;
-			double time_left = (current_point_ * traj_step_) - traj_time_;
+			double time_left = ((current_point_+1) * traj_step_) - traj_time_;
 			/*std::cout << "Goal: ";
 			for(unsigned int i=0; i<7;i++)
 			{
@@ -131,28 +146,21 @@ public:
 		    }
 			std::cout << "\nTime from start: " << (traj_.points[current_point_].time_from_start.toSec()*20) << " Time left: " << time_left << "\n";*/
 
-            //calculate current intermediate joint position
-            sensor_msgs::JointState target_joint_position;
-	    	target_joint_position.position.resize(7);
-            for (unsigned int i = 0; i < traj_.points[current_point_].positions.size(); i += 1)
-            {
-                //position = current_time_inbetween * distance_to_travel/overall_time_inbetween
-                target_joint_position.position[i] = (traj_time_ + 1./HZ) * (traj_.points[current_point_].positions[i] - startposition_[i])/delta_time;
-                if(current_point_ != 0)
-                {
-                   target_joint_position.position[i] = (traj_time_ - traj_.points[current_point_-1].time_from_start.toSec() + 1./HZ) * (traj_.points[current_point_].positions[i] - traj_.points[current_point_-1].positions[i])/delta_time; 
-                }
-            }
+ 
 			//calculate vel out of error error
 			brics_actuator::JointVelocities target_joint_vel;
 			target_joint_vel.velocities.resize(7);
 			for(unsigned int i=0; i<7; i++)
 			{
+				double vel = q_current[i] - q_last[i] / ((current_point_+1) * traj_step_);
+				q_last[i] = q_current[i];
 				std::stringstream joint_name;
 				joint_name << "arm_" << (i+1) << "_joint";
 				target_joint_vel.velocities[i].joint_uri = joint_name.str();
 				target_joint_vel.velocities[i].unit = "rad";
-				target_joint_vel.velocities[i].value = (traj_.points[current_point_].positions[i] - q_current[i])/(time_left);
+				target_joint_vel.velocities[i].value = pids[i].updatePid(vel - target_speed_[i], ros::Duration((current_point_+1) * traj_step_));
+
+				//target_joint_vel.velocities[i].value = (traj_.points[current_point_].positions[i] - q_current[i])/(time_left);
 				if(target_joint_vel.velocities[i].value >= 0.8)
 				{
 					std::cout << "Treshold " << i << "th joint: " << target_joint_vel.velocities[i].value << "\n";
@@ -173,27 +181,26 @@ public:
 			}
 
             //send everything
-            joint_pos_pub_.publish(target_joint_position);
             joint_vel_pub_.publish(target_joint_vel);
             traj_time_ += 1./HZ;
         }
 	else
 	{
-	    sensor_msgs::JointState target_joint_position;
-	    target_joint_position.position.resize(7);
-	    brics_actuator::JointVelocities target_joint_vel;
-	    target_joint_vel.velocities.resize(7);
-            for (unsigned int i = 0; i < 7; i += 1)
-            {
-		std::stringstream joint_name;
-		joint_name << "arm_" << (i+1) << "_joint";
-		target_joint_vel.velocities[i].joint_uri = joint_name.str();
-                target_joint_position.position[i] = 0;
-		target_joint_vel.velocities[i].unit = "rad";
-		target_joint_vel.velocities[i].value = 0;
-            }
-	    joint_vel_pub_.publish(target_joint_vel);
-	    joint_pos_pub_.publish(target_joint_position);		
+	    if(zero_counter_ > 0)
+		{
+			brics_actuator::JointVelocities target_joint_vel;
+			target_joint_vel.velocities.resize(7);	
+		    for (unsigned int i = 0; i < 7; i += 1)
+		    {
+				std::stringstream joint_name;
+				joint_name << "arm_" << (i+1) << "_joint";
+				target_joint_vel.velocities[i].joint_uri = joint_name.str();
+				target_joint_vel.velocities[i].unit = "rad";
+				target_joint_vel.velocities[i].value = 0;
+		        }
+			joint_vel_pub_.publish(target_joint_vel);
+			zero_counter_--;
+	    }	
 	}
         
     }
