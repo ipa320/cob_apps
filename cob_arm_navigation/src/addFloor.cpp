@@ -9,6 +9,8 @@ int main(int argc, char** argv) {
 
   ros::NodeHandle nh;
 
+  ros::service::waitForService("/cob3_environment_server/get_state_validity");	//just to make sure that the environment_server is there!
+
   ros::Publisher object_in_map_pub_;
   object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 10);
 
@@ -19,7 +21,7 @@ int main(int argc, char** argv) {
   cylinder_object.id = "floor";
   cylinder_object.operation.operation = mapping_msgs::CollisionObjectOperation::ADD;
   //cylinder_object.operation.operation = mapping_msgs::CollisionObjectOperation::REMOVE;
-  cylinder_object.header.frame_id = "/base_footprint";
+  cylinder_object.header.frame_id = "/map";
   cylinder_object.header.stamp = ros::Time::now();
   geometric_shapes_msgs::Shape object;
   object.type = geometric_shapes_msgs::Shape::BOX;

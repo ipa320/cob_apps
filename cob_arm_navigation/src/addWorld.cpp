@@ -61,24 +61,18 @@ int main(int argc, char** argv) {
   ros::Publisher object_in_map_pub_;
   object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 20);
   
-/*
-  if (argc != 3){
-    ROS_ERROR("Need a urdf file as first argument and the model_name as in the launch file as second argument");
-    return -1;
-  }
-  std::string urdf_file = argv[1];
-  std::string model_name = argv[2];
-  ROS_INFO("Model-Name: %s", model_name.c_str());
-
-  urdf::Model model;
-  if (!model.initFile(urdf_file)){
-    ROS_ERROR("Failed to parse urdf file");
-    return -1;
-  }
-*/
 
   std::string parameter_name = "world_description";
   std::string model_name = "urdf_world_model";
+  
+  
+  
+  while(!nh.hasParam(parameter_name))
+  {
+	  ROS_WARN("waiting for parameter \"world_description\"... ");
+	  ros::Duration(0.5).sleep();
+  }
+  
   
   urdf::Model model;
   if (!model.initParam(parameter_name))
@@ -102,6 +96,9 @@ int main(int argc, char** argv) {
     ROS_INFO("Joint name: %s", (*joints_it).first.c_str());
     ROS_INFO("\t origin: %f,%f,%f", (*joints_it).second->parent_to_joint_origin_transform.position.x, (*joints_it).second->parent_to_joint_origin_transform.position.y, (*joints_it).second->parent_to_joint_origin_transform.position.z);
   }
+
+  ros::service::waitForService("/gazebo/get_model_state");
+  ros::service::waitForService("/cob3_environment_server/get_state_validity");	//just to make sure that the environment_server is there!
 
   //access to tranformation /world to /root_link (table_top)
   ros::ServiceClient client = nh.serviceClient<gazebo::GetModelState>("/gazebo/get_model_state");
