@@ -17,38 +17,30 @@ shapes::Shape* constructShape(const urdf::Geometry *geom)
   ROS_ASSERT(geom);
  
   shapes::Shape *result = NULL;
-  switch (geom->type)
+  if(geom->type == urdf::Geometry::BOX)
   {
-  case urdf::Geometry::BOX:
-    {
-	  ROS_INFO("BOX");
-      urdf::Vector3 dim = dynamic_cast<const urdf::Box*>(geom)->dim;
-      result = new shapes::Box(dim.x, dim.y, dim.z);
-      break;
-    }
-  case urdf::Geometry::SPHERE:
-	{
-	  ROS_INFO("SPHERE");
-      result = new shapes::Sphere(dynamic_cast<const urdf::Sphere*>(geom)->radius);
-      break;
-	}
-  case urdf::Geometry::CYLINDER:
-	{
-	  ROS_INFO("CYLINDER");
-      result = new shapes::Cylinder(dynamic_cast<const urdf::Cylinder*>(geom)->radius, dynamic_cast<const urdf::Cylinder*>(geom)->length);
-      break;
-    }
-  case urdf::Geometry::MESH:
-	{
-	  //you can find the code in motion_planning_common/planning_models/kinematic_models.cpp
-	  ROS_INFO("MESH --- currently not supported");
-	  break;
-	}
-  default:
-	{
-      ROS_ERROR("Unknown geometry type: %d", (int)geom->type);
-      break;
-	}
+	ROS_INFO("BOX");
+    urdf::Vector3 dim = dynamic_cast<const urdf::Box*>(geom)->dim;
+    result = new shapes::Box(dim.x, dim.y, dim.z);
+  }
+  else if(geom->type == urdf::Geometry::SPHERE)
+  {
+	ROS_INFO("SPHERE");
+    result = new shapes::Sphere(dynamic_cast<const urdf::Sphere*>(geom)->radius);
+  }
+  else if(geom->type == urdf::Geometry::CYLINDER)
+  {
+	ROS_INFO("CYLINDER");
+    result = new shapes::Cylinder(dynamic_cast<const urdf::Cylinder*>(geom)->radius, dynamic_cast<const urdf::Cylinder*>(geom)->length);
+  }
+  else if(geom->type == urdf::Geometry::MESH)
+  {
+	//you can find the code in motion_planning_common/planning_models/kinematic_models.cpp
+	ROS_INFO("MESH --- currently not supported");
+  }
+  else
+  {
+    ROS_ERROR("Unknown geometry type: %d", (int)geom->type);
   }
     
   return result;
@@ -149,6 +141,7 @@ int main(int argc, char** argv) {
 	  //fill CollisionObject for each link
 	  shapes::Shape *current_shape;
 	  current_shape = constructShape(current_link.collision->geometry.get());
+	  ROS_INFO("shape.type: %d", current_shape->type);
 	  
 	  //ROS_INFO("Position (x,y,z): (%f,%f,%f)", current_link.collision->origin.position.x, current_link.collision->origin.position.y, current_link.collision->origin.position.z);
 
