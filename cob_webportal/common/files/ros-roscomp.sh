@@ -3,9 +3,14 @@ export ROBOT=cob3-1
 source /opt/ros/cturtle/setup.sh
 #source /home/brics/git/care-o-bot/setup.sh /home/brics/git/care-o-bot
 #source /home/brics/git/cob3_intern/setup.sh /home/brics/git/cob3_intern
-source /opt/ros/cturtle/setup.sh
-source /home/brics/git/care-o-bot/setup.sh /home/brics/git/care-o-bot
+source /opt/ros/diamondback/setup.bash
 #source /home/uhr/git/robocup/setup.sh /home/uhr/git/robocup
+
+echo $ROS_PACKAGE_PATH_ADD
+if [[ $ROS_PACKAGE_PATH_ADD == 'overlay' ]]; then
+	export ROS_PACKAGE_PATH=~/git/care-o-bot:$ROS_PACKAGE_PATH
+fi
+echo $ROS_PACKAGE_PATH
 
 VIRTUALGL_PATH=/opt/VirtualGL/bin/vglrun
 IFS=$'\n'
