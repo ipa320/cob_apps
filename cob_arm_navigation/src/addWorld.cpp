@@ -19,31 +19,36 @@ shapes::Shape* constructShape(const urdf::Geometry *geom)
   shapes::Shape *result = NULL;
   switch (geom->type)
   {
-  case urdf::Geometry::SPHERE:
-    {
-      result = new shapes::Sphere(dynamic_cast<const urdf::Sphere*>(geom)->radius);
-      break;
-    }
   case urdf::Geometry::BOX:
     {
+	  ROS_INFO("BOX");
       urdf::Vector3 dim = dynamic_cast<const urdf::Box*>(geom)->dim;
       result = new shapes::Box(dim.x, dim.y, dim.z);
+      break;
     }
-    break;
+  case urdf::Geometry::SPHERE:
+	{
+	  ROS_INFO("SPHERE");
+      result = new shapes::Sphere(dynamic_cast<const urdf::Sphere*>(geom)->radius);
+      break;
+	}
   case urdf::Geometry::CYLINDER:
-    {
-      result = new shapes::Cylinder(dynamic_cast<const urdf::Cylinder*>(geom)->radius,
-                                  dynamic_cast<const urdf::Cylinder*>(geom)->length);
+	{
+	  ROS_INFO("CYLINDER");
+      result = new shapes::Cylinder(dynamic_cast<const urdf::Cylinder*>(geom)->radius, dynamic_cast<const urdf::Cylinder*>(geom)->length);
       break;
     }
   case urdf::Geometry::MESH:
-    {
-		//you can find the code in motion_planning_common/planning_models/kinematic_models.cpp
+	{
+	  //you can find the code in motion_planning_common/planning_models/kinematic_models.cpp
+	  ROS_INFO("MESH --- currently not supported");
+	  break;
 	}
-    break;
   default:
-    ROS_ERROR("Unknown geometry type: %d", (int)geom->type);
-    break;
+	{
+      ROS_ERROR("Unknown geometry type: %d", (int)geom->type);
+      break;
+	}
   }
     
   return result;
@@ -182,11 +187,7 @@ int main(int argc, char** argv) {
 	  object_in_map_pub_.publish(collision_object);
 	
 	  ROS_INFO("Should have published");
-	  
-	  ros::Duration(2.0).sleep();
   }
-
-  ros::Duration(2.0).sleep();
 
   ros::shutdown();
 }
