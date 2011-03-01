@@ -696,7 +696,7 @@ class simple_script_server:
 		# sending goal
 		client_goal = MoveArmGoal()
 		client_goal.planner_service_name = "ompl_planning/plan_kinematic_path"		#choose planner
-		#goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
+		#client_goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
 		client_goal.motion_plan_request = motion_plan
 		#print client_goal
 		self.client.send_goal(client_goal)
