@@ -70,14 +70,14 @@ END_OLD */
   desired_pose.pose.orientation.z = 0.923;
   desired_pose.pose.orientation.w = -0.014;*/
 
-  //sample pose:
-  desired_pose.pose.position.x = 0.200;
-  desired_pose.pose.position.y = -0.946;
-  desired_pose.pose.position.z = 1.085;
-  desired_pose.pose.orientation.x = 0.422;
-  desired_pose.pose.orientation.y = -0.350;
-  desired_pose.pose.orientation.z = 0.810;
-  desired_pose.pose.orientation.w = -0.209;
+  //pos3: test
+  desired_pose.pose.position.x = 0.365;
+  desired_pose.pose.position.y =-0.559;
+  desired_pose.pose.position.z = 0.667;
+  desired_pose.pose.orientation.x =-0.732;
+  desired_pose.pose.orientation.y =-0.042;
+  desired_pose.pose.orientation.z =-0.520;
+  desired_pose.pose.orientation.w = 0.436;
 	
   
 
