@@ -83,6 +83,8 @@ from sound_play.libsoundplay import SoundClient
 
 # care-o-bot includes
 from cob_msgs.msg import *
+from cob_light.msg import *
+from cob_script_server.msg import *
 from cob_srvs.srv import *
 
 # graph includes
@@ -530,7 +532,7 @@ class simple_script_server:
 			point_nr = point_nr + 1
 			point_msg = JointTrajectoryPoint()
 			point_msg.positions = point
-			point_msg.time_from_start=rospy.Duration(3*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
+			point_msg.time_from_start=rospy.Duration(10*point_nr) # this value is set to 3 sec per point. \todo: read from parameter
 			traj_msg.points.append(point_msg)
 
 		# call action server
@@ -666,8 +668,8 @@ class simple_script_server:
 			new_constraint = JointConstraint()
 			new_constraint.joint_name = joint_names[i]
 			new_constraint.position = 0.0
-			new_constraint.tolerance_below = 0.1
-			new_constraint.tolerance_above = 0.1
+			new_constraint.tolerance_below = 0.4
+			new_constraint.tolerance_above = 0.4
 			motion_plan.goal_constraints.joint_constraints.append(new_constraint)
 		#no need for trajectories anymore, since planning (will) guarantee collision-free motion!
 		traj_endpoint = traj[len(traj)-1]
@@ -801,8 +803,16 @@ class simple_script_server:
 			ah.set_failed(1)
 			return ah
 
-		# \todo raise error, if requested object is not detected
+		# copy detected objects to object_list
 		self.object_list = resp.object_list
+
+		# check if object_list is not empty
+		if len(self.object_list.detections) <= 0:
+			rospy.logerr("No object detected, aborting...")
+			ah.set_failed(12)
+			return ah
+
+		# \todo raise error, if requested object is not detected
 
 		ah.set_succeeded()
 		ah.error_code = 0
@@ -811,6 +821,12 @@ class simple_script_server:
 	def get_object_pose(self,object_name):
 		pose = PoseStamped()
 		if(self.parse):
+			return pose
+
+		# check if object_list is not empty
+		if len(self.object_list.detections) <= 0:
+			rospy.logerr("Cannot get object pose because object is not in object list, aborting...")
+			pose.header.frame_id = "/map"
 			return pose
 
 		# \todo parse for all detected objects
@@ -825,13 +841,13 @@ class simple_script_server:
 	#
 	# \param parameter_name Name of the parameter on the parameter server which holds the rgb values.
 	def set_light(self,parameter_name,blocking=False):
-		ah = action_handle("light", "", parameter_name, blocking, self.parse)
+		ah = action_handle("set", "light", parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
 
-		rospy.loginfo("Set light to %s",parameter_name)
+		rospy.loginfo("Set light to <<%s>>",parameter_name)
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
@@ -1397,6 +1413,7 @@ class action_handle:
 					self.set_failed(10)
 					return
 			# check state of action server
+			#print self.client.get_state()
 			if self.client.get_state() != 3:
 				if logging:
 					rospy.logerr("...<<%s>> could not reach <<%s>>, aborting...",self.component_name, self.parameter_name)

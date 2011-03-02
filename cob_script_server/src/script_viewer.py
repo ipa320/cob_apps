@@ -64,6 +64,7 @@ import rospy
 import xdot
 from std_msgs.msg import String
 from cob_msgs.msg import *
+from cob_script_server.msg import *
 
 import pygraphviz as pgv
 
