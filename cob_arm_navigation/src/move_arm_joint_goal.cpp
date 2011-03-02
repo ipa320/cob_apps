@@ -46,17 +46,21 @@ int main(int argc, char **argv){
 	//goalB.motion_plan_request.goal_constraints.joint_constraints[0].position = 0.8;//pole-pos1
 	//goalB.motion_plan_request.goal_constraints.joint_constraints[0].position = -1.0;//pole-pos2
 	//goalB.motion_plan_request.goal_constraints.joint_constraints[1].position = -0.78;
-	
-	//over-tablet
-	//[[2.9057230949401855, -1.0808877189967294, -2.8570542335510254, -1.4864857196807861, 0.57246458530426025, 1.069308876991272, -1.9589838981628416]]
-/*	goalB.motion_plan_request.goal_constraints.joint_constraints[0].position = 2.9057230949401855;
-	goalB.motion_plan_request.goal_constraints.joint_constraints[1].position = -1.0808877189967294;
-	goalB.motion_plan_request.goal_constraints.joint_constraints[2].position = -2.8570542335510254;
-	goalB.motion_plan_request.goal_constraints.joint_constraints[3].position = -1.4864857196807861;
-	goalB.motion_plan_request.goal_constraints.joint_constraints[4].position = 0.57246458530426025;
-	goalB.motion_plan_request.goal_constraints.joint_constraints[5].position = 1.069308876991272;
-	goalB.motion_plan_request.goal_constraints.joint_constraints[6].position = -1.9589838981628416;
+/*	
+	//test
+	//[[2.2031812731220626, -0.91217394752704806, -2.3337257293527092, -1.1578828463405637, 0.44081288873368774, 0.82864568416099793, -1.520311024214986]]
+	goalB.motion_plan_request.goal_constraints.joint_constraints[0].position = 2.203181273122062;
+	goalB.motion_plan_request.goal_constraints.joint_constraints[1].position =-0.912173947527048;
+	goalB.motion_plan_request.goal_constraints.joint_constraints[2].position =-2.333725729352709;
+	goalB.motion_plan_request.goal_constraints.joint_constraints[3].position =-1.157882846340563;
+	goalB.motion_plan_request.goal_constraints.joint_constraints[4].position = 0.440812888733687;
+	goalB.motion_plan_request.goal_constraints.joint_constraints[5].position = 0.828645684160997;
+	goalB.motion_plan_request.goal_constraints.joint_constraints[6].position =-1.520311024214986;
 */
+	
+	//goalB.motion_plan_request.goal_constraints.joint_constraints[1].position = 1.5;
+
+
 
   if (nh.ok())
   {

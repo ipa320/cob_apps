@@ -8,6 +8,7 @@
     <remap from="robot_description" to="robot_description" />  
     <remap from="collision_map" to="collision_map_occ" />
     <remap from="collision_map_update" to="collision_map_occ_update" />
+    <remap from="/joint_states" to="/joint_states_combined" />
     
     <!-- if we are moving the base, it is best to maintain the map in a fixed frame since identified objects that are being published
 	 are not necessarily updated -->

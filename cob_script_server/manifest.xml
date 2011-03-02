@@ -11,6 +11,7 @@
   
   <depend package="rospy"/>
   <depend package="actionlib"/>
+  <depend package="actionlib_msgs"/>
   <depend package="tf"/>
   <depend package="std_msgs"/>
   <depend package="cob_default_config"/>
@@ -23,7 +24,12 @@
   <depend package="move_arm_msgs"/>
   <depend package="motion_planning_msgs"/>
   <depend package="sound_play"/>
+  <depend package="cob_light"/>
   
   <rosdep name="pygraphviz"/>
-  
+ 
+  <export>
+    <cpp cflags="-I${prefix}/msg/cpp"/>
+  </export>
+ 
 </package>
