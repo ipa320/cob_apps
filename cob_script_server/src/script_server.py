@@ -64,7 +64,7 @@ roslib.load_manifest('cob_script_server')
 import rospy
 import actionlib
 
-from cob_msgs.msg import *
+from cob_script_server.msg import *
 from simple_script_server import *
 
 ## Script server class which inherits from script class.
@@ -77,25 +77,32 @@ class script_server(script):
 	def __init__(self):
 		script.__init__(self)
 		self.ns_global_prefix = "/script_server"
-		self.move_action_server = actionlib.SimpleActionServer(self.ns_global_prefix, MoveAction, self.execute_cb)
+		self.script_action_server = actionlib.SimpleActionServer(self.ns_global_prefix, ScriptAction, self.execute_cb, False)
 		#time.sleep(1)
 	
 #------------------- Actionlib section -------------------#
 	## Executes actionlib callbacks.
 	#
-	# \param server_goal MoveActionGoal
+	# \param server_goal ScriptActionGoal
 	#
 	def execute_cb(self, server_goal):
-		server_result = MoveActionResult().result
-		handle01 = self.sss.move(server_goal.component_name,server_goal.parameter_name)
+		server_result = ScriptActionResult().result
+		if server_goal.function_name == "move":
+			handle01 = self.sss.move(server_goal.component_name,server_goal.parameter_name)
+		elif server_goal.function_name == "move_cart_rel":
+			handle01 = self.sss.move(server_goal.component_name,server_goal.parameter_name)
+		else:
+			rospy.logerr("function <<%s>> not supported", server_goal.function_name)
+			self.script_action_server.set_aborted(server_result)
+			return
 		
 		server_result.return_value = handle01.get_error_code()
 		if server_result.return_value == 0:
 			rospy.logdebug("action result success")
-			self.move_action_server.set_succeeded(server_result)
+			self.script_action_server.set_succeeded(server_result)
 		else:
 			rospy.logerror("action result error")
-			self.move_action_server.set_aborted(server_result)
+			self.script_action_server.set_aborted(server_result)
 
 ## Main routine for running the script server
 #

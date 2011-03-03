@@ -13,6 +13,7 @@ class TestScript(script):
 		#self.sss.init("torso")
 		#self.sss.init("arm")
 		#self.sss.init("sdh")
+		self.sss.set_light("red")
 		
 	def Run(self): 
 		#self.sss.SpeakStr("Hallo","FEST_EN")
