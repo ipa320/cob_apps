@@ -106,7 +106,7 @@ class GtkGeneralPanel(gtk.Frame):
     #self.vbox.pack_start(hbox, False, False, 5)    
     hbox=gtk.HBox(True, 0)
     self.status_image = gtk.Image()
-    self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
+    #self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
     hbox.pack_start(self.status_image, False, False, 0)
     self.status_label = gtk.Label("Status OK")
     hbox.pack_start(self.status_label, False, False, 0)

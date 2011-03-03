@@ -24,4 +24,5 @@
   <depend package="kdl"/>
   <depend package="actionlib"/>
   <depend package="cob_srvs"/>
+  <depend package="brics_actuator"/>
 </package>

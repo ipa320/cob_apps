@@ -13,7 +13,7 @@
 
 #include <kdl/chainfksolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainiksolvervel_pinv.hpp>
+#include "augmented_solver.h"
 #include <kdl/chainiksolverpos_nr.hpp>
 #include <kdl/frames_io.hpp>
 #include <kdl/jntarray.hpp>
@@ -41,7 +41,7 @@ double lastgradx = 0.0;
 double lastgrady = 0.0;
 
 ChainFkSolverPos_recursive *  fksolver1;//Forward position solver
-ChainIkSolverVel_pinv * iksolver1v;//Inverse velocity solver
+augmented_solver * iksolver1v;//Inverse velocity solver
 ChainIkSolverPos_NR * iksolverpos;//Maximum 100 iterations, stop at accuracy 1e-6
 
 
@@ -242,10 +242,11 @@ void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 	 	//std::cout << "Joints: " << q(0) << " " << q(1) << " " << q(2) << " " << q(3) << " " << q(4) << " " << q(5) << " " << q(6)  << "\n";	
 		//std::cout << "VirtualJoints: " << VirtualQ(0) << " " << VirtualQ(1) << " " << VirtualQ(2) << " " << VirtualQ(3) << " " << VirtualQ(4) << " " << VirtualQ(5) << " " << VirtualQ(6)  << "\n";	
 		JntArray q_out(7);
+		JntArray q_base(3);
 	 	Frame F_ist;
 		fksolver1->JntToCart(q, F_ist);
 		KDL::Twist combined_twist = extTwist + getTwist(F_ist);	
-		int ret = iksolver1v->CartToJnt(q, combined_twist, q_out);
+		int ret = iksolver1v->CartToJnt(q, q_base, combined_twist, q_out);
 		if(ret >= 0)
 		{
 			sendVel(q, q_out);
@@ -272,7 +273,7 @@ int main(int argc, char **argv)
 	my_tree.getChain("base_link","arm_0_link", chain_base_arm0);
 
 	fksolver1 = new ChainFkSolverPos_recursive(chain);//Forward position solver
-	iksolver1v = new ChainIkSolverVel_pinv(chain);//Inverse velocity solver
+	iksolver1v = new augmented_solver(chain);//Inverse velocity solver
 	//iksolverpos = new ChainIkSolverPos_NR(chain,&fksolver1,&iksolver1v,100,1e-6);//Maximum 100 iterations, stop at accuracy 1e-6
 	
 	ros::Subscriber sub = n.subscribe("/joint_states", 1, controllerStateCallback);
