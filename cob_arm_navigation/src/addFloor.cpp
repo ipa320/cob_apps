@@ -14,8 +14,6 @@ int main(int argc, char** argv) {
   ros::Publisher object_in_map_pub_;
   object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 10);
 
-  ros::Duration(2.0).sleep();
-
   //add the cylinder into the collision space
   mapping_msgs::CollisionObject cylinder_object;
   cylinder_object.id = "floor";
@@ -44,8 +42,6 @@ int main(int argc, char** argv) {
   object_in_map_pub_.publish(cylinder_object);
 
   ROS_INFO("Should have published");
-
-  ros::Duration(2.0).sleep();
 
   ros::shutdown();
 }

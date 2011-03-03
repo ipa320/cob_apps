@@ -8,7 +8,6 @@
 	
 	<!-- add known obstacles from parameter server -->
 	<node pkg="cob_arm_navigation" type="addWorld" output="screen" name="addWorld"/>
-	
 	<node pkg="cob_arm_navigation" type="addFloor" output="screen" name="addFloor"/>
 	
 </launch>

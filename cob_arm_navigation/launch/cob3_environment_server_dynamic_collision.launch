@@ -10,7 +10,7 @@
     <param name="group" type="string" value="arm" />
     <param name="allow_valid_collisions" type="bool" value="false" />
 
-    <param name="collision_map_safety_timeout" type="double" value="1.0" />
+    <param name="collision_map_safety_timeout" type="double" value="5.0" />
     <param name="joint_states_safety_timeout" type="double" value="1.0" />
 
     <param name="bounding_planes" type="string" value="0 0 1 -0.01" />

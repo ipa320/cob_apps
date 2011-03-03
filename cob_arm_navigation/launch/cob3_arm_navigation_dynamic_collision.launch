@@ -7,8 +7,10 @@
 	<include file="$(find cob_arm_navigation)/launch/cob3_environment_server_dynamic_collision.launch"/>
 	
 	<!-- add known obstacles from parameter server -->
+<!--	
 	<node pkg="cob_arm_navigation" type="addWorld" output="screen" name="addWorld"/>
 	<node pkg="cob_arm_navigation" type="addFloor" output="screen" name="addFloor"/>		
+-->	
 	
 	
 	<!-- get collision map from point cloud -->
