@@ -9,17 +9,17 @@ int main(int argc, char** argv) {
 
   ros::NodeHandle nh;
 
+  ros::service::waitForService("/cob3_environment_server/get_state_validity");	//just to make sure that the environment_server is there!
+
   ros::Publisher object_in_map_pub_;
   object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 10);
-
-  ros::Duration(2.0).sleep();
 
   //add the cylinder into the collision space
   mapping_msgs::CollisionObject cylinder_object;
   cylinder_object.id = "floor";
   cylinder_object.operation.operation = mapping_msgs::CollisionObjectOperation::ADD;
   //cylinder_object.operation.operation = mapping_msgs::CollisionObjectOperation::REMOVE;
-  cylinder_object.header.frame_id = "/base_footprint";
+  cylinder_object.header.frame_id = "/map";
   cylinder_object.header.stamp = ros::Time::now();
   geometric_shapes_msgs::Shape object;
   object.type = geometric_shapes_msgs::Shape::BOX;
@@ -42,8 +42,6 @@ int main(int argc, char** argv) {
   object_in_map_pub_.publish(cylinder_object);
 
   ROS_INFO("Should have published");
-
-  ros::Duration(2.0).sleep();
 
   ros::shutdown();
 }

@@ -54,17 +54,15 @@ END_OLD */
   desired_pose.pose.orientation.w =-0.512;
 */
   
-  //pos3: right
-  desired_pose.pose.position.x =-0.185;
-  desired_pose.pose.position.y =-0.924;
-  desired_pose.pose.position.z = 0.785;
-  desired_pose.pose.orientation.x = 0.600;
-  desired_pose.pose.orientation.y =-0.647;
-  desired_pose.pose.orientation.z = 0.438;
-  desired_pose.pose.orientation.w = 0.163;
+  //pos3: test
+  desired_pose.pose.position.x =-0.055;
+  desired_pose.pose.position.y =-0.754;
+  desired_pose.pose.position.z = 0.602;
+  desired_pose.pose.orientation.x = 0.626;
+  desired_pose.pose.orientation.y =-0.390;
+  desired_pose.pose.orientation.z = 0.651;
+  desired_pose.pose.orientation.w =-0.178;
 	
-  
-
 
   desired_pose.absolute_position_tolerance.x = 0.2;
   desired_pose.absolute_position_tolerance.y = 0.2;
