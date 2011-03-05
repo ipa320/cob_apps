@@ -263,7 +263,6 @@ class simple_script_server:
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
 	def move(self,component_name,parameter_name,blocking=True, planning=False):
-		print "planning: ", planning
 		if component_name == "base":
 			return self.move_base(component_name,parameter_name,blocking)
 		elif component_name == "arm" and planning:
