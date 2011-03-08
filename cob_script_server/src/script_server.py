@@ -77,7 +77,7 @@ class script_server(script):
 	def __init__(self):
 		script.__init__(self)
 		self.ns_global_prefix = "/script_server"
-		self.script_action_server = actionlib.SimpleActionServer(self.ns_global_prefix, ScriptAction, self.execute_cb, False)
+		self.script_action_server = actionlib.SimpleActionServer(self.ns_global_prefix, ScriptAction, self.execute_cb, True)
 		#time.sleep(1)
 	
 #------------------- Actionlib section -------------------#
