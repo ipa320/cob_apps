@@ -7,7 +7,8 @@
  	<include file="$(find cob_arm_navigation)/launch/cob3_display_planner_collision_model.launch" />
 
 	<!-- load planning -->
-  <include file="$(find cob_arm_navigation)/launch/cob3_ompl_planning.launch"/>
+	<!-- start this STAND-ALONE -->
+  <!--include file="$(find cob_arm_navigation)/launch/cob3_ompl_planning.launch"/-->
 
 	<!-- load controllers -->
   <include file="$(find cob_arm_navigation)/launch/cob3_trajectory_filter.launch"/>
