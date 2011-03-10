@@ -6,7 +6,7 @@
   <node pkg="planning_environment" type="environment_server" output="screen" name="cob3_environment_server">      
     <!--remap from="collision_map" to="collision_map_occ" /-->
 	<!--remap from="collision_map_update" to="collision_map_occ_update" /-->
- <!--   <remap from="/joint_states" to="/joint_states_combined" />   -->
+    
     <param name="group" type="string" value="arm" />
     <param name="allow_valid_collisions" type="bool" value="false" />
 

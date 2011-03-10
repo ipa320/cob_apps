@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch> 
+	<!-- load default nodes -->
+	<include file="$(find cob_arm_navigation)/launch/cob3_arm_navigation_default.launch"/>
+	
+	<!-- load planning_environment -->
+	<include file="$(find cob_arm_navigation)/launch/cob3_environment_server_self_collision.launch"/>
+	
+	<!-- add known obstacles from parameter server -->
+	<node pkg="cob_arm_navigation" type="addWorld" output="screen" name="addWorld"/>
+	<node pkg="cob_arm_navigation" type="addFloor" output="screen" name="addFloor"/>
+	
+</launch>
