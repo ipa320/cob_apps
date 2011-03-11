@@ -5,7 +5,7 @@
      <remap from="robot_description" to="robot_description" />
      
      <!-- The topic for the input cloud -->
-     <remap from="cloud_in" to="full_cloud2" />
+     <remap from="cloud_in" to="full_cloud_known2" />
      
      <!-- The topic for the output cloud -->
      <remap from="cloud_out" to="full_cloud_filtered2" />
