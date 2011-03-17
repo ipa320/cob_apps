@@ -121,13 +121,19 @@ class script():
 	#
 	# First does a simulated turn and then calls Initialize() and Run().
 	def Start(self):
-		self.Parse()
+		if not self.Parse():
+			rospy.logerr("error while parsing the script")
+			return False
 		global ah_counter
 		ah_counter = 0
 		self.sss = simple_script_server()
 		rospy.loginfo("Starting <<%s>> script...",self.basename)
-		self.Initialize()
-		self.Run()
+		if self.Initialize() == False:
+			rospy.logerr("error in Initialize() function of the script")
+			return False
+		if self.Run() == False:
+			rospy.logerr("error in Initialize() function of the script")
+			return False
 		# wait until last threaded action finishes
 		rospy.loginfo("Wait for script to finish...")
 		while ah_counter != 0:
@@ -144,8 +150,12 @@ class script():
 		function_counter = 0
 		# run script in simulation mode
 		self.sss = simple_script_server(parse=True)
-		self.Initialize()
-		self.Run()
+		if self.Initialize() == False:
+			rospy.logerr("error in Initialize() function of the script during parsing")
+			return False
+		if self.Run() == False:
+			rospy.logerr("error in Run() function of the script during parsing")
+			return False
 		
 		# save graph on parameter server for further processing
 #		self.graph = graph
@@ -775,6 +785,27 @@ class simple_script_server:
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
 
+	## Set the default velocity for different components.
+	#
+	# Based on the component, the corresponding set_default_vel service will be called.
+	#
+	# \param component_name Name of the component.
+	# \param default_vel Value to set for the default velocity.
+	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
+	def set_default_velocity(self,component_name,default_vel,blocking=False, planning=False):
+		if not self.parse:
+			rospy.loginfo("setting default velocity for <<%s>> to <<%s>>",component_name, default_vel)
+		rospy.wait_for_service("/" + component_name + "_controller/set_default_vel",5)
+		try:
+			set_default_vel = rospy.ServiceProxy("/" + component_name + "_controller/set_default_vel", SetDefaultVel)
+			req = SetDefaultVelRequest()
+			req.default_vel = default_vel
+			#print req
+			resp = set_default_vel(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+
 #------------------- Perception section -------------------#
 	## Detects an object and returns its pose.
 	#
@@ -1294,7 +1325,7 @@ class action_handle:
 		
 	## Gets the state of an action handle.
 	def get_state(self):
-		return self.state
+		return self.client.get_state()
 
 	## Gets the error code of an action handle.
 	def get_error_code(self):
