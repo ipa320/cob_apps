@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-   <node machine="pc1"  pkg="robot_self_filter" type="self_filter" name="cob3_arm_navigation_tilt_laser_self_filter" output="screen">
+   <node machine="pc1"  pkg="robot_self_filter" type="self_filter" name="cob3_tof_self_filter" output="screen">
 
      <remap from="robot_description" to="robot_description" />
      

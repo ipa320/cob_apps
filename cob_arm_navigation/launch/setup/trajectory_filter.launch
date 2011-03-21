@@ -15,7 +15,7 @@
 
     <!--param name="pointcloud_padd" type="double" value="0.00" /-->
 
-    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_robot_padding.yaml" />		
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/robot_padding.yaml" />		
 
 	</node>
 </launch>

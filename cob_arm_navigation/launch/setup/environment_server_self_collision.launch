@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <launch>
   <!-- send additional description parameters -->
-  <include file="$(find cob_arm_navigation)/launch/cob3_planning_environment.launch" />
+  <include file="$(find cob_arm_navigation)/launch/setup/planning_environment.launch" />
 
   <node pkg="planning_environment" type="environment_server" output="screen" name="cob3_environment_server">      
     <!--remap from="collision_map" to="collision_map_occ" /-->
 	<!--remap from="collision_map_update" to="collision_map_occ_update" /-->
- <!--   <remap from="/joint_states" to="/pseudo_joint_states" />   -->
+    
     <param name="group" type="string" value="arm" />
     <param name="allow_valid_collisions" type="bool" value="false" />
 
@@ -28,7 +28,7 @@
 	<!-- tf_safety_timeout necessary when global_frame is set -> planning_monitor_.includePose_ = true -> isPoseUpdated() in isEnvironmentSafe() -> tf_safety_timeout would be 0.0 by default -> planning fails -->
     <param name="tf_safety_timeout" type="double" value="1.0" />
 
-    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_environment_server_padding.yaml" />		
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/environment_server_padding.yaml" />		
 
   </node>
 

@@ -14,7 +14,7 @@
     <param name="planner_frame_id" type="string" value="/map" />
 
     <!-- planner configs -->
-    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_ompl_planning_configs.yaml" />
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/ompl_planning_configs.yaml" />
 
     <param name="state_delay" type="double" value="0.01" />
     <param name="pointcloud_padd" type="double" value="0.00" />
@@ -24,7 +24,7 @@
     <param name="bounding_planes" type="string" value="0 0 1 -0.01" />
     <param name="verbose_collisions" type="bool" value="false" />
 
-    <rosparam command="load" file="$(find cob_arm_navigation)/config/cob3_robot_padding.yaml" />			
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/robot_padding.yaml" />			
   </node>
 
 </launch>
