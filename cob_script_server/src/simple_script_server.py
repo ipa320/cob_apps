@@ -132,7 +132,7 @@ class script():
 			rospy.logerr("error in Initialize() function of the script")
 			return False
 		if self.Run() == False:
-			rospy.logerr("error in Initialize() function of the script")
+			rospy.logerr("error in Run() function of the script")
 			return False
 		# wait until last threaded action finishes
 		rospy.loginfo("Wait for script to finish...")
@@ -467,6 +467,7 @@ class simple_script_server:
 				#print i,"type1 = ", type(i)
 				if not type(i) is str: # check string
 					rospy.logerr("no valid joint_names for %s: not a list of strings, aborting...",component_name)
+
 					print "joint_names are:",param
 					ah.set_failed(3)
 					return ah
@@ -893,6 +894,7 @@ class simple_script_server:
 			rospy.logerr("no valid parameter for light: not a list, aborting...")
 			print "parameter is:",param
 			ah.error_code = 3
+
 			return ah
 		else:
 			if not len(param) == 3: # check dimension
