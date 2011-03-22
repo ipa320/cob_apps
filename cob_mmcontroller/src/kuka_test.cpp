@@ -39,6 +39,8 @@ KDL::Twist baseTwist;
 ros::Time last;
 double lastgradx = 0.0;
 double lastgrady = 0.0;
+double mytime;
+ros::Time last2;
 
 ChainFkSolverPos_recursive *  fksolver1;//Forward position solver
 augmented_solver * iksolver1v;//Inverse velocity solver
@@ -133,8 +135,21 @@ KDL::Twist getTwist(KDL::Frame F_ist)
 		return zero;
 	else
 	{
+		zero.vel.z(-0.1);
 		return baseTwist;
 	}	
+}
+
+KDL::Twist getTrajectoryTwist(double dt)
+{
+	KDL::Twist circ;
+	if(dt <= 5.0)
+	{
+		circ.vel.z(-0.1);
+	}
+	else
+		std::cout << "Finnished\n";
+	return circ;
 }
 
 
@@ -190,6 +205,8 @@ bool SyncMMTrigger(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Respo
 		RunSyncMM = false;
 	else
 	{
+		mytime = 0.0;
+		last2 = ros::Time::now();
 		started = false;
 		RunSyncMM = true;
 	}	
@@ -235,6 +252,9 @@ void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
 	if(RunSyncMM)
 	{
+		double dt = ros::Time::now().toSec() - last2.toSec();
+		mytime += dt;
+		last2 = ros::Time::now();
 		unsigned int nj = chain.getNrOfJoints();
 		std::vector<std::string> names = msg->name;
 		std::vector<double> positions = msg->position;
@@ -245,7 +265,7 @@ void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 		JntArray q_base(3);
 	 	Frame F_ist;
 		fksolver1->JntToCart(q, F_ist);
-		KDL::Twist combined_twist = extTwist + getTwist(F_ist);	
+		KDL::Twist combined_twist = getTrajectoryTwist(mytime);
 		int ret = iksolver1v->CartToJnt(q, q_base, combined_twist, q_out);
 		if(ret >= 0)
 		{
