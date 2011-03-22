@@ -4,7 +4,7 @@
   <include file="$(find cob_machine)/cob3-sim.machine" />  
 
 
-  <node machine="pc1" pkg="ompl_planning" type="motion_planner" name="ompl_planning" respawn="true" output="screen">
+  <node machine="pc1" pkg="ompl_ros_interface" type="ompl_ros" name="ompl_planning" respawn="true" output="screen">
     <remap from="robot_description" to="robot_description" />  
     <remap from="collision_map" to="collision_map_occ" />
     <remap from="collision_map_update" to="collision_map_occ_update" />
