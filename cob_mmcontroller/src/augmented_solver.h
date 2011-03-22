@@ -34,7 +34,7 @@ namespace KDL
     	augmented_solver(const Chain& chain,double eps=0.00001,int maxiter=150);
         ~augmented_solver();
 
-        virtual int CartToJnt(const JntArray& q_in, const JntArray& q_in_base, Twist& v_in, JntArray& qdot_out);
+        virtual int CartToJnt(const JntArray& q_in, const JntArray& q_in_base, Twist& v_in, JntArray& qdot_out, JntArray& qdot_base_out);
         /**
          * not (yet) implemented.
          *

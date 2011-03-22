@@ -21,6 +21,8 @@
 
 #include "augmented_solver.h"
 
+#define DEBUG true
+
 namespace KDL
 {
 	augmented_solver::augmented_solver(const Chain& _chain,double _eps,int _maxiter):
@@ -35,7 +37,7 @@ namespace KDL
         eps(_eps),
         maxiter(_maxiter)
     {
-		base_is_actived_ = false;
+		base_is_actived_ = true;
     }
 
 	augmented_solver::~augmented_solver()
@@ -43,7 +45,7 @@ namespace KDL
     }
 
 
-    int augmented_solver::CartToJnt(const JntArray& q_in, const JntArray& q_in_base, Twist& v_in, JntArray& qdot_out)
+    int augmented_solver::CartToJnt(const JntArray& q_in, const JntArray& q_in_base, Twist& v_in, JntArray& qdot_out, JntArray& qdot_base_out)
     {
     	double damping_factor = 0.01;
 
@@ -67,7 +69,8 @@ namespace KDL
         jac_full << jac.data, jac_base;
         int num_dof = chain.getNrOfJoints() + jac_base.cols();
 
-        std::cout << "Combined jacobian:\n " << jac_full << "\n";
+        if(DEBUG)
+        	std::cout << "Combined jacobian:\n " << jac_full << "\n";
 
         //Weighting Matrices
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> W_v;
@@ -81,7 +84,8 @@ namespace KDL
         for(unsigned int i=0 ; i<6 ; i++)
         	W_e(i,i) = 1;
 
-        std::cout << "Weight matrix defined\n";
+        if(DEBUG)
+                std::cout << "Weight matrix defined\n";
         //W_e.setIdentity(6,6);
 
         //Inversion TODO: noch ohne augmented tasks just the infrastructure
@@ -90,7 +94,8 @@ namespace KDL
         damped_inversion.resize(num_dof,num_dof);
 
         damped_inversion = (jac_full.transpose() * W_e * jac_full) + W_v;
-        std::cout << "Inversion done\n";
+        if(DEBUG)
+                std::cout << "Inversion done\n";
 
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> q_dot_conf_control;
         Eigen::Matrix<double, 6, 1> v_in_eigen;
@@ -103,7 +108,8 @@ namespace KDL
         v_in_eigen(5,0) = 0.0;//v_in.rot.z();
         q_dot_conf_control = damped_inversion.inverse() * jac_full.transpose() * W_e * v_in_eigen;
 
-        std::cout << "Endergebnis: \n" << q_dot_conf_control << "\n";
+        if(DEBUG)
+                std::cout << "Endergebnis: \n" << q_dot_conf_control << "\n";
 
         //Do a singular value decomposition of "jac" with maximum
         //iterations "maxiter", put the results in "U", "S" and "V"
@@ -138,14 +144,22 @@ namespace KDL
             //Put the result in qdot_out
             qdot_out(i)=sum;
         }
-        std::cout << "Solution SVD: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
+        if(DEBUG)
+                std::cout << "Solution SVD: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
         //return the return value of the svd decomposition
         //New calculation
         for(unsigned int i=0;i<7;i++)
         {
         	qdot_out(i)=q_dot_conf_control(i,0);
         }
-        std::cout << "Solution ConfControl: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
+        if(base_is_actived_)
+        {
+        	for(unsigned int i = 7; i<7+3; i++)
+        		qdot_base_out(i-7) = q_dot_conf_control(i,0);
+        }
+
+        if(DEBUG)
+                std::cout << "Solution ConfControl: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
         return ret;
     }
 

@@ -145,11 +145,12 @@ KDL::Twist getTrajectoryTwist(double dt)
 	KDL::Twist circ;
 	if(dt <= 5.0)
 	{
-		circ.vel.z(-0.1);
+		circ.vel.z(0.05);
+		circ.vel.y(-0.1);
 	}
 	else
 		std::cout << "Finnished\n";
-	return circ;
+	return extTwist;
 }
 
 
@@ -263,14 +264,21 @@ void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 		//std::cout << "VirtualJoints: " << VirtualQ(0) << " " << VirtualQ(1) << " " << VirtualQ(2) << " " << VirtualQ(3) << " " << VirtualQ(4) << " " << VirtualQ(5) << " " << VirtualQ(6)  << "\n";	
 		JntArray q_out(7);
 		JntArray q_base(3);
+		JntArray q_dot_base(3);
 	 	Frame F_ist;
 		fksolver1->JntToCart(q, F_ist);
 		KDL::Twist combined_twist = getTrajectoryTwist(mytime);
-		int ret = iksolver1v->CartToJnt(q, q_base, combined_twist, q_out);
+		int ret = iksolver1v->CartToJnt(q, q_base, combined_twist, q_out, q_dot_base);
 		if(ret >= 0)
 		{
 			sendVel(q, q_out);
 			std::cout << q_out(0) << " " << q_out(1) << " " << q_out(2) << " " << q_out(3) << " " << q_out(4) << " " << q_out(5) << " " << q_out(6)  << "\n";
+			//send to base
+			geometry_msgs::Twist cmd;
+			cmd.linear.x = q_dot_base(0);
+			cmd.linear.y = q_dot_base(1);
+			cmd.angular.z = q_dot_base(2);
+			base_pub_.publish(cmd);
 		}	
 		else
 			std::cout << "Something went wrong" << "\n";	
