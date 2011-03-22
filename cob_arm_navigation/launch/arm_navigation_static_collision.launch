@@ -7,7 +7,7 @@
 	<include file="$(find cob_arm_navigation)/launch/setup/environment_server_self_collision.launch"/>
 	
 	<!-- add known obstacles from parameter server -->
-	<node pkg="cob_arm_navigation" type="addWorld" output="screen" name="addWorld"/>
-	<node pkg="cob_arm_navigation" type="addFloor" output="screen" name="addFloor"/>
+	<node pkg="cob_arm_navigation" type="addWorld" output="log" name="addWorld"/>
+	<node pkg="cob_arm_navigation" type="addFloor" output="log" name="addFloor"/>
 	
 </launch>
