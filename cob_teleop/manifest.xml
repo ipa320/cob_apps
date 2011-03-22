@@ -1,7 +1,7 @@
 <package>
   <description brief="cob_teleop">
 
-     This Package enables remote controll of Care-O-bot via a joystick. Currently tray, torso, arm and base are supported.
+     This Package enables remote controll of Care-O-bot via a joystick or keyboard. Currently tray, torso, arm and base are supported.
 
   </description>
   <author>Florian Weisshardt</author>

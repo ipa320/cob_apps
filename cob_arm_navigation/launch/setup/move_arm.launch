@@ -19,8 +19,8 @@
     <remap from="get_group_info" to="cob3_environment_server/get_group_info" />	
 
     <param name="group" type="string" value="arm" />
-    <param name="ik_allowed_time" type="double" value="8.0" />
-    <param name="trajectory_filter_allowed_time" type="double" value="8.0" />
+    <param name="ik_allowed_time" type="double" value="2.0" />
+    <param name="trajectory_filter_allowed_time" type="double" value="2.0" />	<!-- 0.0 => disable smoothing -->
     <param name="group" type="string" value="arm" />
     <param name="controller_action_name" type="string" value="/arm_controller/joint_trajectory_action" />
 

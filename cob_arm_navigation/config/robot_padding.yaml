@@ -1,7 +1,9 @@
 default_robot_padding: 0.0
 link_padding:
-  - link: torso
-    padding: 0.0
+  - link: tablet
+    padding: 0.03
+#  - link: torso
+#    padding: 0.0
 #  - link: robot_body
 #    padding: 0.0
 #  - link: left_arm
