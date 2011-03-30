@@ -76,58 +76,45 @@ int main(int argc, char **argv){
   goalA.motion_plan_request.allowed_planning_time = ros::Duration(5.0);
   
   motion_planning_msgs::SimplePoseConstraint desired_pose;
-  desired_pose.header.frame_id = "base_link";//"torso_lift_link";
+  desired_pose.header.frame_id = "base_footprint";//"torso_lift_link";
   desired_pose.link_name = "arm_7_link";//"r_wrist_roll_link";
   
-
-/* OLD: possibly not working due to changes on lbr model
-  //pos1: stretch-up
-  desired_pose.pose.position.x = -0.06;
-  desired_pose.pose.position.y = -0.21;
-  desired_pose.pose.position.z = 1.92;
-  desired_pose.pose.orientation.x = -1.0;
-  desired_pose.pose.orientation.y = 0.0;
-  desired_pose.pose.orientation.z = 0.0;
-  desired_pose.pose.orientation.w = 0.02;
   
-  //pos2: over-tablet
-  desired_pose.pose.position.x = 0.52;
-  desired_pose.pose.position.y = -0.01;
-  desired_pose.pose.position.z = 0.92;
-  desired_pose.pose.orientation.x = -0.72;
-  desired_pose.pose.orientation.y = -0.17;
-  desired_pose.pose.orientation.z = 0.19;
-  desired_pose.pose.orientation.w = -0.63;
-END_OLD */
-
-/*
-  //pos3: over-tablet
-  desired_pose.pose.position.x = 0.544;
-  desired_pose.pose.position.y =-0.267;
-  desired_pose.pose.position.z = 0.935;
-  desired_pose.pose.orientation.x = 0.576;
-  desired_pose.pose.orientation.y = 0.421;
-  desired_pose.pose.orientation.z = 0.475;
-  desired_pose.pose.orientation.w =-0.512;
-*/
+  //pos: grasp
+/*  desired_pose.pose.position.x =-0.615;
+  desired_pose.pose.position.y = 0.064;
+  desired_pose.pose.position.z = 0.800;
+  desired_pose.pose.orientation.x = 0.224;
+  desired_pose.pose.orientation.y =-0.714;
+  desired_pose.pose.orientation.z = 0.277;
+  desired_pose.pose.orientation.w = 0.603; */
   
-  //pos3: test
-  desired_pose.pose.position.x =-0.055;
-  desired_pose.pose.position.y =-0.754;
-  desired_pose.pose.position.z = 0.602;
-  desired_pose.pose.orientation.x = 0.626;
-  desired_pose.pose.orientation.y =-0.390;
-  desired_pose.pose.orientation.z = 0.651;
-  desired_pose.pose.orientation.w =-0.178;
-	
+  //pos: home
+/*  desired_pose.pose.position.x =-0.213;
+  desired_pose.pose.position.y =-0.790;
+  desired_pose.pose.position.z = 1.608;
+  desired_pose.pose.orientation.x =-0.111;
+  desired_pose.pose.orientation.y =-0.368;
+  desired_pose.pose.orientation.z = 0.923;
+  desired_pose.pose.orientation.w =-0.017; */
+  
+  //pos: wavein
+  desired_pose.pose.position.x =-0.180;
+  desired_pose.pose.position.y =-0.180;
+  desired_pose.pose.position.z = 1.808;
+  desired_pose.pose.orientation.x =-0.212;
+  desired_pose.pose.orientation.y =-0.296;
+  desired_pose.pose.orientation.z =-0.708;
+  desired_pose.pose.orientation.w = 0.605;
+  
 
-  desired_pose.absolute_position_tolerance.x = 0.2;
-  desired_pose.absolute_position_tolerance.y = 0.2;
-  desired_pose.absolute_position_tolerance.z = 0.2;
+  desired_pose.absolute_position_tolerance.x = 0.01;
+  desired_pose.absolute_position_tolerance.y = 0.01;
+  desired_pose.absolute_position_tolerance.z = 0.01;
 
-  desired_pose.absolute_roll_tolerance = 0.4;
-  desired_pose.absolute_pitch_tolerance = 0.4;
-  desired_pose.absolute_yaw_tolerance = 0.4;
+  desired_pose.absolute_roll_tolerance = 0.01;
+  desired_pose.absolute_pitch_tolerance = 0.01;
+  desired_pose.absolute_yaw_tolerance = 0.01;
   
   move_arm_msgs::addGoalConstraintToMoveArmGoal(desired_pose,goalA);
 
