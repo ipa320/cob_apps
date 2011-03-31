@@ -21,7 +21,7 @@
 
 #include "augmented_solver.h"
 
-#define DEBUG true
+#define DEBUG false
 
 namespace KDL
 {
@@ -68,9 +68,8 @@ namespace KDL
         jac_full.resize(6,chain.getNrOfJoints() + jac_base.cols());
         jac_full << jac.data, jac_base;
         int num_dof = chain.getNrOfJoints() + jac_base.cols();
-
-        if(DEBUG)
-        	std::cout << "Combined jacobian:\n " << jac_full << "\n";
+		if(DEBUG)
+			std::cout << "Combined jacobian:\n " << jac_full << "\n";
 
         //Weighting Matrices
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> W_v;
@@ -81,11 +80,12 @@ namespace KDL
 
 
         Eigen::Matrix<double, 6,6> W_e;
+        W_e.setZero();
         for(unsigned int i=0 ; i<6 ; i++)
         	W_e(i,i) = 1;
 
         if(DEBUG)
-                std::cout << "Weight matrix defined\n";
+        	std::cout << "Weight matrix defined\n";
         //W_e.setIdentity(6,6);
 
         //Inversion TODO: noch ohne augmented tasks just the infrastructure
@@ -95,7 +95,7 @@ namespace KDL
 
         damped_inversion = (jac_full.transpose() * W_e * jac_full) + W_v;
         if(DEBUG)
-                std::cout << "Inversion done\n";
+        	std::cout << "Inversion done\n";
 
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> q_dot_conf_control;
         Eigen::Matrix<double, 6, 1> v_in_eigen;
@@ -109,7 +109,7 @@ namespace KDL
         q_dot_conf_control = damped_inversion.inverse() * jac_full.transpose() * W_e * v_in_eigen;
 
         if(DEBUG)
-                std::cout << "Endergebnis: \n" << q_dot_conf_control << "\n";
+        	std::cout << "Endergebnis: \n" << q_dot_conf_control << "\n";
 
         //Do a singular value decomposition of "jac" with maximum
         //iterations "maxiter", put the results in "U", "S" and "V"
@@ -145,7 +145,7 @@ namespace KDL
             qdot_out(i)=sum;
         }
         if(DEBUG)
-                std::cout << "Solution SVD: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
+        	std::cout << "Solution SVD: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
         //return the return value of the svd decomposition
         //New calculation
         for(unsigned int i=0;i<7;i++)
@@ -159,7 +159,7 @@ namespace KDL
         }
 
         if(DEBUG)
-                std::cout << "Solution ConfControl: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
+        	std::cout << "Solution ConfControl: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
         return ret;
     }
 

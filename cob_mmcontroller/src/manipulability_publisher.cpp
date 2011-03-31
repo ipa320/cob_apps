@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 	jacobiansolver = new KDL::ChainJntToJacSolver(chain);
 	
 	ros::Subscriber sub = n.subscribe("/joint_states", 1, controllerStateCallback);
-	manipulability_pub_ = n.advertise<std_msgs::Float64>("/arm_controller/manipulability", 1);
+	manipulability_pub_ = n.advertise<std_msgs::Float64>("/arm_controller/manipulability2", 1);
 
 	ROS_INFO("Running cartesian velocity controller.");
 	ros::spin();
