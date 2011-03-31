@@ -1,10 +1,10 @@
 <package>
   <description brief="cob_arm_navigation">
 
-     cob_arm_navigation
+     This package contains necessary files to start up planners for the Care-O-bot 3.
 
   </description>
-  <author>Florian Weisshardt</author>
+  <author>Felix Messmer</author>
   <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_arm_nagivation</url>
