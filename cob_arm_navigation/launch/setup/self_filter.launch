@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+   <node machine="pc1"  pkg="robot_self_filter" type="self_filter" name="cob3_tof_self_filter" output="screen">
+
+     <remap from="robot_description" to="robot_description" />
+     
+     <!-- The topic for the input cloud -->
+     <remap from="cloud_in" to="full_cloud_known2" />
+     
+     <!-- The topic for the output cloud -->
+     <remap from="cloud_out" to="full_cloud_filtered2" />
+
+     <!-- The frame of the sensor used to obtain the data to be
+       filtered; This parameter is optional. If it is not specified,
+       shadow points will be considered outside -->
+ <!--    <param name="sensor_frame" type="string" value="head_tof_link" />		-->
+
+     <param name="subsample_value" type="double" value=".01"/>
+
+     <rosparam command="load" file="$(find cob_arm_navigation)/config/self_filter.yaml" />
+
+   </node>
+</launch>

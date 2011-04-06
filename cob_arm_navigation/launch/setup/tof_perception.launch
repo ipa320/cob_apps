@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find cob_machine)/cob3-sim.machine" /> 
+
+
+  <!-- need to clear known objects from scans -->  
+  <node machine="pc1" pkg="planning_environment" type="clear_known_objects" name="tof_clear_objects" output="log">
+    <remap from="cloud_in" to="full_cloud" />
+    <remap from="cloud_out" to="full_cloud_known" />
+    <param name="sensor_frame" type="string" value="head_tof_link" />    	   
+    <param name="fixed_frame" type="string" value="/map" />
+    <param name="object_padd" type="double" value="0.05" />
+    <param name="object_scale" type="double" value="1.0" />
+    <param name="filter_static_objects" type="bool" value="true"/>
+  </node>
+
+
+  <node machine="pc1" pkg="point_cloud_converter" type="point_cloud_converter" name="pcc1" output="screen">
+	<remap from="points_in" to="full_cloud_known"/>
+	<remap from="points2_out" to="full_cloud_known2"/>
+  </node>	
+
+  
+  <!-- expects PointCloud2 -->
+  <include file="$(find cob_arm_navigation)/launch/setup/self_filter.launch" />
+
+ 
+  <node machine="pc1" pkg="point_cloud_converter" type="point_cloud_converter" name="pcc2" output="screen">
+	<remap from="points2_in" to="full_cloud_filtered2"/>
+	<remap from="points_out" to="full_cloud_filtered"/>
+  </node>
+
+  
+  <!-- start collision map -->
+  <include file="$(find cob_arm_navigation)/launch/setup/collision_map_self_occ.launch" />
+  
+</launch>

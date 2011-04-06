@@ -121,13 +121,19 @@ class script():
 	#
 	# First does a simulated turn and then calls Initialize() and Run().
 	def Start(self):
-		self.Parse()
+		if not self.Parse():
+			rospy.logerr("error while parsing the script")
+			return False
 		global ah_counter
 		ah_counter = 0
 		self.sss = simple_script_server()
 		rospy.loginfo("Starting <<%s>> script...",self.basename)
-		self.Initialize()
-		self.Run()
+		if self.Initialize() == False:
+			rospy.logerr("error in Initialize() function of the script")
+			return False
+		if self.Run() == False:
+			rospy.logerr("error in Run() function of the script")
+			return False
 		# wait until last threaded action finishes
 		rospy.loginfo("Wait for script to finish...")
 		while ah_counter != 0:
@@ -144,8 +150,12 @@ class script():
 		function_counter = 0
 		# run script in simulation mode
 		self.sss = simple_script_server(parse=True)
-		self.Initialize()
-		self.Run()
+		if self.Initialize() == False:
+			rospy.logerr("error in Initialize() function of the script during parsing")
+			return False
+		if self.Run() == False:
+			rospy.logerr("error in Run() function of the script during parsing")
+			return False
 		
 		# save graph on parameter server for further processing
 #		self.graph = graph
@@ -457,6 +467,7 @@ class simple_script_server:
 				#print i,"type1 = ", type(i)
 				if not type(i) is str: # check string
 					rospy.logerr("no valid joint_names for %s: not a list of strings, aborting...",component_name)
+
 					print "joint_names are:",param
 					ah.set_failed(3)
 					return ah
@@ -697,7 +708,7 @@ class simple_script_server:
 		# sending goal
 		client_goal = MoveArmGoal()
 		client_goal.planner_service_name = "ompl_planning/plan_kinematic_path"		#choose planner
-		#goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
+		#client_goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
 		client_goal.motion_plan_request = motion_plan
 		#print client_goal
 		self.client.send_goal(client_goal)
@@ -771,6 +782,27 @@ class simple_script_server:
 			req.operation_mode.data = mode
 			#print req
 			resp = set_operation_mode(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+
+	## Set the default velocity for different components.
+	#
+	# Based on the component, the corresponding set_default_vel service will be called.
+	#
+	# \param component_name Name of the component.
+	# \param default_vel Value to set for the default velocity.
+	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
+	def set_default_velocity(self,component_name,default_vel,blocking=False, planning=False):
+		if not self.parse:
+			rospy.loginfo("setting default velocity for <<%s>> to <<%s>>",component_name, default_vel)
+		rospy.wait_for_service("/" + component_name + "_controller/set_default_vel",5)
+		try:
+			set_default_vel = rospy.ServiceProxy("/" + component_name + "_controller/set_default_vel", SetDefaultVel)
+			req = SetDefaultVelRequest()
+			req.default_vel = default_vel
+			#print req
+			resp = set_default_vel(req)
 			#print resp
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
@@ -862,6 +894,7 @@ class simple_script_server:
 			rospy.logerr("no valid parameter for light: not a list, aborting...")
 			print "parameter is:",param
 			ah.error_code = 3
+
 			return ah
 		else:
 			if not len(param) == 3: # check dimension
@@ -1294,7 +1327,7 @@ class action_handle:
 		
 	## Gets the state of an action handle.
 	def get_state(self):
-		return self.state
+		return self.client.get_state()
 
 	## Gets the error code of an action handle.
 	def get_error_code(self):
