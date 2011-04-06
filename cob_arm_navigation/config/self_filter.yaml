@@ -1,0 +1,54 @@
+min_sensor_dist: .05
+self_see_default_padding: .00
+self_see_default_scale: 1.0
+self_see_links:
+  - name: base_link
+    padding: .06
+  - name: torso_lower_neck_tilt_link
+    padding: .06
+  - name: torso_upper_neck_tilt_link
+    padding: .06
+  - name: head_cover_link
+    padding: .06
+  - name: torso_tray_link
+    padding: .06
+  - name: arm_0_link
+    padding: .06
+  - name: arm_1_link
+    padding: .06
+  - name: arm_2_link
+    padding: .06
+  - name: arm_3_link
+    padding: .06
+  - name: arm_4_link
+    padding: .06
+  - name: arm_5_link
+    padding: .06
+  - name: arm_6_link
+    padding: .06
+  - name: arm_7_link
+    padding: .06
+  - name: sdh_palm_link
+    padding: .06
+  - name: sdh_finger_11_link
+    padding: .06
+  - name: sdh_finger_12_link
+    padding: .06
+  - name: sdh_finger_13_link
+    padding: .06
+  - name: sdh_finger_21_link
+    padding: .06
+  - name: sdh_finger_22_link
+    padding: .06
+  - name: sdh_finger_23_link
+    padding: .06
+  - name: sdh_thumb_1_link
+    padding: .06
+  - name: sdh_thumb_2_link
+    padding: .06
+  - name: sdh_thumb_3_link
+    padding: .06  
+
+    
+
+  

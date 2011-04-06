@@ -69,3 +69,27 @@ class TestScript(script):
 if __name__ == "__main__":
 	SCRIPT = TestScript()
 	SCRIPT.Start()
+
+import roslib
+roslib.load_manifest('cob_script_server')
+import rospy
+
+from simple_script_server import script
+
+class TestScript(script):
+		
+	def Initialize(self):
+		self.sss.init("tray")
+		#self.sss.init("torso")
+		#self.sss.init("arm")
+		#self.sss.init("sdh")
+		self.sss.set_light("red")
+		
+	def Run(self): 
+		
+		# init poses
+		handle_arm = self.sss.move_cart_rel("arm",[[0, -0.1, 0],[0, 0, 0]])
+		
+if __name__ == "__main__":
+	SCRIPT = TestScript()
+	SCRIPT.Start()

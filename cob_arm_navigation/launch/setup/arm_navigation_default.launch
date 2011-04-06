@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch> 
+ 	<!-- send additional description parameters -->
+  <include file="$(find cob_arm_navigation)/launch/setup/planning_environment.launch" />
+
+	<!-- displaying known model markers -->
+ 	<include file="$(find cob_arm_navigation)/launch/setup/display_planner_collision_model.launch" />
+
+	<!-- load planning -->
+	<!-- start this STAND-ALONE -->
+  <!--include file="$(find cob_arm_navigation)/launch/setup/ompl_planning.launch"/-->
+  <!--include file="$(find cob_arm_navigation)/launch/setup/ompl_planning_new.launch"/-->
+
+	<!-- load controllers -->
+  <include file="$(find cob_arm_navigation)/launch/setup/trajectory_filter.launch"/>
+	
+	<!-- load move_arm -->
+  <include file="$(find cob_arm_navigation)/launch/setup/move_arm.launch"/>
+	<!-- needs environment-server -->
+
+
+</launch>
