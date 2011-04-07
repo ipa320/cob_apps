@@ -84,6 +84,7 @@ from sound_play.libsoundplay import SoundClient
 # care-o-bot includes
 from cob_msgs.msg import *
 from cob_light.msg import *
+from cob_sound.msg import *
 from cob_script_server.msg import *
 from cob_srvs.srv import *
 
@@ -941,7 +942,7 @@ class simple_script_server:
 	# \param language Language to use for the TTS system
 	def say(self,parameter_name,blocking=True):
 		component_name = "sound"
-		ah = action_handle("say", component_name, parameter_name, False, self.parse)
+		ah = action_handle("say", component_name, parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
@@ -979,12 +980,29 @@ class simple_script_server:
 					rospy.logdebug("accepted parameter <<%s>> for <<%s>>",i,component_name)
 
 		rospy.loginfo("Saying <<%s>>",text)
-		if blocking:
-			os.system("echo " + text + " | text2wave | aplay -q")
+		
+		# call action server
+		action_server_name = "/sound_controller/say"
+		rospy.logdebug("calling %s action server",action_server_name)
+		self.client = actionlib.SimpleActionClient(action_server_name, SayAction)
+		# trying to connect to server
+		rospy.logdebug("waiting for %s action server to start",action_server_name)
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			# error: server did not respond
+			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
+			ah.set_failed(4)
+			return ah
 		else:
-			self.soundhandle.say(text)
-			#os.system("echo " + text + " | text2wave | aplay -q &")
-		ah.set_succeeded()
+			rospy.logdebug("%s action server ready",action_server_name)
+
+		# sending goal
+		client_goal = SayGoal()
+		client_goal.text.data = text
+		#print client_goal
+		self.client.send_goal(client_goal)
+		ah.set_client(self.client)
+
+		ah.wait_inside()
 		return ah
 
 	## Play a sound file.
