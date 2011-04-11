@@ -25,6 +25,7 @@
 	
 	<!-- global_frame necessary for planning with static obstacles, otherwise known objects move with base_footprint -->
 	<param name="global_frame" type="string" value="/map" />
+	<!--param name="global_frame" type="string" value="/base_footprint" /-->
 	<!-- tf_safety_timeout necessary when global_frame is set -> planning_monitor_.includePose_ = true -> isPoseUpdated() in isEnvironmentSafe() -> tf_safety_timeout would be 0.0 by default -> planning fails -->
     <param name="tf_safety_timeout" type="double" value="1.0" />
 

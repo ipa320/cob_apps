@@ -25,6 +25,7 @@
   <depend package="motion_planning_msgs"/>
   <depend package="sound_play"/>
   <depend package="cob_light"/>
+  <depend package="cob_sound"/>
   
   <rosdep name="pygraphviz"/>
  
