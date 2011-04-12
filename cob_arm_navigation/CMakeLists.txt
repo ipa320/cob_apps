@@ -31,6 +31,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 rosbuild_add_executable(addCylinder src/addCylinder.cpp)
 rosbuild_add_executable(addFloor src/addFloor.cpp)
 rosbuild_add_executable(addWorld src/addWorld.cpp)
+rosbuild_add_executable(addObject src/addObject.cpp)
 rosbuild_add_executable(move_arm_joint_goal src/move_arm_joint_goal.cpp)
 rosbuild_add_executable(move_arm_simple_pose_goal src/move_arm_simple_pose_goal.cpp)
 
