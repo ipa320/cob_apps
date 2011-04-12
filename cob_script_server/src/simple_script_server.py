@@ -122,19 +122,13 @@ class script():
 	#
 	# First does a simulated turn and then calls Initialize() and Run().
 	def Start(self):
-		if not self.Parse():
-			rospy.logerr("error while parsing the script")
-			return False
+		self.Parse()
 		global ah_counter
 		ah_counter = 0
 		self.sss = simple_script_server()
 		rospy.loginfo("Starting <<%s>> script...",self.basename)
-		if self.Initialize() == False:
-			rospy.logerr("error in Initialize() function of the script")
-			return False
-		if self.Run() == False:
-			rospy.logerr("error in Run() function of the script")
-			return False
+		self.Initialize()
+		self.Run()
 		# wait until last threaded action finishes
 		rospy.loginfo("Wait for script to finish...")
 		while ah_counter != 0:
@@ -151,12 +145,8 @@ class script():
 		function_counter = 0
 		# run script in simulation mode
 		self.sss = simple_script_server(parse=True)
-		if self.Initialize() == False:
-			rospy.logerr("error in Initialize() function of the script during parsing")
-			return False
-		if self.Run() == False:
-			rospy.logerr("error in Run() function of the script during parsing")
-			return False
+		self.Initialize()
+		self.Run()
 		
 		# save graph on parameter server for further processing
 #		self.graph = graph
@@ -468,7 +458,6 @@ class simple_script_server:
 				#print i,"type1 = ", type(i)
 				if not type(i) is str: # check string
 					rospy.logerr("no valid joint_names for %s: not a list of strings, aborting...",component_name)
-
 					print "joint_names are:",param
 					ah.set_failed(3)
 					return ah
@@ -765,6 +754,133 @@ class simple_script_server:
 
 		ah.wait_inside()
 		return ah
+		
+	## Move to a simple pose goal - planned
+	# 
+	# - recieves a cartesian pose (position, orientation) for 'arm_7_link' given in 'base_footprint' reference coordinate system
+	# - sends the goal to move_arm
+	# - move_arm will call the IK-solver
+	# - if configuration is found, the specified planner is called to find a collision-free trajectory
+	# - if successful the motion is executed
+	#
+	# ADD-ON: use another parameter to specify the reference frame and do transformation in cob_script_server::move_cart_planned
+	##	
+	def move_cart_planned(self, component_name, parameter_name=[[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
+#		if component_name != "arm":
+#			print "ERROR: You can only use move_cart_planned for 'arm'"
+#		else:
+#			
+		ah = action_handle("move_cart_planned", component_name, "cartesian", blocking, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+
+		# convert to ROS Move arm message
+		motion_plan = MotionPlanRequest()
+		motion_plan.group_name = "arm"
+		motion_plan.num_planning_attempts = 1
+		motion_plan.planner_id= ""
+		motion_plan.allowed_planning_time = rospy.Duration(5.0)
+
+		pose_constraint = SimplePoseConstraint()
+		pose_constraint.header.stamp = rospy.Time.now()
+		pose_constraint.header.frame_id = "base_footprint"
+		pose_constraint.link_name = "arm_7_link"
+		
+		pose_constraint.absolute_position_tolerance.x = 0.01;
+		pose_constraint.absolute_position_tolerance.y = 0.01;
+		pose_constraint.absolute_position_tolerance.z = 0.01;
+
+		pose_constraint.absolute_roll_tolerance = 0.01;
+		pose_constraint.absolute_pitch_tolerance = 0.01;
+		pose_constraint.absolute_yaw_tolerance = 0.01;
+		
+		# convert to Pose message
+		pose = PoseStamped()
+		pose.header.stamp = rospy.Time.now()
+		pose.header.frame_id = "base_footprint"
+		pose.pose.position.x = parameter_name[0][0]
+		pose.pose.position.y = parameter_name[0][1]
+		pose.pose.position.z = parameter_name[0][2]
+		q = quaternion_from_euler(parameter_name[1][0], parameter_name[1][1], parameter_name[1][2])
+		pose.pose.orientation.x = q[0]
+		pose.pose.orientation.y = q[1]
+		pose.pose.orientation.z = q[2]
+		pose.pose.orientation.w = q[3]
+		pose_constraint.pose = pose.pose
+		
+		### can't use this in python
+		###move_arm_msgs.addGoalConstraintToMoveArmGoal(pose_constraint, motion_plan)
+		
+		#convert to PositionConstraint
+		position_constraint = PositionConstraint()
+		position_constraint.header = pose_constraint.header
+		position_constraint.link_name = pose_constraint.link_name
+		position_constraint.position = pose_constraint.pose.position
+		
+		position_constraint.constraint_region_shape.type = 1	#geometric_shapes_msgs.Shape.Box
+		position_constraint.constraint_region_shape.dimensions.append(2*pose_constraint.absolute_position_tolerance.x)
+		position_constraint.constraint_region_shape.dimensions.append(2*pose_constraint.absolute_position_tolerance.y)
+		position_constraint.constraint_region_shape.dimensions.append(2*pose_constraint.absolute_position_tolerance.z)
+		
+		position_constraint.constraint_region_orientation.x = 0.0
+		position_constraint.constraint_region_orientation.y = 0.0
+		position_constraint.constraint_region_orientation.z = 0.0
+		position_constraint.constraint_region_orientation.w = 1.0
+		
+		position_constraint.weight = 1.0
+		
+		
+		#convert to OrientationConstraint
+		orientation_constraint = OrientationConstraint()
+		orientation_constraint.header = pose_constraint.header
+		orientation_constraint.link_name = pose_constraint.link_name
+		orientation_constraint.orientation = pose_constraint.pose.orientation
+		#orientation_constraint.type = pose_constraint.orientation_constraint_type
+		
+		orientation_constraint.absolute_roll_tolerance = pose_constraint.absolute_roll_tolerance
+		orientation_constraint.absolute_pitch_tolerance = pose_constraint.absolute_pitch_tolerance
+		orientation_constraint.absolute_yaw_tolerance = pose_constraint.absolute_yaw_tolerance
+		
+		orientation_constraint.weight = 1.0
+		
+		#append()
+		motion_plan.goal_constraints.joint_constraints = []
+		motion_plan.goal_constraints.position_constraints = []
+		motion_plan.goal_constraints.position_constraints.append(position_constraint)
+		motion_plan.goal_constraints.orientation_constraints = []
+		motion_plan.goal_constraints.orientation_constraints.append(orientation_constraint)	
+		motion_plan.goal_constraints.visibility_constraints = []
+		
+
+		# call action server
+		action_server_name = "/move_arm"
+		rospy.logdebug("calling %s action server",action_server_name)
+		self.client = actionlib.SimpleActionClient(action_server_name, MoveArmAction)
+		# trying to connect to server
+		rospy.logdebug("waiting for %s action server to start",action_server_name)
+		if not self.client.wait_for_server(rospy.Duration(5)):
+			# error: server did not respond
+			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
+			ah.set_failed(4)
+			return ah
+		else:
+			rospy.logdebug("%s action server ready",action_server_name)
+		
+		# sending goal
+		client_goal = MoveArmGoal()
+		client_goal.planner_service_name = "ompl_planning/plan_kinematic_path"		#choose planner
+		#client_goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
+		client_goal.motion_plan_request = motion_plan
+		client_goal.disable_ik = False
+		#print client_goal
+		self.client.send_goal(client_goal)
+		ah.set_client(self.client)
+
+		ah.wait_inside()
+		return ah
+		
 	
 	## Set the operation mode for different components.
 	#
@@ -783,27 +899,6 @@ class simple_script_server:
 			req.operation_mode.data = mode
 			#print req
 			resp = set_operation_mode(req)
-			#print resp
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-
-	## Set the default velocity for different components.
-	#
-	# Based on the component, the corresponding set_default_vel service will be called.
-	#
-	# \param component_name Name of the component.
-	# \param default_vel Value to set for the default velocity.
-	# \param blocking Service calls are always blocking. The parameter is only provided for compatibility with other functions.
-	def set_default_velocity(self,component_name,default_vel,blocking=False, planning=False):
-		if not self.parse:
-			rospy.loginfo("setting default velocity for <<%s>> to <<%s>>",component_name, default_vel)
-		rospy.wait_for_service("/" + component_name + "_controller/set_default_vel",5)
-		try:
-			set_default_vel = rospy.ServiceProxy("/" + component_name + "_controller/set_default_vel", SetDefaultVel)
-			req = SetDefaultVelRequest()
-			req.default_vel = default_vel
-			#print req
-			resp = set_default_vel(req)
 			#print resp
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
@@ -895,7 +990,6 @@ class simple_script_server:
 			rospy.logerr("no valid parameter for light: not a list, aborting...")
 			print "parameter is:",param
 			ah.error_code = 3
-
 			return ah
 		else:
 			if not len(param) == 3: # check dimension
@@ -1137,7 +1231,7 @@ class action_handle:
 		
 	## Gets the state of an action handle.
 	def get_state(self):
-		return self.client.get_state()
+		return self.state
 
 	## Gets the error code of an action handle.
 	def get_error_code(self):
