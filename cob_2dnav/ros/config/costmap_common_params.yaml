@@ -1,11 +1,11 @@
 #BEGIN VOXEL STUFF
-map_type: voxel
-origin_z: 0.0
-z_voxels: 16
-z_resolution: 0.1125
-unknown_cost_value: 0
-unknown_threshold: 8
-mark_threshold: 0
+#map_type: voxel
+#origin_z: 0.0
+#z_voxels: 16
+#z_resolution: 0.1125
+#unknown_cost_value: 0
+#unknown_threshold: 8
+#mark_threshold: 0
 #END VOXEL STUFF
 
 transform_tolerance: 0.2
@@ -16,15 +16,11 @@ inflation_radius: 0.55
 # BEGIN VOXEL STUFF
 observation_sources: laser_scan_front laser_scan_rear #cloud_full_cloud #laser_scan_top
 
-laser_scan_front: {sensor_frame: base_laser_front_link, topic: /scan_front, data_type: LaserScan, expected_update_rate: 0.2,
-             observation_persistence: 0.0, marking: true, clearing: true, min_obstacle_height: -0.10, max_obstacle_height: 2.0}
+laser_scan_front: {sensor_frame: base_laser_front_link, topic: /scan_front, data_type: LaserScan, marking: true, clearing: true}
 
-laser_scan_rear: {sensor_frame: base_laser_rear_link, topic: /scan_rear, data_type: LaserScan, expected_update_rate: 0.2,
-             observation_persistence: 0.0, marking: true, clearing: true, min_obstacle_height: -0.10, max_obstacle_height: 2.0}
+laser_scan_rear: {sensor_frame: base_laser_rear_link, topic: /scan_rear, data_type: LaserScan, marking: true, clearing: true}
 
-laser_scan_top: {sensor_frame: base_laser_top_link, topic: /scan_top, data_type: LaserScan, expected_update_rate: 0.2,
-             observation_persistence: 0.0, marking: false, clearing: true, min_obstacle_height: -0.10, max_obstacle_height: 2.0}
+#laser_scan_top: {sensor_frame: base_laser_top_link, topic: /scan_top, data_type: LaserScan, marking: true, clearing: true}
 
-cloud_full_cloud: {sensor_frame: head_tof_frame, topic: /full_cloud, data_type: PointCloud, expected_update_rate: 0.2,
-             observation_persistence: 0.0, marking: true, clearing: false, min_obstacle_height: -0.10, max_obstacle_height: 2.0}
+#cloud_full_cloud: {sensor_frame: head_tof_frame, topic: /full_cloud, data_type: PointCloud, marking: true, clearing: true}
 # END VOXEL STUFF
