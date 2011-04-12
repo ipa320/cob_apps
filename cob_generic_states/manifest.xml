@@ -1,0 +1,18 @@
+<package>
+  <description brief="cob_generic_states">
+
+     cob_generic_states
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_generic_states</url>
+
+  <depend package="rospy"/>
+  <depend package="smach"/>
+  <depend package="smach_ros"/>
+
+  <depend package="cob_script_server"/>
+
+</package>
