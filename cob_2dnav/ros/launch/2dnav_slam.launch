@@ -2,28 +2,19 @@
 <launch>
 
 	<!-- dynamic map generation -->
-	<node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-		<remap from="scan" to="scan_front"/>
-		<param name="maxUrange" type="int" value="8"/>
-		<param name="xmin" type="int" value="-8"/>
-		<param name="ymin" type="int" value="-8"/>
-		<param name="xmax" type="int" value="8"/>
-		<param name="ymax" type="int" value="8"/>
-		<param name="odom_frame" type="string" value="odom_combined"/>
+	<include file="$(find cob_2dslam)/ros/launch/gmapping.launch" />
+
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<remap from="cmd_vel" to="base_controller/command"/>
+		<remap from="odom" to="base_controller/odometry"/>
+		<rosparam file="$(find cob_2dnav)/ros/config/base_local_planner_params.yaml" command="load" />
+		<rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find cob_2dnav)/ros/config/global/local_costmap_params.yaml" command="load" />
+		<rosparam file="$(find cob_2dnav)/ros/config/global/global_costmap_params.yaml" command="load" />
 	</node>
 
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <remap from="cmd_vel" to="base_controller/command"/>
-    <remap from="odom" to="base_controller/odometry"/>
-    <rosparam file="$(find cob_2dnav)/ros/config/base_local_planner_params.yaml" command="load" />
-    <rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find cob_2dnav)/ros/config/global/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find cob_2dnav)/ros/config/global/global_costmap_params.yaml" command="load" />
-
-  </node>
-  
-  <!-- Robot pose ekf -->
-  <include file="$(find cob_2dnav)/ros/launch/robot_pose_ekf.launch" />
+	<!-- Robot pose ekf -->
+	<include file="$(find cob_2dnav)/ros/launch/robot_pose_ekf.launch" />
   
 </launch>
