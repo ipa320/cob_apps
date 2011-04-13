@@ -136,7 +136,7 @@ class GtkGeneralPanel(gtk.Frame):
         n.show()
     else:
       #print "Status OK"
-      self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
+      #self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
       self.status_label.set_text("Status OK")
       if(self.em_stop == True):
         self.em_stop = False
