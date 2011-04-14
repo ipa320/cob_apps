@@ -903,64 +903,6 @@ class simple_script_server:
 			#print resp
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
-
-#------------------- Perception section -------------------#
-	## Detects an object and returns its pose.
-	#
-	# The object is given by its name.
-	#
-	# \param object_name Name of the object to be detected.
-	def detect(self,object_name,blocking=True):
-		ah = action_handle("detect", "", object_name, blocking, self.parse)
-		if(self.parse):
-			return ah
-		else:
-			ah.set_active()
-
-		rospy.loginfo("Detect <<%s>>",object_name)
-
-		try:
-			detect = rospy.ServiceProxy("/object_detection/detect_object", DetectObjects)
-			req = DetectObjectsRequest()
-			req.object_name.data = object_name
-			#print req
-			resp = detect(req)
-			#print resp
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			ah.set_failed(1)
-			return ah
-
-		# copy detected objects to object_list
-		self.object_list = resp.object_list
-
-		# check if object_list is not empty
-		if len(self.object_list.detections) <= 0:
-			rospy.logerr("No object detected, aborting...")
-			ah.set_failed(12)
-			return ah
-
-		# \todo raise error, if requested object is not detected
-
-		ah.set_succeeded()
-		ah.error_code = 0
-		return ah
-
-	def get_object_pose(self,object_name):
-		pose = PoseStamped()
-		if(self.parse):
-			return pose
-
-		# check if object_list is not empty
-		if len(self.object_list.detections) <= 0:
-			rospy.logerr("Cannot get object pose because object is not in object list, aborting...")
-			pose.header.frame_id = "/map"
-			return pose
-
-		# \todo parse for all detected objects
-		# \todo filter for object_name
-		pose = self.object_list.detections[0].pose
-		return pose
 		
 #------------------- LED section -------------------#
 	## Set the color of the cob_light component.
