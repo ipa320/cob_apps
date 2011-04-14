@@ -80,6 +80,7 @@ from motion_planning_msgs.msg import *
 from tf.transformations import *
 from std_msgs.msg import String
 from sound_play.libsoundplay import SoundClient
+from cob_arm_navigation.srv import *
 
 # care-o-bot includes
 from cob_msgs.msg import *
@@ -1123,6 +1124,38 @@ class simple_script_server:
 			os.system("aplay -q " + filename + "&")
 		ah.set_succeeded()
 		return ah
+		
+		
+#-------------------- Object_Handler section --------------------#
+
+	## Add an object to the environment_server.
+	#
+	# \param object_name name of the object
+	def add_object(self,object_name,blocking=True):
+		component_name = "object_handler"
+		ah = action_handle("add", component_name, "add_" + object_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		try:
+			adder = rospy.ServiceProxy("/object_handler/add_object", HandleObject)
+			req = HandleObjectRequest()
+			req.object.data = object_name
+			#print req
+			res = adder(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			ah.set_failed(1)
+			return ah
+		
+		
+		ah.set_succeeded()
+		return ah
+
+		
 
 #------------------- General section -------------------#
 	## Sleep for a certain time.
