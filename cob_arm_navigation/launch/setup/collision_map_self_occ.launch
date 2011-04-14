@@ -28,7 +28,7 @@
     <param name="dimension_z" type="double" value="2.5" />
 
     <!-- set the resolution (5.0 cm) -->
-    <param name="resolution" type="double" value="0.05" />
+    <param name="resolution" type="double" value="0.01" />
     
     <!-- cloud sources -->
     <rosparam command="load" file="$(find cob_arm_navigation)/config/collision_map_sources.yaml" />	

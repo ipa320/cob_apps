@@ -788,13 +788,13 @@ class simple_script_server:
 		pose_constraint.header.frame_id = "base_footprint"
 		pose_constraint.link_name = "arm_7_link"
 		
-		pose_constraint.absolute_position_tolerance.x = 0.01;
-		pose_constraint.absolute_position_tolerance.y = 0.01;
-		pose_constraint.absolute_position_tolerance.z = 0.01;
+		pose_constraint.absolute_position_tolerance.x = 0.1;
+		pose_constraint.absolute_position_tolerance.y = 0.1;
+		pose_constraint.absolute_position_tolerance.z = 0.1;
 
-		pose_constraint.absolute_roll_tolerance = 0.01;
-		pose_constraint.absolute_pitch_tolerance = 0.01;
-		pose_constraint.absolute_yaw_tolerance = 0.01;
+		pose_constraint.absolute_roll_tolerance = 0.1;
+		pose_constraint.absolute_pitch_tolerance = 0.1;
+		pose_constraint.absolute_yaw_tolerance = 0.1;
 		
 		# convert to Pose message
 		pose = PoseStamped()
@@ -1231,7 +1231,7 @@ class action_handle:
 		
 	## Gets the state of an action handle.
 	def get_state(self):
-		return self.state
+		return self.client.get_state()
 
 	## Gets the error code of an action handle.
 	def get_error_code(self):
