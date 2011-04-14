@@ -10,6 +10,8 @@
 	<node pkg="cob_arm_navigation" type="addWorld" output="log" name="addWorld"/>
 	<node pkg="cob_arm_navigation" type="addFloor" output="log" name="addFloor"/>
 	
+	<include file="$(find cob_arm_navigation)/launch/setup/object_handler.launch"/>
+	
 	<!-- get collision map from point cloud -->
 	<include file="$(find cob_arm_navigation)/launch/setup/tof_perception.launch"/>
 	
