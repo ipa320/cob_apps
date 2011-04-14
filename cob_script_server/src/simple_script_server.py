@@ -80,6 +80,7 @@ from motion_planning_msgs.msg import *
 from tf.transformations import *
 from std_msgs.msg import String
 from sound_play.libsoundplay import SoundClient
+from cob_arm_navigation.srv import *
 
 # care-o-bot includes
 from cob_msgs.msg import *
@@ -902,64 +903,6 @@ class simple_script_server:
 			#print resp
 		except rospy.ServiceException, e:
 			print "Service call failed: %s"%e
-
-#------------------- Perception section -------------------#
-	## Detects an object and returns its pose.
-	#
-	# The object is given by its name.
-	#
-	# \param object_name Name of the object to be detected.
-	def detect(self,object_name,blocking=True):
-		ah = action_handle("detect", "", object_name, blocking, self.parse)
-		if(self.parse):
-			return ah
-		else:
-			ah.set_active()
-
-		rospy.loginfo("Detect <<%s>>",object_name)
-
-		try:
-			detect = rospy.ServiceProxy("/object_detection/detect_object", DetectObjects)
-			req = DetectObjectsRequest()
-			req.object_name.data = object_name
-			#print req
-			resp = detect(req)
-			#print resp
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			ah.set_failed(1)
-			return ah
-
-		# copy detected objects to object_list
-		self.object_list = resp.object_list
-
-		# check if object_list is not empty
-		if len(self.object_list.detections) <= 0:
-			rospy.logerr("No object detected, aborting...")
-			ah.set_failed(12)
-			return ah
-
-		# \todo raise error, if requested object is not detected
-
-		ah.set_succeeded()
-		ah.error_code = 0
-		return ah
-
-	def get_object_pose(self,object_name):
-		pose = PoseStamped()
-		if(self.parse):
-			return pose
-
-		# check if object_list is not empty
-		if len(self.object_list.detections) <= 0:
-			rospy.logerr("Cannot get object pose because object is not in object list, aborting...")
-			pose.header.frame_id = "/map"
-			return pose
-
-		# \todo parse for all detected objects
-		# \todo filter for object_name
-		pose = self.object_list.detections[0].pose
-		return pose
 		
 #------------------- LED section -------------------#
 	## Set the color of the cob_light component.
@@ -1123,6 +1066,117 @@ class simple_script_server:
 			os.system("aplay -q " + filename + "&")
 		ah.set_succeeded()
 		return ah
+		
+		
+#-------------------- Object_Handler section --------------------#
+
+	## Add an object to the environment_server.
+	#
+	# \param object_name name of the object
+	def add_object(self,object_name,blocking=True):
+		component_name = "object_handler"
+		ah = action_handle("add", component_name, "add_" + object_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		try:
+			adder = rospy.ServiceProxy("/object_handler/add_object", HandleObject)
+			req = HandleObjectRequest()
+			req.object.data = object_name
+			#print req
+			res = adder(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			ah.set_failed(1)
+			return ah
+		
+		ah.set_succeeded()
+		return ah
+
+
+	## Remove an object from the environment_server.
+	#
+	# \param object_name name of the object
+	def remove_object(self,object_name,blocking=True):
+		component_name = "object_handler"
+		ah = action_handle("remove", component_name, "remove_" + object_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		try:
+			remover = rospy.ServiceProxy("/object_handler/remove_object", HandleObject)
+			req = HandleObjectRequest()
+			req.object.data = object_name
+			#print req
+			res = remover(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			ah.set_failed(1)
+			return ah
+		
+		ah.set_succeeded()
+		return ah
+
+
+	## Attach a known object to the robot's SDH.
+	#
+	# \param object_name name of the object
+	def attach_object(self,object_name,blocking=True):
+		component_name = "object_handler"
+		ah = action_handle("attach", component_name, "attach_" + object_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		try:
+			attacher = rospy.ServiceProxy("/object_handler/attach_object", HandleObject)
+			req = HandleObjectRequest()
+			req.object.data = object_name
+			#print req
+			res = attacher(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			ah.set_failed(1)
+			return ah
+		
+		ah.set_succeeded()
+		return ah
+
+
+	## Detach an attached object from the robot's SDH.
+	#
+	# \param object_name name of the object
+	def detach_object(self,object_name,blocking=True):
+		component_name = "object_handler"
+		ah = action_handle("attach", component_name, "detach_" + object_name, False, self.parse)
+		if(self.parse):
+			return ah
+		else:
+			ah.set_active()
+		
+		try:
+			detacher = rospy.ServiceProxy("/object_handler/detach_object", HandleObject)
+			req = HandleObjectRequest()
+			req.object.data = object_name
+			#print req
+			res = detacher(req)
+			#print resp
+		except rospy.ServiceException, e:
+			print "Service call failed: %s"%e
+			ah.set_failed(1)
+			return ah
+		
+		ah.set_succeeded()
+		return ah
+				
 
 #------------------- General section -------------------#
 	## Sleep for a certain time.

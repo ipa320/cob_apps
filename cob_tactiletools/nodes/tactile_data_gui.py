@@ -10,7 +10,7 @@
 
 import roslib; roslib.load_manifest('cob_tactiletools')
 import rospy
-from cob_msgs.msg import TactileMatrix, TactileSensor
+from cob_sdh.msg import TactileMatrix, TactileSensor
 import pygtk
 pygtk.require('2.0')
 import gtk, gobject, cairo
