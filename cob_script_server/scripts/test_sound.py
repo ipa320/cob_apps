@@ -9,7 +9,6 @@ import rospy
 from simple_script_server import *
 from script_utils import *
 
-from sound_play.libsoundplay import SoundClient
 
 class Test_Sound(script):
 	def Run(self):
