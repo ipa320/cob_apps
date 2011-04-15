@@ -1,0 +1,5 @@
+cobbase_unit:
+  x_value: 1.0
+  y_value: -0.5
+  theta_value: -0.7
+  test_duration: 5

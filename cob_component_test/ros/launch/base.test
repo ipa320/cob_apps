@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find cob_bringup)/ros/launch/sim.launch" />
+  <include file="$(find cob_script_server)/launch/script_server.launch" /> 
+  <include file="$(find cob_2dnav)/ros/launch/2dnav.launch" /> 
+  <!-- base -->  
+  <param name="cob_base/x_value"  value="1.0" />
+  <param name="cob_base/y_value"  value="-0.5" />
+  <param name="cob_base/theta_value"  value="-0.7" />
+  <param name="cob_base/test_duration" value="5" />    
+  <test test-name="cob_base_test" pkg="cob_component_test" type="base_test.py" name="cob_base" time-limit="1000.0" />    
+</launch>
