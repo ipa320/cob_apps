@@ -31,51 +31,73 @@ class initiate(smach.State):
 		smach.State.__init__(
 			self,
 			outcomes=['initiated', 'failed'],
-			input_keys=['initiate', 'message'],
-			output_keys=['initiate', 'message'])
+			input_keys=['message'],
+			output_keys=['message'])
 
 		# This state initializes all required components for executing a task.
 		# This is however not needed when running in simulation.
 
 	def execute(self, userdata):
 
-		if userdata.initiate == 0:
-			# initialize components
-			sss.init("head")
-			sss.init("torso")
-			sss.init("tray")
-			sss.init("arm")
-			sss.init("sdh")
-			sss.init("base")
-			# move to initial positions
-			handle_head = sss.move("head", "home", False)
-			handle_torso = sss.move("torso", "home", False)
-			handle_tray = sss.move("tray", "down", False)
-			handle_arm = sss.move("arm", "folded", False)
-			handle_sdh = sss.move("sdh", "cylclosed", False)
-			# wait for initial movements to finish
-			handle_head.wait()
-			handle_torso.wait()
-			handle_tray.wait()
-			handle_arm.wait()
-			handle_sdh.wait()
-			# initialization is only needed to run once
-			userdata.initiate = 1
+		# initialize components
+		sss.init("head")
+		sss.init("torso")
+		# TODO check if tray is empty
+		sss.init("tray")
+		sss.init("arm")
+		sss.init("sdh")
+		sss.init("base")
+		# move to initial positions
+		handle_head = sss.move("head", "home", False)
+		handle_torso = sss.move("torso", "home", False)
+		handle_tray = sss.move("tray", "down", False)
+		handle_arm = sss.move("arm", "folded", False)
+		handle_sdh = sss.move("sdh", "cylclosed", False)
+		# wait for initial movements to finish
+		handle_head.wait()
+		handle_torso.wait()
+		handle_tray.wait()
+		handle_arm.wait()
+		handle_sdh.wait()
+		userdata.message = []
+		userdata.message.append(3)
+		userdata.message.append("Finished initializing components")
+		return 'initiated'
+		
+		# TODO if initialization fails return failed
+
+#------------------------------------------------------------------------------------------#
+
+class interrupt(smach.State):
+
+	def __init__(self):
+
+		smach.State.__init__(
+			self,
+			outcomes=['no_interrupt', 'interrupted'],
+			input_keys=['message'],
+			output_keys=['message'])
+
+		# Sync with scheduler
+		# Checks if task has been interrupted.
+
+	def execute(self, userdata):
+
+		print "\nHas task been interrupted?\n"
+		while True:
+			var = raw_input("1 = no, 2 = yes\n")
+			if var == str(1) or var == str(2):
+				break
+		if var == str(1):
 			userdata.message = []
 			userdata.message.append(3)
-			userdata.message.append("Finished initializing components")
-			return 'initiated'
-		elif userdata.initiate == 1:
+			userdata.message.append("Task has not been interrupted, continuing task")
+			return 'no_interrupt'
+		else:
 			userdata.message = []
-			userdata.message.append(3)
-			userdata.message.append("The robot has been initialized")
-			return 'initiated'
-		else: # this should never happen
-			userdata.message = []
-			userdata.message.append(5)
-			userdata.message.append("Invalid userdata 'initiate'")
-			userdata.message.append(userdata.initiate)
-			return 'failed'
+			userdata.message.append(4)
+			userdata.message.append("Task has been interrupted")
+			return 'interrupted'
 
 #------------------------------------------------------------------------------------------#
 
@@ -197,36 +219,39 @@ class approach_pose(smach.State):
 
 #------------------------------------------------------------------------------------------#
 
-class interrupt(smach.State):
+class back_away(smach.State):
 
 	def __init__(self):
 
 		smach.State.__init__(
 			self,
-			outcomes=['no_interrupt', 'interrupted'],
+			outcomes=['backed_away', 'failed'],
 			input_keys=['message'],
 			output_keys=['message'])
 
-		# Sync with scheduler
-		# Checks if task has been interrupted.
+		# ---
 
 	def execute(self, userdata):
 
-		print "\nHas task been interrupted?\n"
+		print "\nBack away"
+		print "Backed away successfully?\n"
+		
+		# TODO implement linear base movement
+		
 		while True:
-			var = raw_input("1 = no, 2 = yes\n")
+			var = raw_input("1 = yes, 2 = no\n")
 			if var == str(1) or var == str(2):
 				break
 		if var == str(1):
 			userdata.message = []
 			userdata.message.append(3)
-			userdata.message.append("Task has not been interrupted, continuing task")
-			return 'no_interrupt'
+			userdata.message.append("Backed away")
+			return 'backed_away'
 		else:
 			userdata.message = []
-			userdata.message.append(4)
-			userdata.message.append("Task has been interrupted")
-			return 'interrupted'
+			userdata.message.append(2)
+			userdata.message.append("Failed to back away")
+			return 'failed'
 
 #------------------------------------------------------------------------------------------#
 
