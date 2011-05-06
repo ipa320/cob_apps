@@ -8,6 +8,10 @@
 # Assisting author(s): Florian Weisshardt
 
 
+# TODO create class 'approach_pose_without_retry'
+# TODO merge the states 'linear_movement' and 'back_away'
+
+
 #------------------------------------------------------------------------------------------#
 #-----	IMPORT MODULES				-------------------------------------------------------#
 
@@ -20,6 +24,9 @@ import smach_ros
 from simple_script_server import *
 sss = simple_script_server()
 
+import tf
+from tf.transformations import *
+
 
 #------------------------------------------------------------------------------------------#
 #-----	SMACH STATES				-------------------------------------------------------#
@@ -31,40 +38,49 @@ class initiate(smach.State):
 		smach.State.__init__(
 			self,
 			outcomes=['initiated', 'failed'],
-			input_keys=['message'],
-			output_keys=['message'])
+			input_keys=['listener', 'message'],
+			output_keys=['listener', 'message'])
+		
+		self.listener = tf.TransformListener(True, rospy.Duration(10.0))
 
 		# This state initializes all required components for executing a task.
 		# This is however not needed when running in simulation.
 
+		# TODO assign outcome 'failed'
+		# TODO check if tray is empty
+
 	def execute(self, userdata):
 
+		userdata.listener = self.listener
+
+		print "userdata.listener =", userdata.listener # for debugging
+
 		# initialize components
-		sss.init("head")
+		sss.init("eyes")
 		sss.init("torso")
-		# TODO check if tray is empty
 		sss.init("tray")
 		sss.init("arm")
 		sss.init("sdh")
 		sss.init("base")
+
 		# move to initial positions
-		handle_head = sss.move("head", "home", False)
+		handle_head = sss.move("eyes", "back", False)
 		handle_torso = sss.move("torso", "home", False)
 		handle_tray = sss.move("tray", "down", False)
 		handle_arm = sss.move("arm", "folded", False)
 		handle_sdh = sss.move("sdh", "cylclosed", False)
+
 		# wait for initial movements to finish
 		handle_head.wait()
 		handle_torso.wait()
 		handle_tray.wait()
 		handle_arm.wait()
 		handle_sdh.wait()
+
 		userdata.message = []
 		userdata.message.append(3)
 		userdata.message.append("Finished initializing components")
 		return 'initiated'
-		
-		# TODO if initialization fails return failed
 
 #------------------------------------------------------------------------------------------#
 
@@ -74,12 +90,14 @@ class interrupt(smach.State):
 
 		smach.State.__init__(
 			self,
-			outcomes=['no_interrupt', 'interrupted'],
+			outcomes=['no_interruption', 'interrupted'],
 			input_keys=['message'],
 			output_keys=['message'])
 
 		# Sync with scheduler
 		# Checks if task has been interrupted.
+
+		# TODO check with 'master_node' for interruption
 
 	def execute(self, userdata):
 
@@ -92,7 +110,7 @@ class interrupt(smach.State):
 			userdata.message = []
 			userdata.message.append(3)
 			userdata.message.append("Task has not been interrupted, continuing task")
-			return 'no_interrupt'
+			return 'no_interruption'
 		else:
 			userdata.message = []
 			userdata.message.append(4)
@@ -112,14 +130,13 @@ class approach_pose(smach.State):
 			output_keys=['pose', 'message'])
 
 		self.pose = pose
-		
+
 		# This state moves the robot to the given pose.
-		# If the robot failes to reach the given pose it will retry.
+
+		# TODO retry process is not working
 
 	def execute(self, userdata):
 
-		# TODO fix the retry process for when approaching a pose
-			
 		if self.pose != "":
 			pose = self.pose
 		elif type(userdata.pose) is str:
@@ -136,35 +153,33 @@ class approach_pose(smach.State):
 			userdata.message.append(userdata.pose)
 			return 'failed'
 
-		# try first time
+#		sub_move_base = rospy.Subscriber("/move_base/status", GoalStatusArray, self.cb_move_base)
+
+		# try reaching pose
 		handle_base = sss.move("base", pose, False)
 		sss.say(["i am moving now"],False)
-#		rospy.wait_for_service('/base_controller/is_base_moving', 3)
-
 		handle_base.wait()
 		handle_base = sss.move("base", pose, False)
 		handle_base.wait()
 		return 'succeeded'
+#		rospy.wait_for_service('/base_controller/is_base_moving', 3)
 
 #		timeout = 0
 #		while True:
-#			if handle_base.get_state() == 3:
+#			if self.move_base_status.status_list.status == 3:
 #				userdata.message = []
-#				userdata.message.append(1)
+#				userdata.message.append(3)
 #				userdata.message.append("Pose was succesfully reached")
 #				return 'succeeded'
-
 #			try:
-#				ret = self.is_base_moving()
-#			except rospy.ServiceException,e:
-#				print "Service call failed: %s"%e
+#				ret = self.move_base_status.status_list.status
+#			except rospy.callback, e:
+#				# print "Failed to retrieve message: %s"%e # for debugging
 #				userdata.message = []
 #				userdata.message.append(2)
-#				userdata.message.append('Pose was not reached succesfully')
+#				userdata.message.append("Pose could not be reached, failed to call service 'is_base_moving()'")
 #				return 'failed'
-
-#			if ret.value == False: 
-#			if True: ############################## change back ###########################
+#			if ret.value == False:
 #				if timeout > 20:
 #					sss.say(["I can not reach my target position because my path or target is blocked"],False)
 #					timeout = 0
@@ -172,50 +187,65 @@ class approach_pose(smach.State):
 #					timeout = timeout + 1
 #					rospy.sleep(1)
 
-#------------------------------------------------------------------------------------------#
-
-#class approach_pose_without_retry(smach.State):
-#
-#	def __init__(self):
-#
-#		smach.State.__init__(self,
-#			outcomes=['succeeded', 'failed'],
-#			input_keys=['pose'],
-#			output_keys=['message'])
-#
-#		self.is_base_moving = rospy.ServiceProxy('/base_controller/is_base_moving', ReturnBool)
-#
-#		# This state moves the robot to the given pose.
-#		# If the robot failes to reach the given pose it will not retry.
-#
-#	def execute(self, userdata):
-#
-#		# try first time
-#		# print userdata.pose
-#		handle_base = sss.move("base",userdata.pose,False)
-#		rospy.wait_for_service('/base_controller/is_base_moving', 3)
-#
 #		timeout = 0
 #		while True:
 #			if handle_base.get_state() == 3:
-#				userdata.message = ['1','Pose was succesfully reached']
+#				userdata.message = []
+#				userdata.message.append(3)
+#				userdata.message.append("Pose was succesfully reached")
 #				return 'succeeded'
-#
 #			try:
 #				ret = self.is_base_moving()
 #			except rospy.ServiceException,e:
-#				print "Service call failed: %s"%e
-#				userdata.message = ['2','Pose was not reached succesfully']
+#				# print "Service call failed: %s"%e # for debugging
+#				userdata.message = []
+#				userdata.message.append(2)
+#				userdata.message.append("Pose could not be reached, failed to call service 'is_base_moving()'")
 #				return 'failed'
-#
-#			#if ret.value == False:
-#			if True: ############################## change back ###########################
-#				if timeout > 10:
+#			if ret.value == False:
+#				if timeout > 20:
+#					sss.say(["I can not reach my target position because my path or target is blocked"],False)
 #					timeout = 0
-#					return 'failed'
 #				else:
 #					timeout = timeout + 1
 #					rospy.sleep(1)
+
+#	def cb_move_base(self, msg):
+#		self.move_base_status = msg
+
+#------------------------------------------------------------------------------------------#
+
+class linear_movement(smach.State):
+
+	def __init__(self):
+
+		smach.State.__init__(
+			self,
+			outcomes=['succeeded', 'failed'],
+			input_keys=['message'],
+			output_keys=['message'])
+
+		# TODO implement linear base moving
+
+	def execute(self, userdata):
+
+		print "\nApproach in a linear way\n"
+
+		print "\nHas destination been reached?\n"
+		while True:
+			var = raw_input("1 = yes, 2 = no\n")
+			if var == str(1) or var == str(2):
+				break
+		if var == str(1):
+			userdata.message = []
+			userdata.message.append(3)
+			userdata.message.append("Destination has been reached")
+			return 'succeeded'
+		else:
+			userdata.message = []
+			userdata.message.append(2)
+			userdata.message.append("Could not reach destination")
+			return 'failed'
 
 #------------------------------------------------------------------------------------------#
 
@@ -229,15 +259,11 @@ class back_away(smach.State):
 			input_keys=['message'],
 			output_keys=['message'])
 
-		# ---
+		# TODO implement linear base movement
 
 	def execute(self, userdata):
 
-		print "\nBack away"
 		print "Backed away successfully?\n"
-		
-		# TODO implement linear base movement
-		
 		while True:
 			var = raw_input("1 = yes, 2 = no\n")
 			if var == str(1) or var == str(2):
