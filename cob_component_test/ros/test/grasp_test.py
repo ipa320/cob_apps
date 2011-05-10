@@ -70,7 +70,6 @@ class UnitTest(unittest.TestCase):
             
         # get index of grasp_object in topic
         obj_index = self.model_states.name.index(grasp_object)
-        print >> sys.stderr, "object index in topic /gazebo/model_states: ",  obj_index    # to be deleted
         
         # get index of arm_7_link in topic
         self.arm_7_link_index = self.link_states.name.index("arm_7_link")
@@ -102,12 +101,7 @@ class UnitTest(unittest.TestCase):
         self.sss.move("sdh", grasp_object)
         # lift object
         self.sss.move_cart_rel("arm", [[0.2, -0.1, -0.2], [0.0, 0.0, 0.0]])
-        
-#        print >> sys.stderr, act_obj_pos            # to be deleted
-        print >> sys.stderr, self.model_states.pose[obj_index].position            # to be deleted
-#        print >> sys.stderr, arm_7_link_pos.position            # to be deleted
-        print >> sys.stderr, self.link_states.pose[self.arm_7_link_index].position           # to be deleted
-        
+               
         # check object position + status message
         self.check_pos(self.link_states.pose[self.arm_7_link_index].position, self.model_states.pose[obj_index].position, 0.5, "sdh in kitchen")
 
@@ -116,8 +110,6 @@ class UnitTest(unittest.TestCase):
         # tray up
         self.sss.move("tray", "up")
         handle_arm.wait()
-        
-#        print >> sys.stderr, act_obj_pos            # to be deleted
 
         # check object position + status message
         self.check_pos(self.link_states.pose[self.arm_7_link_index].position, self.model_states.pose[obj_index].position, 0.5, "sdh over tray")
