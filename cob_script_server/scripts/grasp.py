@@ -14,6 +14,7 @@ from geometry_msgs.msg import *
 class GraspScript(script):
 		
 	def Initialize(self):
+		
 		# initialize components (not needed for simulation)
 		self.sss.init("tray")
 		self.sss.init("torso")
@@ -45,27 +46,27 @@ class GraspScript(script):
 		cup = PointStamped()
 		cup.header.stamp = rospy.Time.now()
 		cup.header.frame_id = "/map"
-		cup.point.x = -3.0
-		cup.point.y = 0.08
-		cup.point.z = 1.02
+		cup.point.x = -2.9 #-3.2
+		cup.point.y = 0.05 #-0.00
+		cup.point.z = 0.98 #0.98
 		self.sss.sleep(2) # wait for transform to be calculated
 		handle_sdh.wait()
 		
 		if not self.sss.parse:
 			cup = listener.transformPoint('/arm_7_link',cup)
 			# transform grasp point to sdh center
-			cup.point.z = cup.point.z - 0.2
+			#cup.point.z = cup.point.z - 0.2
 
 		# move in front of cup
 		pregrasp_distance = 0.2
 		grasp_offset = 0.05 # offset between arm_7_link and sdh_grasp_link
-		self.sss.move_cart_rel("arm",[[cup.point.x, cup.point.y, cup.point.z-grasp_offset-pregrasp_distance], [0, 0, 0]])
+		self.sss.move_cart_rel("arm",[[0.05, cup.point.y, cup.point.z-grasp_offset-pregrasp_distance], [0.0, 0.0, 0.0]])
 		# move to cup
-		self.sss.move_cart_rel("arm",[[0.0, 0.0, pregrasp_distance], [0, 0, 0]])
+		self.sss.move_cart_rel("arm",[[0.0, 0.0, pregrasp_distance/2], [0.0, 0.0, 0.0]])
 		# grasp cup
 		self.sss.move("sdh","china_cup")
 		# lift cup
-		self.sss.move_cart_rel("arm",[[0.2, -0.1, -0.2], [0, 0, 0]])
+		self.sss.move_cart_rel("arm",[[0.2, -0.1, -0.2], [0.0, 0.0, 0.0]])
 	
 
 		# place cup on tray
