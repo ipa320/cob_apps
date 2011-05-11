@@ -13,8 +13,7 @@
   <depend package="geometry_msgs"/>
   <depend package="move_base_msgs"/>
   <depend package="tf"/>
-  <depend package="cob_object_detection"/>
-
+  
 </package>
 
 
