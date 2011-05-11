@@ -70,3 +70,18 @@ groups:
       sdh_thumb_1_link
       sdh_thumb_2_link
       sdh_thumb_3_link
+      
+
+  #this group is for the experimental cob_object_manipulation    
+  - name: end_effector
+    links: 
+      sdh_palm_link
+      sdh_finger_11_link
+      sdh_finger_12_link
+      sdh_finger_13_link
+      sdh_finger_21_link
+      sdh_finger_22_link
+      sdh_finger_23_link
+      sdh_thumb_1_link
+      sdh_thumb_2_link
+      sdh_thumb_3_link
