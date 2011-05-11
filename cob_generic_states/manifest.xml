@@ -12,7 +12,6 @@
   <depend package="rospy"/>
   <depend package="smach"/>
   <depend package="smach_ros"/>
-
   <depend package="cob_script_server"/>
 
 </package>

@@ -25,6 +25,7 @@
   <depend package="motion_planning_msgs"/>
   <depend package="cob_light"/>
   <depend package="cob_sound"/>
+  <depend package="cob_arm_navigation"/>
   
   <rosdep name="pygraphviz"/>
  
