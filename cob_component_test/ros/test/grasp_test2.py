@@ -74,7 +74,7 @@ class UnitTest(unittest.TestCase):
         self.sss.move('sdh', 'cylopen', False)
         handle_base.wait()
         
-        #TODO replace with object detection
+        # TODO replace with object detection
         # get index of grasp_object in topic
         obj_index = self.model_states.name.index(grasp_object)
         
@@ -83,8 +83,12 @@ class UnitTest(unittest.TestCase):
         
         # transform object coordinates 
         grasp_obj = self.trans_into_arm_7_link(self.model_states.pose[obj_index].position)
+        # transform grasp point to sdh center
+        grasp_obj.point.z = grasp_obj.point.z - 0.17
 
-        # TODO replace with controlles arm navigation
+        # TODO replace with controlled arm navigation
+        # move in front of object
+        self.sss.move_cart_rel("arm", [[grasp_obj.point.x + 0.05, grasp_obj.point.y, grasp_obj.point.z - 0.2], [0.0, 0.0, 0.0]])
         # move to object
         self.sss.move_cart_rel("arm", [[0.0, 0.0, 0.2], [0.0, 0.0, 0.0]])
         # grasp object
@@ -92,7 +96,7 @@ class UnitTest(unittest.TestCase):
         # lift object
         self.sss.move_cart_rel("arm", [[0.2, -0.1, -0.2], [0.0, 0.0, 0.0]])
                
-        # check object position + status message
+        # check object position
         self.check_pos(self.link_states.pose[self.arm_7_link_index].position, self.model_states.pose[obj_index].position, 0.5, "sdh in kitchen")
 
         # move arm over tray
@@ -101,40 +105,48 @@ class UnitTest(unittest.TestCase):
         self.sss.move("tray", "up")
         handle_arm.wait()
 
-        # check object position + status message
+        # check object position
         self.check_pos(self.link_states.pose[self.arm_7_link_index].position, self.model_states.pose[obj_index].position, 0.5, "sdh over tray")
         
-		# put object onto tray
-        self.sss.move_cart_rel("arm", [[-0.05, 0.0, 0.0], [0, 0, 0]])
+        # put object onto tray
+        # calculate distance to move down (current height - tray height - 1/2 milkbox height - offset)
+        dist_to_tray = self.model_states.pose[obj_index].position.z - 0.84 - 0.1 - 0.03 
+        self.sss.move_cart_rel("arm", [[-dist_to_tray, 0.0, 0.0], [0, 0, 0]])
         self.sss.move("sdh", "cylopen")
         
         # move base to table
         self.sss.move('base', [0, -0.5, 0])
         
-        # check object position + status message
+        # check object position
         des_pos_world = Point()
         des_pos_world.x = 0.3
         des_pos_world.y = -0.4
-        des_pos_world.z = 0.885
+        des_pos_world.z = 0.84 + 0.1 # tray height + 1/2 milkbox height
         self.check_pos(des_pos_world, self.model_states.pose[obj_index].position, 0.5, "tray")
         
         # grasp objekt on tray
+        # transform object coordinates 
+        grasp_obj = self.trans_into_arm_7_link(self.model_states.pose[obj_index].position)
+        # transform grasp point to sdh center
+        grasp_obj.point.z = grasp_obj.point.z - 0.17
+        self.sss.move_cart_rel("arm", [[grasp_obj.point.x, grasp_obj.point.y, grasp_obj.point.z], [0, 0, 0]])
         self.sss.move("sdh", "cylclosed")
         
         # put object to final position
+        # TODO replace with controlled arm navigation
         self.sss.move("arm", "overtray")
         self.sss.move_cart_rel("arm", [[0.0, 0.0, -0.2], [0, 0, 0]])
-        self.sss.move("arm", [[1.4272207239645427, -0.86918345596744029, -2.6785592907972724, -0.83566556448023821, 0.93072293274776374, 1.2925104647818602, -2.3042322384962883]])
+        self.sss.move("arm", [[1.5620375327333056, -0.59331108071630467, -2.9678321245253576, -0.96655272071376164, 1.2160753390569674, 1.4414846837499029, -2.2174714029417704]])
         des_pos_world.x = 0.0
         des_pos_world.y = -1.2
-        des_pos_world.z = 0.56  
+        des_pos_world.z = 0.56 + 0.1
         des_pos_arm_7_link = self.trans_into_arm_7_link(des_pos_world)
         # calculate the distance between object bottom and arm_7_link 
         x_dist_obj_arm_7_link = self.trans_into_arm_7_link(self.model_states.pose[obj_index].position).point.x
-        self.sss.move_cart_rel("arm", [[(des_pos_arm_7_link.point.x - x_dist_obj_arm_7_link + 0.01), des_pos_arm_7_link.point.y, des_pos_arm_7_link.point.z], [0.0, 0.0, 0.0]])
+        self.sss.move_cart_rel("arm", [[(des_pos_arm_7_link.point.x - x_dist_obj_arm_7_link - 0.1 - 0.01), des_pos_arm_7_link.point.y, des_pos_arm_7_link.point.z], [0.0, 0.0, 0.0]])
         self.sss.move("sdh", "cylopen")
         
-        # check object position + status message
+        # check object position
         des_pos_world.z = 0.55
         self.check_pos(des_pos_world, self.model_states.pose[obj_index].position, 0.2, "table")
         
@@ -159,7 +171,7 @@ class UnitTest(unittest.TestCase):
             self.fail(error_msg)
         else:
             print >> sys.stderr, "Object in/on '", pos_name, "'"
-        
+                
     def calc_dist(self, des_pos, act_pos):
         # function to calculate distance between actual and desired object position
         distance = sqrt((des_pos.x - act_pos.x)**2 + (des_pos.y - act_pos.y)**2 + (des_pos.z - act_pos.z)**2)
@@ -176,8 +188,6 @@ class UnitTest(unittest.TestCase):
         
         if not self.sss.parse:
             coord_arm_7_link = self.listener.transformPoint('/arm_7_link', coord_arm_7_link)
-            # transform grasp point to sdh center
-#            coord_arm_7_link.point.z = coord_arm_7_link.point.z - 0.2
         return coord_arm_7_link
             
         
