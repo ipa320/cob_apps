@@ -316,7 +316,7 @@ void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 		JntArray q_dot_base(3);
 		Frame F_ist;
 		fksolver1->JntToCart(q, F_ist);
-		KDL::Twist combined_twist = getTrajectoryTwist(mytime, F_ist);
+		KDL::Twist combined_twist = extTwist; //getTrajectoryTwist(mytime, F_ist);
 		int ret = iksolver1v->CartToJnt(q, q_base, combined_twist, q_out, q_dot_base);
 		if(ret >= 0)
 		{
@@ -354,7 +354,8 @@ int main(int argc, char **argv)
 	//iksolverpos = new ChainIkSolverPos_NR(chain,&fksolver1,&iksolver1v,100,1e-6);//Maximum 100 iterations, stop at accuracy 1e-6
 	
 	ros::Subscriber sub = n.subscribe("/joint_states", 1, controllerStateCallback);
-	ros::Subscriber cart_vel_sub = n.subscribe("/arm_controller/cart/command", 1, cartTwistCallback);
+	ROS_INFO("Blub");
+	ros::Subscriber cart_vel_sub = n.subscribe("/arm_controller/cart_command", 1, cartTwistCallback);
 	ros::Subscriber plat_odom_sub = n.subscribe("/base_controller/odometry", 1, baseTwistCallback);
 
 	arm_pub_ = n.advertise<trajectory_msgs::JointTrajectory>("/arm_controller/command",1);	

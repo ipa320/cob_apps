@@ -21,6 +21,9 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #uncomment if you have defined services
 rosbuild_gensrv()
 
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
+
+
 #common commands for building c++ executables and libraries
 #rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
 #target_link_libraries(${PROJECT_NAME} another_library)
@@ -28,6 +31,7 @@ rosbuild_gensrv()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 rosbuild_add_executable(cob_mmcontroller src/cob_mmcontroller.cpp)
 rosbuild_add_executable(cob_trajectory_manager src/trajectory_manager.cpp)
-rosbuild_add_executable(cob_kukatest src/kuka_test.cpp src/augmented_solver.cpp)
+rosbuild_add_executable(cob_kukatest src/cob_config_controller.cpp src/augmented_solver.cpp)
 rosbuild_add_executable(cob_manipulability src/manipulability_publisher.cpp)
+rosbuild_add_executable(cob_spnav_filter src/cob_spnav_filter.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
