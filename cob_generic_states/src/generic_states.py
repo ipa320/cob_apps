@@ -41,30 +41,34 @@ class initiate(smach.State):
 			input_keys=['listener', 'message'],
 			output_keys=['listener', 'message'])
 		
-		self.listener = tf.TransformListener(True, rospy.Duration(10.0))
+		# self.listener = tf.TransformListener(True, rospy.Duration(10.0))
 
 		# This state initializes all required components for executing a task.
-		# This is however not needed when running in simulation.
+		# However, this is not needed when running in simulation.
 
 		# TODO assign outcome 'failed'
 		# TODO check if tray is empty
 
 	def execute(self, userdata):
 
-		userdata.listener = self.listener
+		# userdata.listener = self.listener
 
-		print "userdata.listener =", userdata.listener # for debugging
+		# print "self.listener =", self.listener # for debugging
+		# print "userdata.listener =", userdata.listener # for debugging
 
 		# initialize components
-		sss.init("eyes")
+		sss.init("head")
 		sss.init("torso")
 		sss.init("tray")
 		sss.init("arm")
 		sss.init("sdh")
 		sss.init("base")
 
+		# set light
+		sss.set_light("red",False)
+
 		# move to initial positions
-		handle_head = sss.move("eyes", "back", False)
+		handle_head = sss.move("head", "back", False)
 		handle_torso = sss.move("torso", "home", False)
 		handle_tray = sss.move("tray", "down", False)
 		handle_arm = sss.move("arm", "folded", False)
@@ -76,6 +80,9 @@ class initiate(smach.State):
 		handle_tray.wait()
 		handle_arm.wait()
 		handle_sdh.wait()
+
+		# set light
+		sss.set_light("green")
 
 		userdata.message = []
 		userdata.message.append(3)
@@ -158,8 +165,6 @@ class approach_pose(smach.State):
 		# try reaching pose
 		handle_base = sss.move("base", pose, False)
 		sss.say(["i am moving now"],False)
-		handle_base.wait()
-		handle_base = sss.move("base", pose, False)
 		handle_base.wait()
 		return 'succeeded'
 #		rospy.wait_for_service('/base_controller/is_base_moving', 3)
