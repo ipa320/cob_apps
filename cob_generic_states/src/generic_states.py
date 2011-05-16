@@ -141,6 +141,7 @@ class approach_pose(smach.State):
 		# This state moves the robot to the given pose.
 
 		# TODO retry process is not working
+		# TODO when navigating long distances, intermediate steps should be taken
 
 	def execute(self, userdata):
 
@@ -332,5 +333,4 @@ class message(smach.State):
 			return 'no_message_sent'
 
 #------------------------------------------------------------------------------------------#
-
 
