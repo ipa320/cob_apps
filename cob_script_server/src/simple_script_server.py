@@ -79,8 +79,6 @@ from move_arm_msgs.msg import *
 from motion_planning_msgs.msg import *
 from tf.transformations import *
 from std_msgs.msg import String
-from sound_play.libsoundplay import SoundClient
-from cob_arm_navigation.srv import *
 
 # care-o-bot includes
 from cob_msgs.msg import *
@@ -168,12 +166,6 @@ class simple_script_server:
 		global graph
 		self.ns_global_prefix = "/script_server"
 		self.parse = parse
-		
-		# object detection
-		self.object_list = DetectionArray()
-
-		# sound
-		self.soundhandle = SoundClient()
 		
 		# light
 		self.pub_light = rospy.Publisher('light_controller/command', Light)

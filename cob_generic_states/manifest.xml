@@ -1,11 +1,11 @@
 <package>
   <description brief="cob_generic_states">
 
-     cob_generic_states
+     This package provides a set of generic states using [[cob_script_server]] and [[smach]] which can be used in multiple scenarios.
 
   </description>
-  <author></author>
-  <license>BSD</license>
+  <author>Florian Weisshardt</author>
+  <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_generic_states</url>
 
