@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import roslib
 roslib.load_manifest('cob_component_test')
-#roslib.load_manifest('cob_script_server')
 
 import sys
 import time
@@ -10,7 +9,6 @@ import rospy
 import rostest
 import actionlib
 import tf
-#import cob_gazebo
 
 from simple_script_server import *
 from gazebo.msg import *
@@ -56,6 +54,11 @@ class UnitTest(unittest.TestCase):
         # transformation handle        
         self.listener = tf.TransformListener(True, rospy.Duration(10.0))
         
+        # check if grasp_object was spawned correctly
+        self.sss.sleep(1)
+        if grasp_object not in self.model_states.name:
+            self.fail(grasp_object + " not spawned correctly")       
+        
         # init components and check initialization
         components_to_init = ['arm', 'tray', 'sdh', 'torso', 'base'] 
         for component in components_to_init:
@@ -63,42 +66,29 @@ class UnitTest(unittest.TestCase):
             if init_component.get_error_code() != 0:
                 error_msg = 'Could not initialize ' + component
                 self.fail(error_msg)
-         
-        # check if grasp_object was spawned correctly
-        if grasp_object not in self.model_states.name:
-            self.fail(grasp_object + " not spawned correctly")
-            
+                
+        # move robot in position to grasp object
+        handle_base = self.sss.move('base', 'kitchen', False)
+        self.sss.move('tray', 'down', False)
+        self.sss.move('arm', 'pregrasp', False)
+        self.sss.move('sdh', 'cylopen', False)
+        handle_base.wait()
+        
+        #TODO replace with object detection
         # get index of grasp_object in topic
         obj_index = self.model_states.name.index(grasp_object)
         
         # get index of arm_7_link in topic
         self.arm_7_link_index = self.link_states.name.index("arm_7_link")
-             
-        # move robot in position to grasp object
-        # base kitchen
-        handle_base = self.sss.move('base', 'kitchen', False)
-        # tray down
-        self.sss.move('tray', 'down', False)
-        # arm pregrasp
-        self.sss.move('arm', 'pregrasp', False)
-        # sdh cylopen
-        self.sss.move('sdh', 'cylopen', False)
-        handle_base.wait()
         
         # transform object coordinates 
         grasp_obj = self.trans_into_arm_7_link(self.model_states.pose[obj_index].position)
-        print >> sys.stderr, grasp_obj.point           # to be deleted
-        
-        # move in front of object
-        pregrasp_distance = 0.03
-        grasp_offset = 0.17 # offset between arm_7_link and sdh_grasp_link
-#        self.sss.move_cart_rel("arm", [[0.03, grasp_obj.point.y - 0.02, (grasp_obj.point.z - grasp_offset - 0.4)], [0.0, 0.0, 0.0]])
+
+        # TODO replace with controlles arm navigation
         # move to object
-#        self.sss.move_cart_rel("arm", [[0.0, 0.0, 0.22], [0.0, 0.0, 0.0]])
         self.sss.move_cart_rel("arm", [[0.0, 0.0, 0.2], [0.0, 0.0, 0.0]])
-        
         # grasp object
-        self.sss.move("sdh", grasp_object)
+        self.sss.move("sdh", "cylclosed")
         # lift object
         self.sss.move_cart_rel("arm", [[0.2, -0.1, -0.2], [0.0, 0.0, 0.0]])
                
@@ -118,7 +108,7 @@ class UnitTest(unittest.TestCase):
         self.sss.move_cart_rel("arm", [[-0.05, 0.0, 0.0], [0, 0, 0]])
         self.sss.move("sdh", "cylopen")
         
-        # base kitchen
+        # move base to table
         self.sss.move('base', [0, -0.5, 0])
         
         # check object position + status message
@@ -129,7 +119,7 @@ class UnitTest(unittest.TestCase):
         self.check_pos(des_pos_world, self.model_states.pose[obj_index].position, 0.5, "tray")
         
         # grasp objekt on tray
-        self.sss.move("sdh", grasp_object)
+        self.sss.move("sdh", "cylclosed")
         
         # put object to final position
         self.sss.move("arm", "overtray")
@@ -163,12 +153,12 @@ class UnitTest(unittest.TestCase):
     def check_pos(self, des_pos, act_pos, tolerance, pos_name):
         # function to check if object is at desired position
         distance = self.calc_dist(des_pos, act_pos)
+        print >> sys.stderr, "Distance to '", pos_name, "': ", distance
         if distance >= tolerance:
             error_msg = "Object not at desired position '" + pos_name + "'"
             self.fail(error_msg)
         else:
             print >> sys.stderr, "Object in/on '", pos_name, "'"
-        print >> sys.stderr, "Distance to '", pos_name, "': ", distance
         
     def calc_dist(self, des_pos, act_pos):
         # function to calculate distance between actual and desired object position
