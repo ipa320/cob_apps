@@ -345,44 +345,45 @@ class message(smach.State):
 
 		smach.State.__init__(
 			self,
-			outcomes=['send_success', 'send_failure', 'send_status', 'send_interrupt', 'no_message_sent'],
+			outcomes=['no_message_sent', 'quit'],
 			input_keys=['message'],
 			output_keys=['message'])
 
 		# Send message to master_node
 		# Message types are:
+		# 0 = QUIT
 		# 1 = INFO
 		# 2 = ERROR
 		# 3 = STATUS
 		# 4 = INTERRUPT
-		# 5 = INVALID
+		# >5 = INVALID USERDATA
 
 	def execute(self, userdata):
 
-		if userdata.message[0] == 1:
-			userdata.message[0] = "INFO ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_success'
-		elif userdata.message[0] == 2:
-			userdata.message[0] = "ERROR ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_failure'
-		elif userdata.message[0] == 3:
-			userdata.message[0] = "STATUS ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_status'
-		elif userdata.message[0] == 4:
-			userdata.message[0] = "INTERRUPT ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_interrupt'
-		elif userdata.message[0] == 5:
-			userdata.message[0] = "INVALID ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_failure'
-		else: # this should never happen
-			print "\nERROR ---> Invalid message type: ", userdata.message[0], "\n"
-			print "Message = ", userdata.message, "\n"
-			return 'no_message_sent'
+		while True:
+			userdata.message[0] = userdata.message[0] -1
+			message = userdata.message
+			if message[0] >= 0:
+				if message[0] == 0:
+					message[0] = "QUIT MESSAGE"
+					print "\n", userdata.message, "\n"
+					return 'quit'
+				elif message[0] == 1:
+					message[0] = "INFO MESSAGE"
+					print "\n", userdata.message, "\n"
+				elif message[0] == 2:
+					message[0] = "ERROR MESSAGE"
+					print "\n", userdata.message, "\n"
+				elif message[0] == 3:
+					message[0] = "STATUS MESSAGE"
+					print "\n", userdata.message, "\n"
+				elif message[0] == 4:
+					message[0] = "INTERRUPT MESSAGE"
+					print "\n", userdata.message, "\n"
+				else:
+					message[0] = "INVALID USERDATA MESSAGE"
+					print "\n", userdata.message, "\n"
+				userdata.message[0] = -1
 
 #------------------------------------------------------------------------------------------#
 
