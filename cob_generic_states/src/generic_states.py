@@ -93,30 +93,34 @@ class initiate(smach.State):
 			input_keys=['listener', 'message'],
 			output_keys=['listener', 'message'])
 		
-		self.listener = tf.TransformListener(True, rospy.Duration(10.0))
+		# self.listener = tf.TransformListener(True, rospy.Duration(10.0))
 
 		# This state initializes all required components for executing a task.
-		# This is however not needed when running in simulation.
+		# However, this is not needed when running in simulation.
 
 		# \todo TODO assign outcome 'failed'
 		# \todo TODO check if tray is empty
 
 	def execute(self, userdata):
 
-		userdata.listener = self.listener
+		# userdata.listener = self.listener
 
-		print "userdata.listener =", userdata.listener # for debugging
+		# print "self.listener =", self.listener # for debugging
+		# print "userdata.listener =", userdata.listener # for debugging
 
 		# initialize components
-		sss.init("eyes")
+		sss.init("head")
 		sss.init("torso")
 		sss.init("tray")
 		sss.init("arm")
 		sss.init("sdh")
 		sss.init("base")
 
+		# set light
+		sss.set_light("red",False)
+
 		# move to initial positions
-		handle_head = sss.move("eyes", "back", False)
+		handle_head = sss.move("head", "back", False)
 		handle_torso = sss.move("torso", "home", False)
 		handle_tray = sss.move("tray", "down", False)
 		handle_arm = sss.move("arm", "folded", False)
@@ -128,6 +132,9 @@ class initiate(smach.State):
 		handle_tray.wait()
 		handle_arm.wait()
 		handle_sdh.wait()
+
+		# set light
+		sss.set_light("green")
 
 		userdata.message = []
 		userdata.message.append(3)
@@ -186,6 +193,7 @@ class approach_pose(smach.State):
 		# This state moves the robot to the given pose.
 
 		# \todo TODO retry process is not working
+		# \todo TODO when navigating long distances, intermediate steps should be taken
 
 	def execute(self, userdata):
 
@@ -210,8 +218,6 @@ class approach_pose(smach.State):
 		# try reaching pose
 		handle_base = sss.move("base", pose, False)
 		sss.say(["i am moving now"],False)
-		handle_base.wait()
-		handle_base = sss.move("base", pose, False)
 		handle_base.wait()
 		return 'succeeded'
 #		rospy.wait_for_service('/base_controller/is_base_moving', 3)
@@ -339,45 +345,45 @@ class message(smach.State):
 
 		smach.State.__init__(
 			self,
-			outcomes=['send_success', 'send_failure', 'send_status', 'send_interrupt', 'no_message_sent'],
+			outcomes=['no_message_sent', 'quit'],
 			input_keys=['message'],
 			output_keys=['message'])
 
 		# Send message to master_node
 		# Message types are:
+		# 0 = QUIT
 		# 1 = INFO
 		# 2 = ERROR
 		# 3 = STATUS
 		# 4 = INTERRUPT
-		# 5 = INVALID
+		# >5 = INVALID USERDATA
 
 	def execute(self, userdata):
 
-		if userdata.message[0] == 1:
-			userdata.message[0] = "INFO ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_success'
-		elif userdata.message[0] == 2:
-			userdata.message[0] = "ERROR ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_failure'
-		elif userdata.message[0] == 3:
-			userdata.message[0] = "STATUS ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_status'
-		elif userdata.message[0] == 4:
-			userdata.message[0] = "INTERRUPT ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_interrupt'
-		elif userdata.message[0] == 5:
-			userdata.message[0] = "INVALID ---> "
-			print "\n", userdata.message, "\n"
-			return 'send_failure'
-		else: # this should never happen
-			print "\nERROR ---> Invalid message type: ", userdata.message[0], "\n"
-			print "Message = ", userdata.message, "\n"
-			return 'no_message_sent'
+		while True:
+			userdata.message[0] = userdata.message[0] -1
+			message = userdata.message
+			if message[0] >= 0:
+				if message[0] == 0:
+					message[0] = "QUIT MESSAGE"
+					print "\n", userdata.message, "\n"
+					return 'quit'
+				elif message[0] == 1:
+					message[0] = "INFO MESSAGE"
+					print "\n", userdata.message, "\n"
+				elif message[0] == 2:
+					message[0] = "ERROR MESSAGE"
+					print "\n", userdata.message, "\n"
+				elif message[0] == 3:
+					message[0] = "STATUS MESSAGE"
+					print "\n", userdata.message, "\n"
+				elif message[0] == 4:
+					message[0] = "INTERRUPT MESSAGE"
+					print "\n", userdata.message, "\n"
+				else:
+					message[0] = "INVALID USERDATA MESSAGE"
+					print "\n", userdata.message, "\n"
+				userdata.message[0] = -1
 
 #------------------------------------------------------------------------------------------#
-
 

@@ -16,5 +16,4 @@
         <!-- include rostest -->
         <include file="$(find cob_script_server)/launch/script_server.test" />
 
-
 </launch>
