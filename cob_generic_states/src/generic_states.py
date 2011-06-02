@@ -115,6 +115,14 @@ class initiate(smach.State):
 		#sss.init("arm")
 		sss.init("sdh")
 		sss.init("base")
+		
+		# recover components
+		#sss.recover("head")
+		sss.recover("torso")
+		sss.recover("tray")
+		#sss.recover("arm")
+		#sss.recover("sdh")
+		sss.recover("base")
 
 		# set light
 		sss.set_light("red",False)
@@ -213,11 +221,15 @@ class approach_pose(smach.State):
 
 		# try reaching pose
 		handle_base = sss.move("base", pose, False)
-		sss.say(["i am moving now"],False)
+		move_second = False
 
 		timeout = 0
 		while True:
-			if handle_base.get_state() == 3:
+			if (handle_base.get_state() == 3) and (not move_second):
+				# do a second movement to place the robot more exactly
+				handle_base = sss.move("base", pose, False)
+				move_second = True
+			elif (handle_base.get_state() == 3) and (move_second):
 				userdata.message = []
 				userdata.message.append(3)
 				userdata.message.append("Pose was succesfully reached")
@@ -290,15 +302,19 @@ class approach_pose_without_retry(smach.State):
 
 		# try reaching pose
 		handle_base = sss.move("base", pose, False)
-		sss.say(["i am moving now"],False)
+		move_second = False
 
 		timeout = 0
 		while True:
-			if handle_base.get_state() == 3:
+			if (handle_base.get_state() == 3) and (not move_second):
+				# do a second movement to place the robot more exactly
+				handle_base = sss.move("base", pose, False)
+				move_second = True
+			elif (handle_base.get_state() == 3) and (move_second):
 				userdata.message = []
 				userdata.message.append(3)
 				userdata.message.append("Pose was succesfully reached")
-				return 'succeeded'			
+				return 'succeeded'		
 
 			# check if service is available
 			service_full_name = '/base_controller/is_moving'
