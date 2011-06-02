@@ -83,13 +83,13 @@ from actionlib_msgs.msg import *
 #------------------------------------------------------------------------------------------#
 #-----	SMACH STATES				-------------------------------------------------------#
 
-class initiate(smach.State):
+class initialize(smach.State):
 
 	def __init__(self):
 
 		smach.State.__init__(
 			self,
-			outcomes=['initiated', 'failed'],
+			outcomes=['initialized', 'failed'],
 			input_keys=['listener', 'message'],
 			output_keys=['listener', 'message'])
 		
@@ -108,38 +108,61 @@ class initiate(smach.State):
 		# print "self.listener =", self.listener # for debugging
 		# print "userdata.listener =", userdata.listener # for debugging
 
-		# initialize components
-		#sss.init("head")
-		sss.init("torso")
-		sss.init("tray")
-		#sss.init("arm")
-		sss.init("sdh")
-		sss.init("base")
+		#########################
+		# initialize components #
+		#########################
 		
-		# recover components
-		#sss.recover("head")
-		sss.recover("torso")
-		sss.recover("tray")
-		#sss.recover("arm")
-		#sss.recover("sdh")
-		sss.recover("base")
+		#handle_head = sss.init("head")
+		#if handle_head.get_error_code() != 0:
+		#	return 'failed'
 
-		# set light
-		sss.set_light("red",False)
+		handle_torso = sss.init("torso")
+		if handle_torso.get_error_code() != 0:
+			return 'failed'
+			
+		handle_tray = sss.init("tray")
+		if handle_tray.get_error_code() != 0:
+			return 'failed'
 
-		# move to initial positions
-		#handle_head = sss.move("eyes", "back", False)
-		handle_torso = sss.move("torso", "home", False)
-		handle_tray = sss.move("tray", "down", False)
-		handle_arm = sss.move("arm", "folded", False)
-		handle_sdh = sss.move("sdh", "cylclosed", False)
+		#handle_arm = sss.init("arm")
+		#if handle_arm.get_error_code() != 0:
+		#	return 'failed'
 
-		# wait for initial movements to finish
-		#handle_head.wait()
-		handle_torso.wait()
-		handle_tray.wait()
-		handle_arm.wait()
-		handle_sdh.wait()
+		handle_sdh = sss.init("sdh")
+		#if handle_sdh.get_error_code() != 0:
+		#	return 'failed'
+
+		handle_base = sss.init("base")
+		if handle_base.get_error_code() != 0:
+			return 'failed'		
+		
+		######################
+		# recover components #
+		######################
+		
+		#handle_head = sss.recover("head")
+		#if handle_head.get_error_code() != 0:
+		#	return 'failed'		
+		
+		handle_torso = sss.recover("torso")
+		if handle_torso.get_error_code() != 0:
+			return 'failed'
+		
+		handle_tray = sss.recover("tray")
+		if handle_tray.get_error_code() != 0:
+			return 'failed'
+
+		#handle_arm = sss.recover("arm")
+		#if handle_arm.get_error_code() != 0:
+		#	return 'failed'
+
+		#handle_sdh = sss.recover("sdh")
+		#if handle_sdh.get_error_code() != 0:
+		#	return 'failed'
+
+		handle_base = sss.recover("base")
+		if handle_base.get_error_code() != 0:
+			return 'failed'
 
 		# set light
 		sss.set_light("green")
@@ -147,7 +170,7 @@ class initiate(smach.State):
 		userdata.message = []
 		userdata.message.append(3)
 		userdata.message.append("Finished initializing components")
-		return 'initiated'
+		return 'initialized'
 
 #------------------------------------------------------------------------------------------#
 
