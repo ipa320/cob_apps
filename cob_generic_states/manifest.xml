@@ -13,5 +13,6 @@
   <depend package="smach"/>
   <depend package="smach_ros"/>
   <depend package="cob_script_server"/>
+  <depend package="actionlib_msgs"/>
 
 </package>
