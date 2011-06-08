@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find cob_machine)/cob3-sim.machine" />
+  
+  <node machine="pc1" pkg="collision_map" type="collision_map_self_occ_node" name="collision_map_self_occ_node" respawn="true" output="screen">
+    
+    <remap from="robot_description" to="robot_description" />
+
+    <!-- if someone asks for a stable map, publish the static map on the dynamic
+    map topic and no longer publish dynamic maps -->
+    <param name="publish_static_over_dynamic_map" type="bool" value="false" />
+
+    <!-- we do not want a separate map with occlusions alone -->
+    <param name="publish_occlusion" type="bool" value="true" />
+
+    <param name="fixed_frame" type="string" value="/map" />
+
+    <!-- define a box of size 2x2x2.5 around (0, 0, 0) in the robot frame -->
+    <param name="robot_frame" type="string" value="base_footprint" />
+
+    <param name="origin_x" type="double" value="0.0" />
+    <param name="origin_y" type="double" value="0.0" />
+    <param name="origin_z" type="double" value="0.0" />
+    
+    <param name="dimension_x" type="double" value="2.0" />
+    <param name="dimension_y" type="double" value="2.0" />
+    <param name="dimension_z" type="double" value="2.5" />
+
+    <!-- set the resolution (1.0 cm) -->
+    <param name="resolution" type="double" value="0.01" />
+    
+    <!-- cloud sources -->
+    <rosparam command="load" file="$(find cob_arm_navigation)/config/collision_map_sources.yaml" />	
+  </node>
+  
+</launch>

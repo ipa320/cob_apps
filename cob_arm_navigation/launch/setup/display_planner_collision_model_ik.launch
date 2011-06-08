@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch> 
+  <node pkg="planning_environment" name="display_planner_collision_model_ik" type="display_planner_collision_model" respawn="false" output="screen">
+    <param name="skip_collision_map" type="bool" value="false" />
+    <param name="prefix" type="string" value="/arm_controller/cob_ik_solver" />
+  </node>
+</launch>

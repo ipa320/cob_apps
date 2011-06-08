@@ -1,0 +1,26 @@
+default_robot_padding: 0.0
+link_padding:
+  - link: tablet
+    padding: 0.03
+#  - link: torso
+#    padding: 0.0
+#  - link: robot_body
+#    padding: 0.0
+#  - link: left_arm
+#    padding: .02
+#  - link: right_arm 
+#    padding: .02
+#  - link: r_end_effector
+#    padding: .02
+#  - link: l_end_effector
+#    padding: .02
+#  - link: l_gripper_r_finger_tip_link
+#    padding: .02
+#  - link: l_gripper_l_finger_tip_link
+#    padding: .02
+#  - link: r_gripper_r_finger_tip_link
+#    padding: .02
+#  - link: r_gripper_l_finger_tip_link
+#    padding: .02
+#  - link: attached
+#    padding: .02

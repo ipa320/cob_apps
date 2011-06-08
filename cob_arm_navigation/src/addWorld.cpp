@@ -1,3 +1,63 @@
+/*!
+ *****************************************************************
+ * \file
+ *
+ * \note
+ *   Copyright (c) 2010 \n
+ *   Fraunhofer Institute for Manufacturing Engineering
+ *   and Automation (IPA) \n\n
+ *
+ *****************************************************************
+ *
+ * \note
+ *   Project name: care-o-bot
+ * \note
+ *   ROS stack name: cob_apps
+ * \note
+ *   ROS package name: cob_arm_navigation
+ *
+ * \author
+ *   Author: Felix Messmer, email:felix.messmer@ipa.fhg.de
+ *
+ * \date Date of creation: January 2011
+ *
+ * \brief
+ *   Adds the current environment as a known obstacle to the environment server.
+ *
+ *****************************************************************
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     - Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer. \n
+ *     - Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution. \n
+ *     - Neither the name of the Fraunhofer Institute for Manufacturing
+ *       Engineering and Automation (IPA) nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission. \n
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License LGPL as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License LGPL for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License LGPL along with this program.
+ * If not, see <http://www.gnu.org/licenses/>.
+ *
+ ****************************************************************/
+
+
+
+
 #include <ros/ros.h>
 #include <stdio.h>
 #include <vector>
@@ -17,33 +77,30 @@ shapes::Shape* constructShape(const urdf::Geometry *geom)
   ROS_ASSERT(geom);
  
   shapes::Shape *result = NULL;
-  switch (geom->type)
+  if(geom->type == urdf::Geometry::BOX)
   {
-  case urdf::Geometry::SPHERE:
-    {
-      result = new shapes::Sphere(dynamic_cast<const urdf::Sphere*>(geom)->radius);
-      break;
-    }
-  case urdf::Geometry::BOX:
-    {
-      urdf::Vector3 dim = dynamic_cast<const urdf::Box*>(geom)->dim;
-      result = new shapes::Box(dim.x, dim.y, dim.z);
-    }
-    break;
-  case urdf::Geometry::CYLINDER:
-    {
-      result = new shapes::Cylinder(dynamic_cast<const urdf::Cylinder*>(geom)->radius,
-                                  dynamic_cast<const urdf::Cylinder*>(geom)->length);
-      break;
-    }
-  case urdf::Geometry::MESH:
-    {
-		//you can find the code in motion_planning_common/planning_models/kinematic_models.cpp
-	}
-    break;
-  default:
+	ROS_INFO("BOX");
+    urdf::Vector3 dim = dynamic_cast<const urdf::Box*>(geom)->dim;
+    result = new shapes::Box(dim.x, dim.y, dim.z);
+  }
+  else if(geom->type == urdf::Geometry::SPHERE)
+  {
+	ROS_INFO("SPHERE");
+    result = new shapes::Sphere(dynamic_cast<const urdf::Sphere*>(geom)->radius);
+  }
+  else if(geom->type == urdf::Geometry::CYLINDER)
+  {
+	ROS_INFO("CYLINDER");
+    result = new shapes::Cylinder(dynamic_cast<const urdf::Cylinder*>(geom)->radius, dynamic_cast<const urdf::Cylinder*>(geom)->length);
+  }
+  else if(geom->type == urdf::Geometry::MESH)
+  {
+	//you can find the code in motion_planning_common/planning_models/kinematic_models.cpp
+	ROS_INFO("MESH --- currently not supported");
+  }
+  else
+  {
     ROS_ERROR("Unknown geometry type: %d", (int)geom->type);
-    break;
   }
     
   return result;
@@ -61,24 +118,18 @@ int main(int argc, char** argv) {
   ros::Publisher object_in_map_pub_;
   object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 20);
   
-/*
-  if (argc != 3){
-    ROS_ERROR("Need a urdf file as first argument and the model_name as in the launch file as second argument");
-    return -1;
-  }
-  std::string urdf_file = argv[1];
-  std::string model_name = argv[2];
-  ROS_INFO("Model-Name: %s", model_name.c_str());
-
-  urdf::Model model;
-  if (!model.initFile(urdf_file)){
-    ROS_ERROR("Failed to parse urdf file");
-    return -1;
-  }
-*/
 
   std::string parameter_name = "world_description";
   std::string model_name = "urdf_world_model";
+  
+  
+  
+  while(!nh.hasParam(parameter_name))
+  {
+	  ROS_WARN("waiting for parameter \"world_description\"... ");
+	  ros::Duration(0.5).sleep();
+  }
+  
   
   urdf::Model model;
   if (!model.initParam(parameter_name))
@@ -102,6 +153,9 @@ int main(int argc, char** argv) {
     ROS_INFO("Joint name: %s", (*joints_it).first.c_str());
     ROS_INFO("\t origin: %f,%f,%f", (*joints_it).second->parent_to_joint_origin_transform.position.x, (*joints_it).second->parent_to_joint_origin_transform.position.y, (*joints_it).second->parent_to_joint_origin_transform.position.z);
   }
+
+  ros::service::waitForService("/gazebo/get_model_state");
+  ros::service::waitForService("/cob3_environment_server/get_state_validity");	//just to make sure that the environment_server is there!
 
   //access to tranformation /world to /root_link (table_top)
   ros::ServiceClient client = nh.serviceClient<gazebo::GetModelState>("/gazebo/get_model_state");
@@ -147,6 +201,7 @@ int main(int argc, char** argv) {
 	  //fill CollisionObject for each link
 	  shapes::Shape *current_shape;
 	  current_shape = constructShape(current_link.collision->geometry.get());
+	  ROS_INFO("shape.type: %d", current_shape->type);
 	  
 	  //ROS_INFO("Position (x,y,z): (%f,%f,%f)", current_link.collision->origin.position.x, current_link.collision->origin.position.y, current_link.collision->origin.position.z);
 
@@ -185,11 +240,7 @@ int main(int argc, char** argv) {
 	  object_in_map_pub_.publish(collision_object);
 	
 	  ROS_INFO("Should have published");
-	  
-	  ros::Duration(2.0).sleep();
   }
-
-  ros::Duration(2.0).sleep();
 
   ros::shutdown();
 }

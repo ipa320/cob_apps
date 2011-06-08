@@ -1,0 +1,78 @@
+joint_limits:
+# - position limits are taken from urdf file
+#   (safety_controller limits are used!)
+# - max_velocities in urdf file are 2.0 for all joints
+# - max_acceleration in cob_arm/lbr.yaml are 0.8 for all joints
+#   (the values here are chosen to be a little smaller!)
+
+  arm_1_joint:
+    has_position_limits: true
+    min_position: -6.1831853
+    max_position: 6.1831853
+    has_velocity_limits: true
+    max_velocity: 0.8
+    has_acceleration_limits: true
+    max_acceleration: 0.8
+  arm_2_joint:
+    has_position_limits: true
+    min_position: -1.9943951
+    max_position: 1.9943951
+    has_velocity_limits: true
+    max_velocity: 0.8
+    has_acceleration_limits: true
+    max_acceleration: 0.8
+  arm_3_joint:
+    has_position_limits: true
+    min_position: -6.1831853
+    max_position: 6.1831853
+    has_velocity_limits: true
+    max_velocity: 0.8
+    has_acceleration_limits: true
+    max_acceleration: 0.8
+  arm_4_joint:
+    has_position_limits: true
+    min_position: -1.9943951
+    max_position: 1.9943951
+    has_velocity_limits: true
+    max_velocity: 0.8
+    has_acceleration_limits: true
+    max_acceleration: 0.8
+  arm_5_joint:
+    has_position_limits: true
+    min_position: -6.1831853
+    max_position: 6.1831853
+    has_velocity_limits: true
+    max_velocity: 0.8
+    has_acceleration_limits: true
+    max_acceleration: 0.8
+  arm_6_joint:
+    has_position_limits: true
+    min_position: -1.9943951
+    max_position: 1.9943951
+    has_velocity_limits: true
+    max_velocity: 0.8
+    has_acceleration_limits: true
+    max_acceleration: 0.8
+  arm_7_joint:
+    has_position_limits: true
+    min_position: -6.1831853
+    max_position: 6.1831853
+    has_velocity_limits: true
+    max_velocity: 0.8
+    has_acceleration_limits: true
+    max_acceleration: 0.8
+  
+
+##########################
+#### example from pr2 ####
+#
+#  r_shoulder_pan_joint:
+#    has_position_limits: true
+#    min_position: -2.2853981634
+#    max_position: 0.714601836603
+#    has_velocity_limits: true
+#    max_velocity: 0.8
+#    has_acceleration_limits: true
+#    max_acceleration: 0.5
+
+

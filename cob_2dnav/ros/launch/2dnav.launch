@@ -1,32 +1,30 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find cob_default_config)/envs/$(env ROBOT_ENV)/map.yaml"/>
+	<!-- Run the map server -->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find cob_default_config)/envs/$(env ROBOT_ENV)/map.yaml"/>
 
-  <!--- Run AMCL -->
-  <include file="$(find cob_2dnav)/ros/launch/amcl_omni.launch" />
+	<!--- Run AMCL -->
+	<include file="$(find cob_2dnav)/ros/launch/amcl_omni.launch" />
 
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <remap from="cmd_vel" to="base_controller/command"/>
-    <remap from="odom" to="base_odometry/odom"/>
-    <rosparam file="$(find cob_2dnav)/ros/launch/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find cob_2dnav)/ros/launch/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find cob_2dnav)/ros/launch/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find cob_2dnav)/ros/launch/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find cob_2dnav)/ros/launch/base_local_planner_params.yaml" command="load" />
-  </node>
-  
-  <!-- Robot pose ekf -->
-  <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
-    <param name="freq" value="30.0"/>
-    <param name="sensor_timeout" value="1.0"/>
-    <param name="publish_tf" value="true"/>
-    <param name="odom_used" value="true"/>
-    <param name="imu_used" value="true"/>
-    <param name="vo_used" value="false"/>
-    <remap from="odom" to="base_controller/odometry" />
-    <remap from="imu_data" to="torso_lift_imu/data" />
-  </node>
+	<!--- Run move base -->
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<remap from="cmd_vel" to="base_controller/command"/>
+		<remap from="odom" to="base_controller/odometry"/>
+
+		<!--- load common configuration files -->
+		<rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+
+		<!--- load global navigation specific parameters -->
+		<rosparam file="$(find cob_2dnav)/ros/config/global/local_costmap_params.yaml" command="load" />
+		<rosparam file="$(find cob_2dnav)/ros/config/global/global_costmap_params.yaml" command="load" />
+
+		<!--- load planner parameters -->
+		<rosparam file="$(find cob_2dnav)/ros/config/base_local_planner_params.yaml" command="load" />
+	</node>
+
+	<!-- Robot pose ekf -->
+	<include file="$(find cob_2dnav)/ros/launch/robot_pose_ekf.launch" />
 
 </launch>
