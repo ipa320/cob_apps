@@ -93,7 +93,7 @@ void baseTwistCallback(const nav_msgs::Odometry::ConstPtr& msg)
 		double omega = msg->twist.twist.angular.z;
 		//std::cout << omega << "\n";
 		Frame F_ist;
-		fksolver1->JntToCart(q, F_ist);
+		fksolver1->JntToCart(q, F_ist, -1);
 		//transformational part of base rotation
 		KDL::Vector twist_Trans = (KDL::Rotation::EulerZYX(-omega, 0.0, 0.0) * F_ist.p) - F_ist.p;
 		//rotational part of base rotation
@@ -106,7 +106,7 @@ void baseTwistCallback(const nav_msgs::Odometry::ConstPtr& msg)
 		Frame F_armbase;
 		ChainFkSolverPos_recursive fksolver_base_armv0(chain_base_arm0);//Forward position solver
 		//std::cout << chain_base_arm0.getNrOfJoints() << "\n";
-		fksolver_base_armv0.JntToCart(NULL, F_armbase);
+		fksolver_base_armv0.JntToCart(NULL, F_armbase, -1);
 		//std::cout << F_armbase << "\n";
 		// create transformation frame
 		//  T_Trans.ReverseSign();
@@ -145,7 +145,7 @@ void Manipulability_potentialfield_lookup()
 	double grady;
 
 	Frame F_ist;
-  fksolver1->JntToCart(q, F_ist);
+  fksolver1->JntToCart(q, F_ist, -1);
 
   //std::cerr << "GlobPos: " << glcartpos << "\n";
   gradx = 0.420 - F_ist.p.x();
@@ -243,7 +243,7 @@ void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 		//std::cout << "VirtualJoints: " << VirtualQ(0) << " " << VirtualQ(1) << " " << VirtualQ(2) << " " << VirtualQ(3) << " " << VirtualQ(4) << " " << VirtualQ(5) << " " << VirtualQ(6)  << "\n";	
 		JntArray q_out(7);
 	 	Frame F_ist;
-		fksolver1->JntToCart(q, F_ist);
+		fksolver1->JntToCart(q, F_ist, -1);
 		KDL::Twist combined_twist = extTwist + getTwist(F_ist);	
 		int ret = iksolver1v->CartToJnt(q, combined_twist, q_out);
 		if(ret >= 0)
