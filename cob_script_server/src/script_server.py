@@ -101,7 +101,7 @@ class script_server(script):
 			rospy.logdebug("action result success")
 			self.script_action_server.set_succeeded(server_result)
 		else:
-			rospy.logerror("action result error")
+			rospy.logerr("action result error")
 			self.script_action_server.set_aborted(server_result)
 
 ## Main routine for running the script server
