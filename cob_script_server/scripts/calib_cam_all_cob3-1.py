@@ -47,8 +47,8 @@ class CalibCam(script):
 
 
 		# move components to initial position
-		#self.sss.move("head","back")
-		self.sss.move("head","front")
+		self.sss.move("head","back")
+		#self.sss.move("head","front")
 		#self.sss.move("arm","calib")
 		self.sss.move("torso","home")
 		#self.sss.move("sdh","home")
@@ -127,7 +127,7 @@ class CalibCam(script):
 
 	def captureImage(self):
 		try:
-			(trans,rot) = self.listener.lookupTransform('/base_link', '/head_color_camera_r_link', rospy.Time(0))
+			(trans,rot) = self.listener.lookupTransform('/base_link', '/head_axis_link', rospy.Time(0))
 			rpy = euler_from_quaternion(rot)
 			cyaw = cos(rpy[2])
 			syaw = sin(rpy[2])
