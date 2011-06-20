@@ -1,27 +1,8 @@
-// Copyright  (C)  2007  Ruben Smits <ruben dot smits at mech dot kuleuven dot be>
 
-// Version: 1.0
-// Author: Ruben Smits <ruben dot smits at mech dot kuleuven dot be>
-// Maintainer: Ruben Smits <ruben dot smits at mech dot kuleuven dot be>
-// URL: http://www.orocos.org/kdl
 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 2.1 of the License, or (at your option) any later version.
+#include "cob_mmcontroller/augmented_solver.h"
 
-// This library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// Lesser General Public License for more details.
-
-// You should have received a copy of the GNU Lesser General Public
-// License along with this library; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-#include "augmented_solver.h"
-
-#define DEBUG true
+#define DEBUG false
 
 namespace KDL
 {
@@ -45,7 +26,7 @@ namespace KDL
     }
 
 
-    int augmented_solver::CartToJnt(const JntArray& q_in, const JntArray& q_in_base, Twist& v_in, JntArray& qdot_out, JntArray& qdot_base_out)
+    int augmented_solver::CartToJnt(const JntArray& q_in, const JntArray& q_base_cart, Twist& v_in, JntArray& qdot_out, JntArray& qdot_base_out)
     {
     	double damping_factor = 0.01;
 
@@ -68,9 +49,8 @@ namespace KDL
         jac_full.resize(6,chain.getNrOfJoints() + jac_base.cols());
         jac_full << jac.data, jac_base;
         int num_dof = chain.getNrOfJoints() + jac_base.cols();
-
-        if(DEBUG)
-        	std::cout << "Combined jacobian:\n " << jac_full << "\n";
+		if(DEBUG)
+			std::cout << "Combined jacobian:\n " << jac_full << "\n";
 
         //Weighting Matrices
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> W_v;
@@ -81,21 +61,25 @@ namespace KDL
 
 
         Eigen::Matrix<double, 6,6> W_e;
+        W_e.setZero();
         for(unsigned int i=0 ; i<6 ; i++)
         	W_e(i,i) = 1;
 
         if(DEBUG)
-                std::cout << "Weight matrix defined\n";
+        	std::cout << "Weight matrix defined\n";
         //W_e.setIdentity(6,6);
 
-        //Inversion TODO: noch ohne augmented tasks just the infrastructure
+        //Definition of additional task for platform
+
+
+        //Inversion
         // qdot_out = (jac_full^T * W_e * jac_full + jac_augmented^T * W_c * jac_augmented + W_v)^-1(jac_full^T * W_e * v_in + jac_augmented^T * W_c * z_in)
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> damped_inversion;
         damped_inversion.resize(num_dof,num_dof);
 
-        damped_inversion = (jac_full.transpose() * W_e * jac_full) + W_v;
+        damped_inversion = (jac_full.transpose() * W_e * jac_full) + /* jac_augmented.transpose() * W_c * jac_augmented / + W_v;
         if(DEBUG)
-                std::cout << "Inversion done\n";
+        	std::cout << "Inversion done\n";
 
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> q_dot_conf_control;
         Eigen::Matrix<double, 6, 1> v_in_eigen;
@@ -103,13 +87,13 @@ namespace KDL
         v_in_eigen(0,0) = v_in.vel.x();
         v_in_eigen(1,0) = v_in.vel.y();
         v_in_eigen(2,0) = v_in.vel.z();
-        v_in_eigen(3,0) = 0.0;//v_in.rot.x();
-        v_in_eigen(4,0) = 0.0;//v_in.rot.y();
-        v_in_eigen(5,0) = 0.0;//v_in.rot.z();
+        v_in_eigen(3,0) = v_in.rot.x();
+        v_in_eigen(4,0) = v_in.rot.y();
+        v_in_eigen(5,0) = v_in.rot.z();
         q_dot_conf_control = damped_inversion.inverse() * jac_full.transpose() * W_e * v_in_eigen;
 
         if(DEBUG)
-                std::cout << "Endergebnis: \n" << q_dot_conf_control << "\n";
+        	std::cout << "Endergebnis: \n" << q_dot_conf_control << "\n";
 
         //Do a singular value decomposition of "jac" with maximum
         //iterations "maxiter", put the results in "U", "S" and "V"
@@ -145,7 +129,7 @@ namespace KDL
             qdot_out(i)=sum;
         }
         if(DEBUG)
-                std::cout << "Solution SVD: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
+        	std::cout << "Solution SVD: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
         //return the return value of the svd decomposition
         //New calculation
         for(unsigned int i=0;i<7;i++)
@@ -159,7 +143,7 @@ namespace KDL
         }
 
         if(DEBUG)
-                std::cout << "Solution ConfControl: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
+        	std::cout << "Solution ConfControl: " << qdot_out(0) << " " << qdot_out(1) << " " << qdot_out(2) << " " << qdot_out(3) << " " << qdot_out(4) << " " << qdot_out(5) << " " << qdot_out(6)  << "\n====\n";
         return ret;
     }
 

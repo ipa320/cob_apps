@@ -8,6 +8,7 @@
 #include <cob_srvs/Trigger.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/Odometry.h>
 #include <visualization_msgs/Marker.h>
 
@@ -33,8 +34,10 @@ KDL::Chain chain;
 KDL::Chain chain_base_arm0;
 KDL::JntArray VirtualQ;
 KDL::JntArray q;
+Frame F_start;
 bool started = false;
 KDL::Twist extTwist;
+KDL::Frame basePoseOdom;
 KDL::Twist baseTwist;
 ros::Time last;
 double lastgradx = 0.0;
@@ -50,6 +53,7 @@ ChainIkSolverPos_NR * iksolverpos;//Maximum 100 iterations, stop at accuracy 1e-
 bool RunSyncMM = false;
 ros::Publisher arm_pub_;  //publish topic arm_controller/command
 ros::Publisher base_pub_;  //publish topic base_controller/command
+ros::Publisher debug_cart_pub_;
 
 
 
@@ -57,7 +61,7 @@ JntArray parseJointStates(std::vector<std::string> names, std::vector<double> po
 {
 	JntArray q_temp(7);
 	int count = 0;
-  for(int i = 0; i < names.size(); i++)
+  for(unsigned int i = 0; i < names.size(); i++)
     {
 			if(strncmp(names[i].c_str(), "arm_", 4) == 0)
 			{
@@ -70,6 +74,7 @@ JntArray parseJointStates(std::vector<std::string> names, std::vector<double> po
 		VirtualQ = q_temp;
 		started = true;
 		last = ros::Time::now();
+
 		ROS_INFO("Starting up controller with first configuration");
 	}
 	return q_temp;
@@ -88,6 +93,7 @@ void cartTwistCallback(const geometry_msgs::Twist::ConstPtr& msg)
 
 void baseTwistCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
+	tf::PoseMsgToKDL(msg->pose.pose, basePoseOdom);
 	if(RunSyncMM)
 	{
 		double vx = msg->twist.twist.linear.x;
@@ -140,17 +146,57 @@ KDL::Twist getTwist(KDL::Frame F_ist)
 	}	
 }
 
-KDL::Twist getTrajectoryTwist(double dt)
+KDL::Twist getTrajectoryTwist(double dt, Frame F_current)
 {
 	KDL::Twist circ;
-	if(dt <= 5.0)
+	std::cout << "Time is " << dt << "\n";
+	if(dt <= 7.0)
 	{
-		circ.vel.z(0.05);
-		circ.vel.y(-0.1);
+		F_current.p.x(F_current.p.x() + basePoseOdom.p.x());
+		F_current.p.y(F_current.p.y() + basePoseOdom.p.y());
+		F_current.p.z(F_current.p.z() + basePoseOdom.p.z());
+		double max_ang = 3.14/2.0;
+		double max_time = 10.0;
+		double soll_y = -0.6+(cos(max_ang*(dt/max_time)) * 0.6);
+		double soll_x = sin(max_ang*(dt/max_time)) * 0.6;
+		double soll_y_t1 = -0.6+(cos(max_ang*((dt+0.02)/max_time)) * 0.6);
+		double soll_x_t1 = sin(max_ang*((dt+0.02)/max_time)) * 0.6;
+		std::cout << "Soll x:" << soll_x << " y: " << soll_y << "\n";
+		std::cout << "Diff x:" << F_current.p.x()-F_start.p.x() << " y: " << F_current.p.y()-F_start.p.y() << "\n";
+
+		KDL::Frame F_soll = F_start;
+		KDL::Frame F_soll2 = F_start;
+		KDL::Frame F_diff = F_start;
+		F_soll.p.x(F_start.p.x() + soll_x);
+		F_soll.p.y(F_start.p.y() - soll_y);
+		F_soll2.p.x(F_start.p.x() + soll_x_t1);
+		F_soll2.p.y(F_start.p.y() - soll_y_t1);
+
+		F_diff.p.x(F_current.p.x()-F_soll.p.x());
+		F_diff.p.y(F_current.p.y()-F_soll.p.y());
+		F_diff.p.z(F_current.p.z()-F_start.p.z());
+
+		double twist_x = (F_current.p.x()-F_soll2.p.x());
+		double twist_y = (F_current.p.y()-F_soll2.p.y());
+
+
+		std::cout << "Twist x: " << twist_x << " y: " << twist_y << "\n";
+		circ.vel.z(0.0);
+		circ.vel.x(-twist_x);
+		circ.vel.y(-twist_y);
+
+		//DEBUG
+		geometry_msgs::PoseArray poses;
+		poses.poses.resize(3);
+		tf::PoseKDLToMsg(F_current, poses.poses[0]);
+		tf::PoseKDLToMsg(F_soll, poses.poses[1]);
+		tf::PoseKDLToMsg(F_diff, poses.poses[2]);
+		debug_cart_pub_.publish(poses);
+
 	}
 	else
 		std::cout << "Finnished\n";
-	return extTwist;
+	return circ;
 }
 
 
@@ -161,11 +207,11 @@ void Manipulability_potentialfield_lookup()
 	double grady;
 
 	Frame F_ist;
-  fksolver1->JntToCart(q, F_ist, -1);
+	fksolver1->JntToCart(q, F_ist);
 
-  //std::cerr << "GlobPos: " << glcartpos << "\n";
-  gradx = 0.420 - F_ist.p.x();
-  grady = -0.711655  - F_ist.p.y();
+	//std::cerr << "GlobPos: " << glcartpos << "\n";
+	gradx = 0.420 - F_ist.p.x();
+	grady = -0.711655  - F_ist.p.y();
 
 	gradx = (gradx * gradx * gradx)/2;
 	grady = (grady * grady * grady)/2;
@@ -210,6 +256,9 @@ bool SyncMMTrigger(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Respo
 		last2 = ros::Time::now();
 		started = false;
 		RunSyncMM = true;
+		fksolver1->JntToCart(q, F_start);
+		F_start.p.x(F_start.p.x() + basePoseOdom.p.x());
+		F_start.p.y(F_start.p.y() + basePoseOdom.p.y());
 	}	
 	return true;
 }
@@ -251,23 +300,23 @@ void sendVel(JntArray q_t, JntArray q_dot)
 
 void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
+	std::vector<std::string> names = msg->name;
+	std::vector<double> positions = msg->position;
+	q = parseJointStates(names,positions);
 	if(RunSyncMM)
 	{
 		double dt = ros::Time::now().toSec() - last2.toSec();
 		mytime += dt;
 		last2 = ros::Time::now();
 		unsigned int nj = chain.getNrOfJoints();
-		std::vector<std::string> names = msg->name;
-		std::vector<double> positions = msg->position;
-		q = parseJointStates(names,positions);
-	 	//std::cout << "Joints: " << q(0) << " " << q(1) << " " << q(2) << " " << q(3) << " " << q(4) << " " << q(5) << " " << q(6)  << "\n";	
+		//std::cout << "Joints: " << q(0) << " " << q(1) << " " << q(2) << " " << q(3) << " " << q(4) << " " << q(5) << " " << q(6)  << "\n";
 		//std::cout << "VirtualJoints: " << VirtualQ(0) << " " << VirtualQ(1) << " " << VirtualQ(2) << " " << VirtualQ(3) << " " << VirtualQ(4) << " " << VirtualQ(5) << " " << VirtualQ(6)  << "\n";	
 		JntArray q_out(7);
 		JntArray q_base(3);
 		JntArray q_dot_base(3);
-	 	Frame F_ist;
+		Frame F_ist;
 		fksolver1->JntToCart(q, F_ist);
-		KDL::Twist combined_twist = getTrajectoryTwist(mytime);
+		KDL::Twist combined_twist = extTwist; //getTrajectoryTwist(mytime, F_ist);
 		int ret = iksolver1v->CartToJnt(q, q_base, combined_twist, q_out, q_dot_base);
 		if(ret >= 0)
 		{
@@ -305,10 +354,14 @@ int main(int argc, char **argv)
 	//iksolverpos = new ChainIkSolverPos_NR(chain,&fksolver1,&iksolver1v,100,1e-6);//Maximum 100 iterations, stop at accuracy 1e-6
 	
 	ros::Subscriber sub = n.subscribe("/joint_states", 1, controllerStateCallback);
-	ros::Subscriber cart_vel_sub = n.subscribe("/arm_controller/cart/command", 1, cartTwistCallback);
+	ROS_INFO("Blub");
+	ros::Subscriber cart_vel_sub = n.subscribe("/arm_controller/cart_command", 1, cartTwistCallback);
 	ros::Subscriber plat_odom_sub = n.subscribe("/base_controller/odometry", 1, baseTwistCallback);
+
 	arm_pub_ = n.advertise<trajectory_msgs::JointTrajectory>("/arm_controller/command",1);	
 	base_pub_ = n.advertise<geometry_msgs::Twist>("/base_controller/command",1);
+	debug_cart_pub_ = n.advertise<geometry_msgs::PoseArray>("/arm_controller/debug/cart",1);
+
 
 	ros::ServiceServer serv = n.advertiseService("/mm/run", SyncMMTrigger);
 	ROS_INFO("Running cartesian velocity controller.");
