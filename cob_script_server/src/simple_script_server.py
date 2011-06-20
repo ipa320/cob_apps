@@ -256,10 +256,10 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
-	def move(self,component_name,parameter_name,blocking=True, planning=False):
+	def move(self,component_name,parameter_name,blocking=True, mode=None):
 		if component_name == "base":
-			return self.move_base(component_name,parameter_name,blocking)
-		elif component_name == "arm" and planning:
+			return self.move_base(component_name,parameter_name,blocking, mode)
+		elif component_name == "arm" and mode=="planned":
 			return self.move_planned(component_name,parameter_name,blocking)
 		else:
 			return self.move_traj(component_name,parameter_name,blocking)
@@ -271,7 +271,7 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	# \param parameter_name Name of the parameter on the ROS parameter server.
 	# \param blocking Bool value to specify blocking behaviour.
-	def move_base(self,component_name,parameter_name,blocking):
+	def move_base(self,component_name,parameter_name,blocking, mode):
 		ah = action_handle("move", component_name, parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
@@ -330,7 +330,13 @@ class simple_script_server:
 		pose.pose.orientation.w = q[3]
 		
 		# call action server
-		action_server_name = "/move_base"
+		if(mode == "diff"):
+			action_server_name = "/move_base_diff"
+		elif(mode == "pot"):
+			action_server_name = "/potential_nav"
+		else:
+			action_server_name = "/move_base"
+		
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
 		# trying to connect to server
@@ -543,7 +549,7 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 		
 		# set operation mode to position
-		self.set_operation_mode(component_name,"position")
+		#self.set_operation_mode(component_name,"position")
 		
 		# sending goal
 		client_goal = JointTrajectoryGoal()
@@ -686,7 +692,7 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 		
 		# set operation mode to position
-		self.set_operation_mode(component_name,"position")
+		#self.set_operation_mode(component_name,"position")
 		
 		# sending goal
 		client_goal = MoveArmGoal()
