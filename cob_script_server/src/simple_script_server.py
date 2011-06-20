@@ -330,12 +330,19 @@ class simple_script_server:
 		pose.pose.orientation.w = q[3]
 		
 		# call action server
-		if(mode == "diff"):
-			action_server_name = "/move_base_diff"
-		elif(mode == "pot"):
-			action_server_name = "/potential_nav"
-		else:
+		if(mode == None):
 			action_server_name = "/move_base"
+		elif(mode == "omni"):
+			action_server_name = "/move_base"
+		elif(mode == "diff"):
+			action_server_name = "/move_base_diff"
+		elif(mode == "linear"):
+			action_server_name = "/move_base_linear"
+		else:
+			rospy.logerr("no valid navigation mode given for %s, aborting...",component_name)
+			print "navigation mode is:",mode
+			ah.set_failed(33)
+			return ah
 		
 		rospy.logdebug("calling %s action server",action_server_name)
 		self.client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
@@ -549,7 +556,7 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 		
 		# set operation mode to position
-		#self.set_operation_mode(component_name,"position")
+		self.set_operation_mode(component_name,"position")
 		
 		# sending goal
 		client_goal = JointTrajectoryGoal()
