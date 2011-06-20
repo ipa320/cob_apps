@@ -330,15 +330,14 @@ class simple_script_server:
 		pose.pose.orientation.w = q[3]
 		
 		# call action server
-		if(mode == "omni"):
+		if(mode == None):
 			action_server_name = "/move_base"
-		elif(mode == None):
+		elif(mode == "omni"):
 			action_server_name = "/move_base"
 		elif(mode == "diff"):
 			action_server_name = "/move_base_diff"
 		elif(mode == "linear"):
-			#action_server_name = "/move_base_linear"
-			action_server_name = "/potential_nav"
+			action_server_name = "/move_base_linear"
 		else:
 			rospy.logerr("no valid navigation mode given for %s, aborting...",component_name)
 			print "navigation mode is:",mode
