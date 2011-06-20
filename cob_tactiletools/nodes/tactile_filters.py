@@ -60,11 +60,11 @@ class TactileFilters():
     def handle_is_grasped(self, req):
         res = TriggerResponse()
         if self.is_grasped == True:
-            res.success = True
+            res.success.data = True
             res.error_message.data = "grasped object"
         else:
-            res.success = False
-            res.error_message.data = "object not grasped"
+            res.success.data = False
+            res.error_message.data= "object not grasped"
         # print "status: is_grasped = ",self.is_grasped,", success = ",res.success
         return res
 
