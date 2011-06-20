@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- start trajectory manager -->
+	<node pkg="cob_mmcontroller" type="cob_kukatest" name="arm_controller_node" ns="arm_controller" cwd="node" respawn="false" output="screen">
+	<remap from="/arm_controller/cart/command" to="/cmd_vel"/>
+	</node>
+	
+	<node pkg="cob_mmcontroller" type="cob_manipulability" name="arm_manipulability_node" ns="arm_controller" cwd="node" respawn="false" output="screen"/>
+
+
+</launch>
