@@ -14,6 +14,8 @@
 	<param name="python_api_recover_test/command" value="recover" />
 	<test test-name="recover_test" pkg="cob_script_server" type="python_api.py" name="python_api_recover_test" />
 
+	<!--test test-name="say_test" pkg="cob_script_server" type="test_say.py" name="say_test" /-->
+
 	<!-- test actionlib interface -->
 	<!-- todo -->
 </launch>
