@@ -1,0 +1,29 @@
+## the list of groups for which motion planning can be performed
+groups: 
+  - arm
+
+## the planner configurations; each config must have a type, which specifies
+## the planner to be used; other parameters can be specified as well, depending 
+## on the planner
+
+arm:
+  planner_type: JointPlanner
+  planner_configs:
+    - SBLkConfig1 
+    - LBKPIECEkConfig1
+  kinematics_solver: pr2_arm_kinematics/PR2ArmKinematicsPlugin
+#  redundancy:
+#    name: r_upper_arm_roll_joint
+  tip_name: arm_7_link
+  root_name: arm_0_link
+  projection_evaluator: joint_state
+
+  
+planner_configs:
+  SBLkConfig1:
+    type: kinematic::SBL
+
+  LBKPIECEkConfig1:
+    type: kinematic::LBKPIECE
+    
+publish_diagnostics: true

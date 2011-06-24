@@ -24,6 +24,7 @@
   <depend package="cob_gazebo"/>
   <depend package="cob_light"/>
   <depend package="cob_manipulator"/>
-  <depend package="sound_play"/>
+  <depend package="cob_teleop"/>
+  <depend package="cob_sound"/>
 
 </package>

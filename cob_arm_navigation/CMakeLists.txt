@@ -19,7 +19,10 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #uncomment if you have defined messages
 #rosbuild_genmsg()
 #uncomment if you have defined services
-#rosbuild_gensrv()
+rosbuild_gensrv()
+
+# add include search paths
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
 
 #common commands for building c++ executables and libraries
 #rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
@@ -29,13 +32,11 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 rosbuild_add_executable(addCylinder src/addCylinder.cpp)
-rosbuild_add_executable(addArmObstacle src/addArmObstacle.cpp)
 rosbuild_add_executable(addFloor src/addFloor.cpp)
-rosbuild_add_executable(addURDF src/addURDF.cpp)
 rosbuild_add_executable(addWorld src/addWorld.cpp)
-rosbuild_add_executable(test_get_state_validity src/test_get_state_validity.cpp)
+rosbuild_add_executable(addObject src/addObject.cpp)
+rosbuild_add_executable(object_handler src/object_handler.cpp)
+rosbuild_add_executable(test_object_handler src/test_object_handler.cpp)
 rosbuild_add_executable(move_arm_joint_goal src/move_arm_joint_goal.cpp)
-rosbuild_add_executable(move_arm_joint_goal_prmce src/move_arm_joint_goal_prmce.cpp)
 rosbuild_add_executable(move_arm_simple_pose_goal src/move_arm_simple_pose_goal.cpp)
-rosbuild_add_executable(move_arm_simple_pose_goal_prmce src/move_arm_simple_pose_goal_prmce.cpp)
 

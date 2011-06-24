@@ -35,11 +35,13 @@ class GraspScript(script):
 		
 	def Run(self): 
 		listener = tf.TransformListener(True, rospy.Duration(10.0))
+		rospy.sleep(2)
 	
 		# prepare for grasping
 		self.sss.move("base","kitchen")
 		self.sss.move("arm","pregrasp")
 		handle_sdh = self.sss.move("sdh","cylopen",False)
+		handle_sdh.wait()
 
 		# caculate tranformations, we need cup coordinates in arm_7_link coordinate system
 		cup = PointStamped()
@@ -48,11 +50,11 @@ class GraspScript(script):
 		cup.point.x = -3.0
 		cup.point.y = 0.08
 		cup.point.z = 1.02
-		self.sss.sleep(2) # wait for transform to be calculated
-		handle_sdh.wait()
+		rospy.sleep(2)
 		
 		if not self.sss.parse:
 			cup = listener.transformPoint('/arm_7_link',cup)
+			rospy.sleep(2)
 			# transform grasp point to sdh center
 			cup.point.z = cup.point.z - 0.2
 

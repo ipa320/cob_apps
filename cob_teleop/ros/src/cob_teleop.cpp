@@ -71,6 +71,7 @@
 #include <trajectory_msgs/JointTrajectory.h>
 #include <geometry_msgs/Twist.h>
 
+#include <cob_srvs/Trigger.h>
 #include <brics_actuator/JointPositions.h>
 #include <brics_actuator/JointVelocities.h>
 
@@ -114,11 +115,11 @@ public:
 	int arm_joint56_button_;
 	int arm_joint7_button_;
 	//signs
-	int up_down_,left_right_;   //sign for movements of upper_neck and tray
+	int up_down_, left_right_;   //sign for movements of upper_neck and tray
 
 	//common
-	int deadman_button_,run_button_;
-	bool joy_active_,stopped_;
+	int deadman_button_, run_button_, stop_base_button_, recover_base_button_;
+	bool joy_active_, stopped_;
 	double run_factor_, run_factor_param_;
 
 
@@ -404,6 +405,8 @@ void TeleopCOB::init()
 	n_.param("arm_joint7_button",arm_joint7_button_,3);
 	n_.param("deadman_button",deadman_button_,5);
 	n_.param("run_button",run_button_,7);
+	n_.param("stop_base_button",stop_base_button_,8);
+	n_.param("recover_base_button",recover_base_button_,9);
 
 	// assign axis
 	n_.param("axis_vx",axis_vx_,1);
@@ -420,6 +423,10 @@ void TeleopCOB::init()
 	ROS_DEBUG("init::arm_joint34_button: %d",arm_joint34_button_);
 	ROS_DEBUG("init::arm_joint56_button: %d",arm_joint56_button_);
 	ROS_DEBUG("init::arm_joint7_button: %d",arm_joint7_button_);
+	ROS_DEBUG("init::deadman_button: %d",deadman_button_);
+	ROS_DEBUG("init::run_button: %d",run_button_);
+	ROS_DEBUG("init::stop_base_button: %d",stop_base_button_);
+	ROS_DEBUG("init::recover_base_button: %d",recover_base_button_);
 
 	ROS_DEBUG("init::axis_vx: %d",axis_vx_);
 	ROS_DEBUG("init::axis_vy: %d",axis_vy_);
@@ -524,6 +531,52 @@ void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
 	else //button release
 	{
 		run_factor_ = 1.0;
+	}
+	
+	// recover base button
+	if(recover_base_button_>=0 && recover_base_button_<(int)joy_msg->buttons.size() && joy_msg->buttons[recover_base_button_]==1)
+	{
+		ros::ServiceClient client_init_base = n_.serviceClient<cob_srvs::Trigger>("/base_controller/init");
+	
+		ROS_INFO("Init base");
+		cob_srvs::Trigger srv = cob_srvs::Trigger();
+		if (client_init_base.call(srv))
+		{
+			ROS_INFO("Base init successfully");
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service /base_controller/init");
+		}
+		
+		ros::ServiceClient client_recover_base = n_.serviceClient<cob_srvs::Trigger>("/base_controller/recover");
+	
+		ROS_INFO("Recover base");
+		if (client_recover_base.call(srv))
+		{
+			ROS_INFO("Base recovered successfully");
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service /base_controller/recover");
+		}
+	}
+	
+	// stop base button
+	if(stop_base_button_>=0 && stop_base_button_<(int)joy_msg->buttons.size() && joy_msg->buttons[stop_base_button_]==1)
+	{
+		ros::ServiceClient client_stop_base = n_.serviceClient<cob_srvs::Trigger>("/base_controller/stop");
+	
+		ROS_INFO("Stop base");
+		cob_srvs::Trigger srv = cob_srvs::Trigger();
+		if (client_stop_base.call(srv))
+		{
+			ROS_INFO("Base stop successfully");
+		}
+		else
+		{
+			ROS_ERROR("Failed to call service /base_controller/stop");
+		}
 	}
 
 	// TODO add map for buttons
@@ -924,3 +977,4 @@ int main(int argc,char **argv)
 	exit(0);
 	return(0);
 }
+

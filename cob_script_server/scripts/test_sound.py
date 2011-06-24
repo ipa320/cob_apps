@@ -9,16 +9,11 @@ import rospy
 from simple_script_server import *
 from script_utils import *
 
-from sound_play.libsoundplay import SoundClient
 
 class Test_Sound(script):
 	def Run(self):
 		if not self.sss.parse:
 			rospy.loginfo("Testing Sound modes...")
-			rospy.loginfo("If you can't hear something, check soundcard number (#card) with:")
-			rospy.loginfo("    cat /proc/asound/cards")
-			rospy.loginfo("Initialize card with:")
-			rospy.loginfo("    alsactl init #card")
 		for i in range(1):
 			self.sss.say(["Hello, my name is Care-O-bot."])
 			
@@ -31,9 +26,10 @@ class Test_Sound(script):
 			self.sss.say(123)
 			self.sss.say([123])
 
-			self.sss.say(["Hello, my name is Care-O-bot.","How are you?"],False)
+			self.sss.say(['Once Upon A Time, there was a Shoemaker named Zerbo. He very carefully handcrafted every pair of shoes. Each pair of shoes was made especially for each person, and they were made to fit perfectly.'],False)
+
 			self.sss.sleep(1)
-			self.sss.say(["This is a non blocking voice."])
+			self.sss.say(["This is a non blocking voice which should be played in parallel to the previous text."])
 
 			rospy.set_param("script_server/sound/language","de")
 			self.sss.play("grasp_tutorial_01")
