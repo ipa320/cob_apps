@@ -26,7 +26,7 @@ namespace KDL
     }
 
 
-    int augmented_solver::CartToJnt(const JntArray& q_in, const JntArray& q_base_cart, Twist& v_in, JntArray& qdot_out, JntArray& qdot_base_out)
+    int augmented_solver::CartToJnt(const JntArray& q_in, Twist& v_in, JntArray& qdot_out, JntArray& qdot_base_out)
     {
     	double damping_factor = 0.01;
 
@@ -77,7 +77,7 @@ namespace KDL
         Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> damped_inversion;
         damped_inversion.resize(num_dof,num_dof);
 
-        damped_inversion = (jac_full.transpose() * W_e * jac_full) + /* jac_augmented.transpose() * W_c * jac_augmented / + W_v;
+        damped_inversion = (jac_full.transpose() * W_e * jac_full);  /* +  jac_augmented.transpose() * W_c * jac_augmented / + W_v;*/
         if(DEBUG)
         	std::cout << "Inversion done\n";
 

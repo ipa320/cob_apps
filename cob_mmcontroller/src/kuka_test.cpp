@@ -207,7 +207,7 @@ void Manipulability_potentialfield_lookup()
 	double grady;
 
 	Frame F_ist;
-	fksolver1->JntToCart(q, F_ist);
+  fksolver1->JntToCart(q, F_ist, -1);
 
 	//std::cerr << "GlobPos: " << glcartpos << "\n";
 	gradx = 0.420 - F_ist.p.x();
