@@ -7,6 +7,7 @@
 #include <sensor_msgs/JointState.h>
 #include <cob_srvs/Trigger.h>
 #include <trajectory_msgs/JointTrajectory.h>
+#include <brics_actuator/JointVelocities.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/Odometry.h>

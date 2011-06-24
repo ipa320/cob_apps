@@ -25,7 +25,8 @@ cob_config_controller::cob_config_controller()
 	plat_odom_sub = n.subscribe("/base_controller/odometry", 1, &cob_config_controller::baseTwistCallback, this);
 
 	ROS_INFO("Creating publishers");
-	arm_pub_ = n.advertise<trajectory_msgs::JointTrajectory>("/arm_controller/command",1);
+	//arm_pub_ = n.advertise<trajectory_msgs::JointTrajectory>("/arm_controller/command",1);
+	arm_pub_ = n.advertise<brics_actuator::JointVelocities>("/arm_controller/command_vel",1);
 	base_pub_ = n.advertise<geometry_msgs::Twist>("/base_controller/command",1);
 	debug_cart_pub_ = n.advertise<geometry_msgs::PoseArray>("/arm_controller/debug/cart",1);
 	cart_position_pub_ = n.advertise<geometry_msgs::Pose>("/arm_controller/cart_state",1);
@@ -95,7 +96,23 @@ void cob_config_controller::sendVel(JntArray q_t, JntArray q_dot, JntArray q_dot
 	last = now;
 	double horizon = 3.0*dt;
 	//std::cout << dt << "\n";
-
+	brics_actuator::JointVelocities target_joint_vel;
+	target_joint_vel.velocities.resize(7);
+	bool nonzero = false;
+	for(unsigned int i=0; i<7; i++)
+	  {
+	    if(q_dot(i) != 0.0)
+	      nonzero = true;
+	    std::stringstream joint_name;
+	    joint_name << "arm_" << (i+1) << "_joint";
+	    target_joint_vel.velocities[i].joint_uri = joint_name.str();
+	    target_joint_vel.velocities[i].unit = "rad";
+	    target_joint_vel.velocities[i].value = q_dot(i);
+	  }
+	if(nonzero)
+	  arm_pub_.publish(target_joint_vel);
+	
+	/* Old interface
 	trajectory_msgs::JointTrajectory traj;
 	traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
 	traj.joint_names.push_back("arm_1_joint");
@@ -121,6 +138,8 @@ void cob_config_controller::sendVel(JntArray q_t, JntArray q_dot, JntArray q_dot
 	traj.points[0].time_from_start = ros::Duration(horizon);
 	if(nonzero)
 		arm_pub_.publish(traj);
+	*/
+	       
 	//send to base
 	geometry_msgs::Twist cmd;
 	cmd.linear.x = q_dot_base(0);
