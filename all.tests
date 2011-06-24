@@ -1,1 +1,1 @@
-cob_bringup sim.launch
+cob_script_server script_server.launch
