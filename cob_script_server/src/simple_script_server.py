@@ -493,7 +493,8 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 		
 		# set operation mode to position
-		self.set_operation_mode(component_name,"position")
+		if not component_name == "arm":
+			self.set_operation_mode(component_name,"position")
 		
 		# sending goal
 		client_goal = JointTrajectoryGoal()
