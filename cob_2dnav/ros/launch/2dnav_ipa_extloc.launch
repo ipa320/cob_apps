@@ -2,7 +2,7 @@
 <launch>
 
   <!--- Run AMCL -->
-  <include file="$(find cob_2dnav)/ros/launch/amcl_omni.launch" />
+  <include file="$(find cob_2dnav)/ros/launch/amcl_omni_ipa.launch" />
 	<!-- Robot pose ekf -->
 	<include file="$(find cob_2dnav)/ros/launch/robot_pose_ekf.launch" />
 
