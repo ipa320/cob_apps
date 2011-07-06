@@ -71,6 +71,7 @@ import pynotify
 import sys 
 
 planning_enabled = False
+base_diff_enabled = False
 
 #Initializing the gtk's thread engine
 gtk.gdk.threads_init()
@@ -78,8 +79,14 @@ gtk.gdk.threads_init()
 ## Executes a button click in a new thread
 def start(func, args):
   global planning_enabled
+  global base_diff_enabled
   largs = list(args)
-  largs.append(planning_enabled)
+  if(largs[0] == "arm"):
+    if(planning_enabled):
+      largs.append("planned")
+  if(largs[0] == "base"):
+    if(base_diff_enabled):
+  	largs.append("diff")	
   #print "Args", tuple(largs)
   thread.start_new_thread(func,tuple(largs))
 
@@ -119,6 +126,10 @@ class GtkGeneralPanel(gtk.Frame):
     plan_check = gtk.CheckButton("Planning")#
     plan_check.connect("toggled", self.planned_toggle)
     self.vbox.pack_start(plan_check, False, False, 5)
+
+    base_mode_check = gtk.CheckButton("Base Diff")
+    base_mode_check.connect("toggled", self.base_mode_toggle)
+    self.vbox.pack_start(base_mode_check, False, False, 5)
     
     but = gtk.Button(stock=gtk.STOCK_QUIT	)
     but.connect("clicked", lambda w: gtk.main_quit())
@@ -149,7 +160,14 @@ class GtkGeneralPanel(gtk.Frame):
     if(planning_enabled):
       planning_enabled = False
     else:
-      planning_enabled = True         
+      planning_enabled = True  
+
+  def base_mode_toggle(self, b):
+    global base_diff_enabled
+    if(base_diff_enabled):
+      base_diff_enabled = False
+    else:
+      base_diff_enabled = True       
 		    
 
 ## Class for gtk panel implementation

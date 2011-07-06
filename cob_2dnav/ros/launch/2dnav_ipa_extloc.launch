@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!--- Run AMCL -->
+  <include file="$(find cob_2dnav)/ros/launch/amcl_omni_ipa.launch" />
+	<!-- Robot pose ekf -->
+	<include file="$(find cob_2dnav)/ros/launch/robot_pose_ekf.launch" />
+
+	<!-- Run the map server -->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find cob_default_config)/envs/$(env ROBOT_ENV)/map.yaml"/>
+
+
+  <!-- Run ipa navigation -->
+  <include file="$(find cob_platform_ctrl)/ros/launch/platform_ctrl_extloc.launch"/>
+
+</launch>
