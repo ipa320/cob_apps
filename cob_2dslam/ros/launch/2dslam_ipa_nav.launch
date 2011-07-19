@@ -4,6 +4,7 @@
 	<!-- dynamic map generation -->
 	<include file="$(find cob_2dslam)/ros/launch/gmapping.launch" />
 
+	<node pkg="cob_sick_s300" type="cob_unified_scan_publisher" name="cob_unified_scan_publisher" output="screen"/>
 	<!-- Robot pose ekf -->
 	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
 		<param name="freq" value="30.0"/>

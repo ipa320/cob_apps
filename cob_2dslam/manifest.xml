@@ -11,5 +11,6 @@
 
   <depend package="gmapping"/>
   <depend package="cob_bringup"/>
+  <depend package="cob_sick_s300"/>
   
 </package>
