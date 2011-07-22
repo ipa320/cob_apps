@@ -344,10 +344,10 @@ class simple_script_server:
 			return ah
 		
 		rospy.logdebug("calling %s action server",action_server_name)
-		self.client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
+		client = actionlib.SimpleActionClient(action_server_name, MoveBaseAction)
 		# trying to connect to server
 		rospy.logdebug("waiting for %s action server to start",action_server_name)
-		if not self.client.wait_for_server(rospy.Duration(5)):
+		if not client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
 			ah.set_failed(4)
@@ -359,8 +359,8 @@ class simple_script_server:
 		client_goal = MoveBaseGoal()
 		client_goal.target_pose = pose
 		#print client_goal
-		self.client.send_goal(client_goal)
-		ah.set_client(self.client)
+		client.send_goal(client_goal)
+		ah.set_client(client)
 
 		ah.wait_inside()
 
@@ -481,10 +481,10 @@ class simple_script_server:
 		# call action server
 		action_server_name = "/" + component_name + '_controller/joint_trajectory_action'
 		rospy.logdebug("calling %s action server",action_server_name)
-		self.client = actionlib.SimpleActionClient(action_server_name, JointTrajectoryAction)
+		client = actionlib.SimpleActionClient(action_server_name, JointTrajectoryAction)
 		# trying to connect to server
 		rospy.logdebug("waiting for %s action server to start",action_server_name)
-		if not self.client.wait_for_server(rospy.Duration(5)):
+		if not client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
 			ah.set_failed(4)
@@ -493,15 +493,16 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 		
 		# set operation mode to position
-		if not component_name == "arm":
-			self.set_operation_mode(component_name,"position")
-		
+		#if not component_name == "arm":
+		#	self.set_operation_mode(component_name,"position")
+		self.set_operation_mode(component_name,"position")		
+
 		# sending goal
 		client_goal = JointTrajectoryGoal()
 		client_goal.trajectory = traj_msg
 		#print client_goal
-		self.client.send_goal(client_goal)
-		ah.set_client(self.client)
+		client.send_goal(client_goal)
+		ah.set_client(client)
 
 		ah.wait_inside()
 		return ah
@@ -625,10 +626,10 @@ class simple_script_server:
 		# call action server
 		action_server_name = "/move_arm"
 		rospy.logdebug("calling %s action server",action_server_name)
-		self.client = actionlib.SimpleActionClient(action_server_name, MoveArmAction)
+		client = actionlib.SimpleActionClient(action_server_name, MoveArmAction)
 		# trying to connect to server
 		rospy.logdebug("waiting for %s action server to start",action_server_name)
-		if not self.client.wait_for_server(rospy.Duration(5)):
+		if not client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
 			ah.set_failed(4)
@@ -645,26 +646,25 @@ class simple_script_server:
 		#client_goal.planner_service_name = "cob_prmce_planner/plan_kinematic_path"
 		client_goal.motion_plan_request = motion_plan
 		#print client_goal
-		self.client.send_goal(client_goal)
-		ah.set_client(self.client)
+		client.send_goal(client_goal)
+		ah.set_client(client)
 
 		ah.wait_inside()
 		return ah
-
-	def move_cart_rel(self, component_name, parameter_name=[[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
-		ah = action_handle("move_rel", component_name, parameter_name, blocking, self.parse)
+		
+	def move_cart(self, component_name, parameter_name=["/base_link",[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
+		ah = action_handle("move_cart", component_name, parameter_name, blocking, self.parse)
 		if(self.parse):
 			return ah
 		else:
 			ah.set_active()
-
-		param = parameter_name
-
-		# convert to Pose message
+		
+		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+			
 		pose = PoseStamped()
 		pose.header.stamp = rospy.Time.now()
-		pose.header.frame_id = "/arm_7_link"
-		#pose.header.frame_id = "/sdh_palm_link"
+		pose.header.frame_id = parameter_name[0]
+		param = parameter_name[1:]
 		pose.pose.position.x = param[0][0]
 		pose.pose.position.y = param[0][1]
 		pose.pose.position.z = param[0][2]
@@ -673,15 +673,14 @@ class simple_script_server:
 		pose.pose.orientation.y = q[1]
 		pose.pose.orientation.z = q[2]
 		pose.pose.orientation.w = q[3]
-		#print pose
-
+		
 		# call action server
-		action_server_name = "/" + component_name + '_controller/move_cart_rel'
+		action_server_name = "/" + component_name + '_controller/move_cart'
 		rospy.logdebug("calling %s action server",action_server_name)
-		self.client = actionlib.SimpleActionClient(action_server_name, MoveCartAction)
+		client = actionlib.SimpleActionClient(action_server_name, MoveCartAction)
 		# trying to connect to server
 		rospy.logdebug("waiting for %s action server to start",action_server_name)
-		if not self.client.wait_for_server(rospy.Duration(5)):
+		if not client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
 			ah.set_failed(4)
@@ -693,11 +692,14 @@ class simple_script_server:
 		client_goal = MoveCartGoal()
 		client_goal.goal_pose = pose
 		#print client_goal
-		self.client.send_goal(client_goal)
-		ah.set_client(self.client)
+		client.send_goal(client_goal)
+		ah.set_client(client)
 
 		ah.wait_inside()
 		return ah
+
+	def move_cart_rel(self, component_name, parameter_name=[[0.0, 0.0, 0.0],[0.0, 0.0, 0.0]], blocking=True):
+		return move_cart(self, component_name, ["/arm_7_joint"]+parameter_name, blocking)
 		
 	## Move to a simple pose goal - planned
 	# 
@@ -801,10 +803,10 @@ class simple_script_server:
 		# call action server
 		action_server_name = "/move_arm"
 		rospy.logdebug("calling %s action server",action_server_name)
-		self.client = actionlib.SimpleActionClient(action_server_name, MoveArmAction)
+		client = actionlib.SimpleActionClient(action_server_name, MoveArmAction)
 		# trying to connect to server
 		rospy.logdebug("waiting for %s action server to start",action_server_name)
-		if not self.client.wait_for_server(rospy.Duration(5)):
+		if not client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
 			ah.set_failed(4)
@@ -819,8 +821,8 @@ class simple_script_server:
 		client_goal.motion_plan_request = motion_plan
 		client_goal.disable_ik = False
 		#print client_goal
-		self.client.send_goal(client_goal)
-		ah.set_client(self.client)
+		client.send_goal(client_goal)
+		ah.set_client(client)
 
 		ah.wait_inside()
 		return ah
@@ -964,10 +966,10 @@ class simple_script_server:
 		# call action server
 		action_server_name = "/sound_controller/say"
 		rospy.logdebug("calling %s action server",action_server_name)
-		self.client = actionlib.SimpleActionClient(action_server_name, SayAction)
+		client = actionlib.SimpleActionClient(action_server_name, SayAction)
 		# trying to connect to server
 		rospy.logdebug("waiting for %s action server to start",action_server_name)
-		if not self.client.wait_for_server(rospy.Duration(5)):
+		if not client.wait_for_server(rospy.Duration(5)):
 			# error: server did not respond
 			rospy.logerr("%s action server not ready within timeout, aborting...", action_server_name)
 			ah.set_failed(4)
@@ -979,8 +981,8 @@ class simple_script_server:
 		client_goal = SayGoal()
 		client_goal.text.data = text
 		#print client_goal
-		self.client.send_goal(client_goal)
-		ah.set_client(self.client)
+		client.send_goal(client_goal)
+		ah.set_client(client)
 
 		ah.wait_inside()
 		return ah
