@@ -81,7 +81,6 @@ from tf.transformations import *
 from std_msgs.msg import String
 
 # care-o-bot includes
-from cob_msgs.msg import *
 from cob_light.msg import *
 from cob_sound.msg import *
 from cob_script_server.msg import *
