@@ -1,4 +1,25 @@
 #include "ros/ros.h"
+#include "kinematics_msgs/GetPositionIK.h"
+#include <kdl_parser/kdl_parser.hpp>
+#include <geometry_msgs/Pose.h>
+#include <pr2_controllers_msgs/JointTrajectoryControllerState.h>
+#include <tf_conversions/tf_kdl.h>
+#include <sensor_msgs/JointState.h>
+#include <cob_srvs/Trigger.h>
+#include <trajectory_msgs/JointTrajectory.h>
+#include <geometry_msgs/Twist.h>
+#include <geometry_msgs/PoseArray.h>
+#include <nav_msgs/Odometry.h>
+#include <geometry_msgs/Pose.h>
+
+
+#include <kdl/chainfksolverpos_recursive.hpp>
+#include <cob_mmcontroller/augmented_solver.h>
+#include <kdl/frames_io.hpp>
+#include <kdl/jntarray.hpp>
+#include <kdl/frames.hpp>
+
+using namespace KDL;
 
 class cob_cartesian_trajectories
 {
@@ -6,21 +27,61 @@ public:
 	cob_cartesian_trajectories();
 
 private:
+	ros::NodeHandle n;
 	KDL::Twist getTrajectoryTwist(double dt, Frame F_current);
 	void cartStateCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	bool openDoorCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response);
 	ros::Subscriber cart_state_sub_;
+	ros::Publisher cart_command_pub;
+ros::ServiceServer serv;
+	bool bRun;
+	int testCounter;
+	Frame F_start;
 
 };
+
 
 cob_cartesian_trajectories::cob_cartesian_trajectories()
 {
 	cart_state_sub_ = n.subscribe("/arm_controller/cart_state", 1, &cob_cartesian_trajectories::cartStateCallback, this);
+	cart_command_pub = n.advertise<geometry_msgs::Twist>("/arm_controller/cart_command",1);
+	serv = n.advertiseService("/mm/open_fridge", &cob_cartesian_trajectories::openDoorCB, this);
+	bRun = false;
+	testCounter = 0;
 }
 
-void cartStateCallback(const geometry_msgs::Pose::ConstPtr& msg)
+bool cob_cartesian_trajectories::openDoorCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
 {
+	if(bRun)
+	{
+		ROS_ERROR("Already running trajectory");
+		response.success.data = false;
+		return true;
+	}
+	else
+	{
+		testCounter = 200;
+		bRun = true;
+		response.success.data = true;
+	}	
+	return true;
+}
 
-
+void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::Pose::ConstPtr& msg)
+{
+	if(bRun)
+	{
+		if(testCounter == 0)
+		{
+			ROS_INFO("finished trajectory");
+			bRun = false;		
+			return;
+		}		
+		geometry_msgs::Twist twist;
+		twist.linear.z = 0.001;
+		cart_command_pub.publish(twist);
+		testCounter--;
+	}
 }
 
 KDL::Twist cob_cartesian_trajectories::getTrajectoryTwist(double dt, Frame F_current)
@@ -29,9 +90,9 @@ KDL::Twist cob_cartesian_trajectories::getTrajectoryTwist(double dt, Frame F_cur
 	std::cout << "Time is " << dt << "\n";
 	if(dt <= 7.0)
 	{
-		F_current.p.x(F_current.p.x() + basePoseOdom.p.x());
-		F_current.p.y(F_current.p.y() + basePoseOdom.p.y());
-		F_current.p.z(F_current.p.z() + basePoseOdom.p.z());
+		F_current.p.x(F_current.p.x());// + basePoseOdom.p.x());
+		F_current.p.y(F_current.p.y());// + basePoseOdom.p.y());
+		F_current.p.z(F_current.p.z());// + basePoseOdom.p.z());
 		double max_ang = 3.14/2.0;
 		double max_time = 10.0;
 		double soll_y = -0.6+(cos(max_ang*(dt/max_time)) * 0.6);
@@ -68,10 +129,19 @@ KDL::Twist cob_cartesian_trajectories::getTrajectoryTwist(double dt, Frame F_cur
 		tf::PoseKDLToMsg(F_current, poses.poses[0]);
 		tf::PoseKDLToMsg(F_soll, poses.poses[1]);
 		tf::PoseKDLToMsg(F_diff, poses.poses[2]);
-		debug_cart_pub_.publish(poses);
+		//debug_cart_pub_.publish(poses);
 
 	}
 	else
 		std::cout << "Finnished\n";
 	return circ;
+}
+
+int main(int argc, char **argv)
+{
+	ros::init(argc, argv, "cob_cartesian_trajectories");
+	cob_cartesian_trajectories controller ;
+	ros::spin();
+
+	return 0;
 }

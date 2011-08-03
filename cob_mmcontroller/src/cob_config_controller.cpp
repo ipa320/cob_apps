@@ -123,10 +123,13 @@ void cob_config_controller::sendVel(JntArray q_t, JntArray q_dot, JntArray q_dot
 		arm_pub_.publish(traj);
 	//send to base
 	geometry_msgs::Twist cmd;
-	cmd.linear.x = q_dot_base(0);
-	cmd.linear.y = q_dot_base(1);
-	cmd.angular.z = q_dot_base(2);
-	base_pub_.publish(cmd);
+	if(q_dot_base(0) != 0.0 || q_dot_base(1) != 0.0 || q_dot_base(2) != 0.0)
+	{
+		cmd.linear.x = q_dot_base(0);
+		cmd.linear.y = q_dot_base(1);
+		cmd.angular.z = q_dot_base(2);
+		base_pub_.publish(cmd);
+	}
 }
 void cob_config_controller::sendCartPose()
 {
@@ -148,14 +151,17 @@ void cob_config_controller::controllerStateCallback(const sensor_msgs::JointStat
 	sendCartPose();
 	if(RunSyncMM)
 	{
-		int ret = iksolver1v->CartToJnt(q, extTwist, q_out, q_dot_base);
-		if(ret >= 0)
+		if(extTwist.vel.x() != 0.0 || extTwist.vel.y() != 0.0 || extTwist.vel.z() != 0.0)
 		{
-			sendVel(q, q_out, q_dot_base);
-			std::cout << q_out(0) << " " << q_out(1) << " " << q_out(2) << " " << q_out(3) << " " << q_out(4) << " " << q_out(5) << " " << q_out(6)  << "\n";
+			int ret = iksolver1v->CartToJnt(q, extTwist, q_out, q_dot_base);
+			if(ret >= 0)
+			{
+				sendVel(q, q_out, q_dot_base);
+				std::cout << q_out(0) << " " << q_out(1) << " " << q_out(2) << " " << q_out(3) << " " << q_out(4) << " " << q_out(5) << " " << q_out(6)  << "\n";
+			}	
+			else
+				std::cout << "Something went wrong" << "\n";
 		}	
-		else
-			std::cout << "Something went wrong" << "\n";	
 	}
 }
 
