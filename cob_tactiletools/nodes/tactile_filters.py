@@ -54,17 +54,19 @@ class TactileFilters():
             self.cylindric_grabbed_publisher.publish(Bool(False))
         if(touched >= 1):
         	self.one_pad_contact = True
+        	self.one_pad_contact_publisher.publish(Bool(True))
         else:
         	self.one_pad_contact = False
+        	self.one_pad_contact_publisher.publish(Bool(False))
         
     def handle_is_grasped(self, req):
         res = TriggerResponse()
         if self.is_grasped == True:
-            res.success = True
+            res.success.data = True
             res.error_message.data = "grasped object"
         else:
-            res.success = False
-            res.error_message.data = "object not grasped"
+            res.success.data = False
+            res.error_message.data= "object not grasped"
         # print "status: is_grasped = ",self.is_grasped,", success = ",res.success
         return res
 
@@ -89,6 +91,7 @@ if (__name__ == "__main__"):
     rospy.init_node('TactileSensorView', anonymous=True)
     rospy.Subscriber("/sdh_controller/tactile_data", TactileSensor, TF.roscb)
     TF.mean_value_publisher = rospy.Publisher("/sdh_controller/mean_values", Float32MultiArray)
+    TF.one_pad_contact_publisher = rospy.Publisher("/sdh_controller/one_pad_contact", Bool)
     TF.grabbed_publisher = rospy.Publisher("/sdh_controller/grabbed", Bool)
     service_is_grasped = rospy.Service('/sdh_controller/is_grasped', Trigger, TF.handle_is_grasped)
     TF.cylindric_grabbed_publisher = rospy.Publisher("/sdh_controller/cylindric_grabbed", Bool)

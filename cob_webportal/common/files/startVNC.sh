@@ -9,6 +9,9 @@ then
   exit $E_BADARGS
 fi
 
+rm -f /tmp/.X$1-lock 1>/dev/null 2>&1
+rm -f /tmp/.X11-unix/X$1 1>/dev/null 2>&1
+
 
 HTTPBASE=8080
 let "HTTPPORT=$HTTPBASE+$1"
