@@ -1,0 +1,19 @@
+<package>
+  <description brief="cob_component_test">
+
+     cob_component_test
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_component_test</url>
+  <depend package="cob_gazebo"/>
+  <depend package="cob_script_server"/>
+  <depend package="geometry_msgs"/>
+  <depend package="move_base_msgs"/>
+  <depend package="tf"/>
+  
+</package>
+
+

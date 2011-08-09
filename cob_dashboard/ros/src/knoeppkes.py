@@ -79,10 +79,13 @@ gtk.gdk.threads_init()
 ## Executes a button click in a new thread
 def start(func, args):
   global planning_enabled
+  global base_diff_enabled
   largs = list(args)
-  if(planning_enabled):
-  	largs.append("planned")
-  if(base_diff_enabled):
+  if(largs[0] == "arm"):
+    if(planning_enabled):
+      largs.append("planned")
+  if(largs[0] == "base"):
+    if(base_diff_enabled):
   	largs.append("diff")	
   #print "Args", tuple(largs)
   thread.start_new_thread(func,tuple(largs))
