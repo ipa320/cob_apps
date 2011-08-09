@@ -55,6 +55,7 @@ JntArray cob_config_controller::parseJointStates(std::vector<std::string> names,
 		last = ros::Time::now();
 
 		ROS_INFO("Starting up controller with first configuration");
+		std::cout << VirtualQ(0) << "\n";
 	}
 	return q_temp;
 }
@@ -94,7 +95,6 @@ void cob_config_controller::sendVel(JntArray q_t, JntArray q_dot, JntArray q_dot
 	double dt = now.toSec() - last.toSec();
 	last = now;
 	double horizon = 3.0*dt;
-	//std::cout << dt << "\n";
 
 	trajectory_msgs::JointTrajectory traj;
 	traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
@@ -157,7 +157,7 @@ void cob_config_controller::controllerStateCallback(const sensor_msgs::JointStat
 			if(ret >= 0)
 			{
 				sendVel(q, q_out, q_dot_base);
-				std::cout << q_out(0) << " " << q_out(1) << " " << q_out(2) << " " << q_out(3) << " " << q_out(4) << " " << q_out(5) << " " << q_out(6)  << "\n";
+				//std::cout << q_out(0) << " " << q_out(1) << " " << q_out(2) << " " << q_out(3) << " " << q_out(4) << " " << q_out(5) << " " << q_out(6)  << "\n";
 			}	
 			else
 				std::cout << "Something went wrong" << "\n";

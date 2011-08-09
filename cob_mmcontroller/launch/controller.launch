@@ -2,7 +2,7 @@
 <launch>
 
 	<!-- start trajectory manager -->
-	<node pkg="cob_mmcontroller" type="cob_kukatest" name="arm_mmcontroller_node" ns="arm_controller" cwd="node" respawn="false" output="screen">
+	<node pkg="cob_mmcontroller" type="cob_config_controller" name="arm_mmcontroller_node" ns="arm_controller" cwd="node" respawn="false" output="screen">
 		<remap from="/arm_controller/cart/command" to="/cmd_vel"/>
 	</node>
 	<node pkg="spacenav_node" type="spacenav_node" name="spacenav_node" cwd="node" respawn="false" output="screen"/>

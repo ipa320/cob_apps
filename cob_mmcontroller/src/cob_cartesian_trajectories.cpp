@@ -19,7 +19,11 @@
 #include <kdl/jntarray.hpp>
 #include <kdl/frames.hpp>
 
+#include <cob_mmcontroller/OpenFridgeAction.h>
+#include <actionlib/server/simple_action_server.h>
+
 using namespace KDL;
+
 
 class cob_cartesian_trajectories
 {
@@ -28,26 +32,52 @@ public:
 
 private:
 	ros::NodeHandle n;
+	actionlib::SimpleActionServer<cob_mmcontroller::OpenFridgeAction> as_;
 	KDL::Twist getTrajectoryTwist(double dt, Frame F_current);
 	void cartStateCallback(const geometry_msgs::Pose::ConstPtr& msg);
+	void openDoorCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal);
 	bool openDoorCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response);
 	ros::Subscriber cart_state_sub_;
 	ros::Publisher cart_command_pub;
 ros::ServiceServer serv;
 	bool bRun;
-	int testCounter;
+	double targetDuration;
+	ros::Time timer;
+	ros::Time start;
 	Frame F_start;
 
 };
 
 
-cob_cartesian_trajectories::cob_cartesian_trajectories()
+cob_cartesian_trajectories::cob_cartesian_trajectories() : as_(n, "openFridgeDoor", boost::bind(&cob_cartesian_trajectories::openDoorCB, this, _1), false)
 {
 	cart_state_sub_ = n.subscribe("/arm_controller/cart_state", 1, &cob_cartesian_trajectories::cartStateCallback, this);
 	cart_command_pub = n.advertise<geometry_msgs::Twist>("/arm_controller/cart_command",1);
 	serv = n.advertiseService("/mm/open_fridge", &cob_cartesian_trajectories::openDoorCB, this);
 	bRun = false;
-	testCounter = 0;
+	as_.start();
+	targetDuration = 0;
+	
+}
+
+void cob_cartesian_trajectories::openDoorCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal)
+{
+	if(bRun)
+	{
+		ROS_ERROR("Already running trajectory");
+		return;
+	}
+	else
+	{
+		bRun = true;
+		timer = ros::Time::now();
+		start = ros::Time::now();
+		targetDuration = 2;
+		while(bRun)
+			sleep(1);		
+		as_.setSucceeded();
+	}	
+	return;
 }
 
 bool cob_cartesian_trajectories::openDoorCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
@@ -55,32 +85,38 @@ bool cob_cartesian_trajectories::openDoorCB(cob_srvs::Trigger::Request& request,
 	if(bRun)
 	{
 		ROS_ERROR("Already running trajectory");
-		response.success.data = false;
-		return true;
+		return false;
 	}
 	else
 	{
-		testCounter = 200;
 		bRun = true;
-		response.success.data = true;
+		timer = ros::Time::now();
+		start = ros::Time::now();
+		targetDuration = 2;
+
+		
 	}	
 	return true;
 }
 
+//Pose is global pose
 void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::Pose::ConstPtr& msg)
 {
 	if(bRun)
 	{
-		if(testCounter == 0)
+		ros::Duration dt = ros::Time::now() - timer;
+		std::cout << "Time is " << dt.toSec() << "\n";
+		timer = ros::Time::now();
+		if(targetDuration <= 0)
 		{
-			ROS_INFO("finished trajectory");
+			ROS_INFO("finished trajectory in %f", ros::Time::now().toSec() - start.toSec());
 			bRun = false;		
 			return;
 		}		
 		geometry_msgs::Twist twist;
-		twist.linear.z = 0.001;
+		twist.linear.z = 0.02;
 		cart_command_pub.publish(twist);
-		testCounter--;
+		targetDuration-=dt.toSec();
 	}
 }
 
@@ -90,9 +126,9 @@ KDL::Twist cob_cartesian_trajectories::getTrajectoryTwist(double dt, Frame F_cur
 	std::cout << "Time is " << dt << "\n";
 	if(dt <= 7.0)
 	{
-		F_current.p.x(F_current.p.x());// + basePoseOdom.p.x());
-		F_current.p.y(F_current.p.y());// + basePoseOdom.p.y());
-		F_current.p.z(F_current.p.z());// + basePoseOdom.p.z());
+		F_current.p.x(F_current.p.x());
+		F_current.p.y(F_current.p.y());
+		F_current.p.z(F_current.p.z());
 		double max_ang = 3.14/2.0;
 		double max_time = 10.0;
 		double soll_y = -0.6+(cos(max_ang*(dt/max_time)) * 0.6);
