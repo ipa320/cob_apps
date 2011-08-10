@@ -75,13 +75,11 @@ from trajectory_msgs.msg import *
 from geometry_msgs.msg import *
 from pr2_controllers_msgs.msg import *
 from move_base_msgs.msg import *
-from move_arm_msgs.msg import *
-from motion_planning_msgs.msg import *
+from arm_navigation_msgs.msg import *
 from tf.transformations import *
 from std_msgs.msg import String
 
 # care-o-bot includes
-from cob_msgs.msg import *
 from cob_light.msg import *
 from cob_sound.msg import *
 from cob_script_server.msg import *

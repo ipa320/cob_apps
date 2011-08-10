@@ -15,7 +15,7 @@ raytrace_range: 3.0
 inflation_radius: 0.55
 
 # BEGIN VOXEL STUFF
-observation_sources: laser_scan_front laser_scan_rear cloud_full_cloud laser_scan_top
+observation_sources: laser_scan_front laser_scan_rear #cloud_full_cloud #laser_scan_top
 
 laser_scan_front: {sensor_frame: base_laser_front_link, topic: /scan_front, data_type: LaserScan, marking: true, clearing: true}
 
