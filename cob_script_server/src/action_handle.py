@@ -66,7 +66,6 @@ roslib.load_manifest('cob_script_server')
 import rospy
 
 # care-o-bot imports
-from cob_msgs.msg import *
 
 # graph includes
 import pygraphviz as pgv

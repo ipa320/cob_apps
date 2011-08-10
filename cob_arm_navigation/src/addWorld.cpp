@@ -62,8 +62,8 @@
 #include <stdio.h>
 #include <vector>
 
-#include <mapping_msgs/CollisionObject.h>
-#include <geometric_shapes_msgs/Shape.h>
+#include <arm_navigation_msgs/CollisionObject.h>
+#include <arm_navigation_msgs/Shape.h>
 #include <tinyxml/tinyxml.h>
 #include <urdf/model.h>
 #include <planning_models/kinematic_model.h>
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros::Publisher object_in_map_pub_;
-  object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 20);
+  object_in_map_pub_  = nh.advertise<arm_navigation_msgs::CollisionObject>("collision_object", 20);
   
 
   std::string parameter_name = "world_description";
@@ -172,10 +172,10 @@ int main(int argc, char** argv) {
 	ros::shutdown();
   }
   
-  mapping_msgs::CollisionObject collision_object;
+  arm_navigation_msgs::CollisionObject collision_object;
   collision_object.id = model_name + "_object";
-  collision_object.operation.operation = mapping_msgs::CollisionObjectOperation::ADD;
-  //collision_object.operation.operation = mapping_msgs::CollisionObjectOperation::REMOVE;
+  collision_object.operation.operation = arm_navigation_msgs::CollisionObjectOperation::ADD;
+  //collision_object.operation.operation = arm_navigation_msgs::CollisionObjectOperation::REMOVE;
   collision_object.header.frame_id = frame_id;
   collision_object.header.stamp = ros::Time::now();
   collision_object.shapes.resize(URDF_links.size());
@@ -227,7 +227,7 @@ int main(int argc, char** argv) {
 
 
 	  //// TODO: fill in collision_object
-	  geometric_shapes_msgs::Shape msg_shape;
+	  arm_navigation_msgs::Shape msg_shape;
 	  planning_environment::constructObjectMsg(current_shape, msg_shape);
 	  
 	  geometry_msgs::PoseStamped msg_pose_stamped;

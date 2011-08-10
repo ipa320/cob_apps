@@ -58,8 +58,8 @@
 
 #include <ros/ros.h>
 
-#include <mapping_msgs/CollisionObject.h>
-#include <geometric_shapes_msgs/Shape.h>
+#include <arm_navigation_msgs/CollisionObject.h>
+#include <arm_navigation_msgs/Shape.h>
 
 int main(int argc, char** argv) {
 
@@ -68,19 +68,19 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros::Publisher object_in_map_pub_;
-  object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 10);
+  object_in_map_pub_  = nh.advertise<arm_navigation_msgs::CollisionObject>("collision_object", 10);
 
   ros::Duration(2.0).sleep();
 
   //add the cylinder into the collision space
-  mapping_msgs::CollisionObject cylinder_object;
+  arm_navigation_msgs::CollisionObject cylinder_object;
   cylinder_object.id = "pole";
-  cylinder_object.operation.operation = mapping_msgs::CollisionObjectOperation::ADD;
-  //cylinder_object.operation.operation = mapping_msgs::CollisionObjectOperation::REMOVE;
+  cylinder_object.operation.operation = arm_navigation_msgs::CollisionObjectOperation::ADD;
+  //cylinder_object.operation.operation = arm_navigation_msgs::CollisionObjectOperation::REMOVE;
   cylinder_object.header.frame_id = "/base_footprint";
   cylinder_object.header.stamp = ros::Time::now();
-  geometric_shapes_msgs::Shape object;
-  object.type = geometric_shapes_msgs::Shape::CYLINDER;
+  arm_navigation_msgs::Shape object;
+  object.type = arm_navigation_msgs::Shape::CYLINDER;
   object.dimensions.resize(2);
   object.dimensions[0] = 0.1;
   object.dimensions[1] = 1.2;
