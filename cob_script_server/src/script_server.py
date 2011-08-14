@@ -88,10 +88,14 @@ class script_server():
 	#
 	def execute_cb(self, server_goal):
 		server_result = ScriptActionResult().result
-		if server_goal.function_name == "move":
-			handle01 = sss.move(server_goal.component_name,server_goal.parameter_name)
-		elif server_goal.function_name == "move_cart_rel":
-			handle01 = sss.move(server_goal.component_name,server_goal.parameter_name)
+		if server_goal.function_name == "init":
+			handle01 = sss.init(server_goal.component_name)
+		elif server_goal.function_name == "stop":
+			handle01 = sss.stop(server_goal.component_name)
+		elif server_goal.function_name == "recover":
+			handle01 = sss.recover(server_goal.component_name)
+		elif server_goal.function_name == "move":
+			handle01 = sss.move(server_goal.component_name,server_goal.parameter_name,mode=server_goal.mode)
 		else:
 			rospy.logerr("function <<%s>> not supported", server_goal.function_name)
 			self.script_action_server.set_aborted(server_result)

@@ -78,6 +78,22 @@ class TestMove(unittest.TestCase):
 #		result = MoveCartResult()
 #		self.as_server.set_succeeded(result)
 
+	# move planned
+#	def test_move_planned(self):
+#		component_name = "arm" # testing for component arm
+#		as_name = "/" + component_name + "_controller/move_cart"
+#		self.as_server = actionlib.SimpleActionServer(as_name, MoveCartAction, execute_cb=self.planned_cb, auto_start=False)
+#		self.as_server.start()
+#		self.cb_executed = False
+#		sss.move(component_name,["base_link",[0,0,0],[0,0,0]])
+#		if not self.cb_executed:
+#			self.fail('Action Server not called')
+
+#	def planned_cb(self, goal):
+#		self.cb_executed = True
+#		result = MoveCartResult()
+#		self.as_server.set_succeeded(result)
+
 if __name__ == '__main__':
 	import rostest
 	rostest.rosrun(PKG, 'move', TestMove)

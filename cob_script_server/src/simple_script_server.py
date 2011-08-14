@@ -167,9 +167,9 @@ class simple_script_server:
 		self.parse = parse
 		
 		# init light publisher
-		self.pub_light = rospy.Publisher('light_controller/command', Light)
+		self.pub_light = rospy.Publisher('/light_controller/command', Light)
 
-		rospy.sleep(1) # we have to wait here until publisher is ready, don't ask why
+		rospy.sleep(1) # we have to wait here until publishers are ready, don't ask why
 
     #------------------- Init section -------------------#
 	## Initializes different components.
@@ -275,7 +275,10 @@ class simple_script_server:
 		else:
 			ah.set_active()
 		
-		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+		if(mode == None or mode == ""):
+			rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+		else:
+			rospy.loginfo("Move <<%s>> to <<%s>> using <<%s>> mode",component_name,parameter_name,mode)
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
@@ -327,7 +330,7 @@ class simple_script_server:
 		pose.pose.orientation.w = q[3]
 		
 		# call action server
-		if(mode == None):
+		if(mode == None or mode == ""):
 			action_server_name = "/move_base"
 		elif(mode == "omni"):
 			action_server_name = "/move_base"

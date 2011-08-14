@@ -9,5 +9,6 @@
 	<test test-name="move" pkg="cob_script_server" type="move.py" name="move_test_node" time-limit="30" />
 
 	<!-- test actionlib interface -->
-	<!-- todo -->
+	<test test-name="action_interface" pkg="cob_script_server" type="action_interface.py" name="action_interface_test_node" time-limit="30" />
+
 </launch>
