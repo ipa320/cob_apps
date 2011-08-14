@@ -13,10 +13,6 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
 #genaction()
 
-rosbuild_find_ros_package(actionlib_msgs)
-include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
-genaction()
-
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -25,7 +21,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #uncomment if you have defined messages
-rosbuild_genmsg()
+#rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
 
@@ -37,5 +33,18 @@ rosbuild_genmsg()
 #rospack_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_roslaunch_check(launch/script_server.launch)
-rosbuild_add_rostest(launch/script_server.launch TIMEOUT 10.0)
+#rosbuild_add_roslaunch_check(ros/launch/cob3-1.launch ROBOT=cob3-1)
+#rosbuild_add_roslaunch_check(ros/launch/cob3-2.launch ROBOT=cob3-2)
+#rosbuild_add_roslaunch_check(ros/launch/cob3-3.launch ROBOT=cob3-3)
+
+rosbuild_add_roslaunch_check(ros/launch/sim.launch ROBOT=cob3-3)
+
+# Check whether there's an X display.  Intended to use in gating tests that
+# require a display.
+rosbuild_check_for_display(disp)
+
+if(disp)
+  rosbuild_add_rostest(ros/launch/sim.launch TIMEOUT 10.0)
+endif(disp)
+
+
