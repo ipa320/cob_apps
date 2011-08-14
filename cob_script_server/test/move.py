@@ -16,7 +16,7 @@ class TestMove(unittest.TestCase):
 		rospy.init_node('test_move')
 		self.cb_executed = False
 
-	# move base
+	# test move base commands
 	def test_move_base(self):
 		self.move_base()
 
@@ -46,7 +46,7 @@ class TestMove(unittest.TestCase):
 		result = MoveBaseResult()
 		self.as_server.set_succeeded(result)
 
-	# move trajectory
+	# test move trajectory commands
 	def test_move_traj(self):
 		component_name = "arm" # testing for component arm
 		as_name = "/" + component_name + "_controller/joint_trajectory_action"

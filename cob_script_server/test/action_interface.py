@@ -19,7 +19,7 @@ class TestActionInterface(unittest.TestCase):
 		self.component_name = "arm" # testing for component arm
 		self.client = actionlib.SimpleActionClient('/script_server', ScriptAction)
 
-### test trigger commands
+	# test trigger commands
 	def test_init(self):
 		goal = ScriptGoal()
 		goal.function_name = "init"
@@ -53,7 +53,7 @@ class TestActionInterface(unittest.TestCase):
 		res.success.data = True
 		return res
 
-### test move base commands
+	# test move base commands
 	def test_move_base(self):
 		goal = ScriptGoal()
 		goal.function_name = "move"
@@ -104,6 +104,8 @@ class TestActionInterface(unittest.TestCase):
 		result = MoveBaseResult()
 		self.as_server.set_succeeded(result)
 
+	# test move trajectory commands
+	#TODO
 
 if __name__ == '__main__':
 	import rostest
