@@ -4,6 +4,7 @@
 	<!-- dynamic map generation -->
 	<include file="$(find cob_2dslam)/ros/launch/gmapping.launch" />
 
+	<!--- Run move base -->
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
 		<remap from="cmd_vel" to="base_controller/command"/>
 		<remap from="odom" to="base_controller/odometry"/>

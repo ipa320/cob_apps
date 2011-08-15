@@ -30,7 +30,7 @@ class TestMove(unittest.TestCase):
 		self.move_base(mode="linear")
 	
 	def move_base(self,mode=None):
-		if mode == None or mode == "omni":
+		if mode == None or mode == "" or mode == "omni":
 			as_name = "/move_base"
 		else:
 			as_name = "/move_base_" + mode
