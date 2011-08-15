@@ -5,6 +5,6 @@ string parameter_name
 string mode
 ---
 #result definition
-int16 return_value
+int32 error_code
 ---
 #feedback definition

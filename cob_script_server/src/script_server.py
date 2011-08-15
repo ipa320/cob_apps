@@ -101,8 +101,8 @@ class script_server():
 			self.script_action_server.set_aborted(server_result)
 			return
 		
-		server_result.return_value = handle01.get_error_code()
-		if server_result.return_value == 0:
+		server_result.error_code = handle01.get_error_code()
+		if server_result.error_code == 0:
 			rospy.logdebug("action result success")
 			self.script_action_server.set_succeeded(server_result)
 		else:

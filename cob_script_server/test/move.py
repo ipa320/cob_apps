@@ -37,9 +37,9 @@ class TestMove(unittest.TestCase):
 		self.as_server = actionlib.SimpleActionServer(as_name, MoveBaseAction, execute_cb=self.base_cb, auto_start=False)
 		self.as_server.start()
 		self.cb_executed = False
-		sss.move("base","home",mode=mode)
+		handle = sss.move("base","home",mode=mode)
 		if not self.cb_executed:
-			self.fail('Action Server not called')
+			self.fail('Action Server not called. script server error_code: ' + str(handle.get_error_code()))
 
 	def base_cb(self, goal):
 		self.cb_executed = True
@@ -53,9 +53,9 @@ class TestMove(unittest.TestCase):
 		self.as_server = actionlib.SimpleActionServer(as_name, JointTrajectoryAction, execute_cb=self.traj_cb, auto_start=False)
 		self.as_server.start()
 		self.cb_executed = False
-		sss.move(component_name,"home")
+		handle = sss.move(component_name,"home")
 		if not self.cb_executed:
-			self.fail('Action Server not called')
+			self.fail('Action Server not called. script server error_code: ' + str(handle.get_error_code()))
 
 	def traj_cb(self, goal):
 		self.cb_executed = True

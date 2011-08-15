@@ -20,23 +20,23 @@ class TestTrigger(unittest.TestCase):
 	def test_init(self):
 		rospy.Service("/" + self.component_name + "_controller/init", Trigger, self.cb)
 		self.cb_executed = False
-		sss.init(self.component_name)
+		handle = sss.init(self.component_name)
 		if not self.cb_executed:
-			self.fail('Service Server not called')
+			self.fail('Service Server not called. script server error_code: ' + str(handle.get_error_code()))
 
 	def test_stop(self):
 		rospy.Service("/" + self.component_name + "_controller/stop", Trigger, self.cb)
 		self.cb_executed = False
-		sss.stop(self.component_name)
+		handle = sss.stop(self.component_name)
 		if not self.cb_executed:
-			self.fail('Service Server not called')
+			self.fail('Service Server not called. script server error_code: ' + str(handle.get_error_code()))
 
 	def test_recover(self):
 		rospy.Service("/" + self.component_name + "_controller/recover", Trigger, self.cb)
 		self.cb_executed = False
-		sss.recover(self.component_name)
+		handle = sss.recover(self.component_name)
 		if not self.cb_executed:
-			self.fail('Service Server not called')
+			self.fail('Service Server not called. script server error_code: ' + str(handle.get_error_code()))
 
 	def cb(self,req):
 		self.cb_executed = True

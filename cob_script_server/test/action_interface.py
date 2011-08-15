@@ -45,7 +45,7 @@ class TestActionInterface(unittest.TestCase):
 		self.client.send_goal(goal)
 		self.client.wait_for_result()
 		if not self.cb_executed:
-			self.fail('Service Server not called')
+			self.fail('Service Server not called. script server error_code: ' + str(self.client.get_result().error_code))
 
 	def cb(self,req):
 		self.cb_executed = True
@@ -97,7 +97,7 @@ class TestActionInterface(unittest.TestCase):
 		self.client.send_goal(goal)
 		self.client.wait_for_result()
 		if not self.cb_executed:
-			self.fail('Action Server not called')
+			self.fail('Action Server not called. script server error_code: ' + str(self.client.get_result().error_code))
 
 	def base_cb(self, goal):
 		self.cb_executed = True
