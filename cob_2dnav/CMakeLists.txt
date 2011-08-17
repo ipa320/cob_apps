@@ -33,6 +33,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rospack_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
+# rostest
 rosbuild_add_roslaunch_check(ros/launch/2dnav.launch)
 rosbuild_add_roslaunch_check(ros/launch/2dnav_local.launch)
 rosbuild_add_roslaunch_check(ros/launch/2dnav_slam.launch)

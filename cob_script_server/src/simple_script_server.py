@@ -1094,6 +1094,7 @@ class action_handle:
 		self.level = int(rospy.get_param("/script_server/level",100))
 		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
 		self.AppendNode(blocking)
+		self.client = actionlib.SimpleActionClient("dummy",ScriptAction)
 
 	## Sets the actionlib client.
 	def set_client(self,client):

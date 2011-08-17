@@ -28,3 +28,9 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
+
+# rostest
+rosbuild_add_pyunit(test/test_basic_states.py TIMEOUT 180.0)
+rosbuild_add_pyunit(test/test_navigation_states.py TIMEOUT 180.0)
+rosbuild_add_pyunit(test/test_manipulation_states.py TIMEOUT 180.0)
+rosbuild_add_pyunit(test/test_perception_states.py TIMEOUT 180.0)
