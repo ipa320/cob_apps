@@ -66,7 +66,10 @@ import smach_ros
 from simple_script_server import *
 sss = simple_script_server()
 
-class grasp_top(smach.State):
+## Grasp side state
+#
+# This state will grasp an object with a side grasp
+class grasp_side(smach.State):
 
 	def __init__(self):
 
@@ -76,8 +79,11 @@ class grasp_top(smach.State):
 		
 	def execute(self, userdata):
 		return 'succeeded'
-		
-class grasp_side(smach.State):
+
+## Grasp top state
+#
+# This state will grasp an object with a top grasp
+class grasp_top(smach.State):
 
 	def __init__(self):
 

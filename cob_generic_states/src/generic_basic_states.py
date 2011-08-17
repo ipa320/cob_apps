@@ -66,6 +66,9 @@ import smach_ros
 from simple_script_server import *
 sss = simple_script_server()
 
+## Initialize state
+#
+# This state will initialize all hardware drivers.
 class initialize(smach.State):
 
 	def __init__(self):
@@ -75,11 +78,9 @@ class initialize(smach.State):
 			outcomes=['succeeded', 'failed'])
 		
 	def execute(self, userdata):
+		sss.set_light("yellow")
 
-		#########################
-		# initialize components #
-		#########################
-		
+		# initialize components
 		handle_head = sss.init("head")
 		if handle_head.get_error_code() != 0:
 			return 'failed'
@@ -104,10 +105,7 @@ class initialize(smach.State):
 		if handle_base.get_error_code() != 0:
 			return 'failed'		
 		
-		######################
-		# recover components #
-		######################
-		
+		# recover components
 		handle_head = sss.recover("head")
 		if handle_head.get_error_code() != 0:
 			return 'failed'		

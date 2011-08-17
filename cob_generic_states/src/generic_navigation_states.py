@@ -84,7 +84,6 @@ class approach_pose(smach.State):
 		self.move_second = move_second
 
 	def execute(self, userdata):
-
 		# determine target position
 		if self.pose != "":
 			pose = self.pose

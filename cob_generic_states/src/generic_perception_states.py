@@ -57,15 +57,6 @@
 #
 #################################################################
 
-
-#------------------------------------------------------------------------------------------#
-#-----	INFO						-------------------------------------------------------#
-
-# \todo TODO merge the states 'linear_movement' and 'back_away'
-
-#------------------------------------------------------------------------------------------#
-#-----	IMPORT MODULES				-------------------------------------------------------#
-
 import roslib
 roslib.load_manifest('cob_generic_states')
 import rospy
@@ -75,11 +66,16 @@ import smach_ros
 from simple_script_server import *
 sss = simple_script_server()
 
-import tf
-from tf.transformations import *
-from actionlib_msgs.msg import *
+## Detect state
+#
+# This state wil try to detect an object.
+class detect(smach.State):
 
+	def __init__(self):
+		smach.State.__init__(
+			self,
+			outcomes=['succeeded', 'failed'],
+			input_keys=['object_pose'])
 
-#------------------------------------------------------------------------------------------#
-#-----	SMACH STATES				-------------------------------------------------------#
-
+	def execute(self, userdata):
+		return 'succeeded'
