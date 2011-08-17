@@ -20,10 +20,11 @@
   <depend package="geometry_msgs"/>
   <depend package="pr2_controllers_msgs"/>
   <depend package="move_base_msgs"/>
+  <depend package="arm_navigation_msgs"/>
   <depend package="cob_light"/>
   <depend package="cob_sound"/>
-  <depend package="cob_arm_navigation"/>
-  <depend package="cob_manipulator"/>
+
+  <depend package="rostest"/>
   
   <rosdep name="pygraphviz"/>
  
