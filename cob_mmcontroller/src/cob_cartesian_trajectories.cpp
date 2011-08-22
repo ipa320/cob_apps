@@ -33,54 +33,96 @@ public:
 private:
 	ros::NodeHandle n;
 	actionlib::SimpleActionServer<cob_mmcontroller::OpenFridgeAction> as_;
-	KDL::Twist getTrajectoryTwist(double dt, Frame F_current);
-	void cartStateCallback(const geometry_msgs::Pose::ConstPtr& msg);
-	void openDoorCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal);
-	bool openDoorCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response);
+	actionlib::SimpleActionServer<cob_mmcontroller::OpenFridgeAction> as2_;
+	KDL::Twist getTwist(double dt, Frame F_current);
+	void getSollLinear(double dt, double &sollx, double &solly);
+	void getSollCircular(double dt, double &sollx, double &solly);
+	void cartStateCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+	void moveCircActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal);
+	void moveLinActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal);
+	bool moveCircCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response);
+	bool moveLinCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response);
+	void sendMarkers();
+	bool start();
 	ros::Subscriber cart_state_sub_;
 	ros::Publisher cart_command_pub;
-ros::ServiceServer serv;
+	ros::Publisher debug_cart_pub_;
+	ros::ServiceServer serv_linear;
+	ros::ServiceServer serv_circular;
 	bool bRun;
+	bool bStarted;
+	double currentDuration;
 	double targetDuration;
+
 	ros::Time timer;
-	ros::Time start;
+	ros::Time tstart;
 	Frame F_start;
+	std::string mode;
 
 };
 
 
-cob_cartesian_trajectories::cob_cartesian_trajectories() : as_(n, "openFridgeDoor", boost::bind(&cob_cartesian_trajectories::openDoorCB, this, _1), false)
+cob_cartesian_trajectories::cob_cartesian_trajectories() : as_(n, "moveCirc", boost::bind(&cob_cartesian_trajectories::moveCircActionCB, this, _1), false), as2_(n, "moveLin", boost::bind(&cob_cartesian_trajectories::moveLinActionCB, this, _1), false)
 {
 	cart_state_sub_ = n.subscribe("/arm_controller/cart_state", 1, &cob_cartesian_trajectories::cartStateCallback, this);
 	cart_command_pub = n.advertise<geometry_msgs::Twist>("/arm_controller/cart_command",1);
-	serv = n.advertiseService("/mm/open_fridge", &cob_cartesian_trajectories::openDoorCB, this);
+	debug_cart_pub_ = n.advertise<geometry_msgs::PoseArray>("/mm/debug",1);
+	serv_linear = n.advertiseService("/mm/move_lin", &cob_cartesian_trajectories::moveLinCB, this);
+	serv_circular = n.advertiseService("/mm/move_circ", &cob_cartesian_trajectories::moveCircCB, this);
 	bRun = false;
 	as_.start();
+	as2_.start();
 	targetDuration = 0;
-	
+	currentDuration = 0;
+	mode = "linear";
 }
 
-void cob_cartesian_trajectories::openDoorCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal)
+void cob_cartesian_trajectories::sendMarkers()
 {
-	if(bRun)
-	{
-		ROS_ERROR("Already running trajectory");
-		return;
-	}
-	else
-	{
-		bRun = true;
-		timer = ros::Time::now();
-		start = ros::Time::now();
-		targetDuration = 2;
-		while(bRun)
-			sleep(1);		
-		as_.setSucceeded();
-	}	
-	return;
+
 }
 
-bool cob_cartesian_trajectories::openDoorCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
+void cob_cartesian_trajectories::moveCircActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal)
+{
+	if(start())
+	{
+		while(bRun)
+		{
+			//wait until finished
+			sleep(1);
+		}
+		as_.setSucceeded();
+	}
+	return;
+
+}
+void cob_cartesian_trajectories::moveLinActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal)
+{
+	if(start())
+	{
+		while(bRun)
+		{
+			//wait until finished
+			sleep(1);
+		}
+		as2_.setSucceeded();
+	}
+	return;
+
+}
+
+bool cob_cartesian_trajectories::moveCircCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
+{
+	mode = "circular";
+	return start();
+}
+bool cob_cartesian_trajectories::moveLinCB(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
+{
+	mode = "linear";
+	return start();
+}
+
+bool cob_cartesian_trajectories::start()
 {
 	if(bRun)
 	{
@@ -90,88 +132,155 @@ bool cob_cartesian_trajectories::openDoorCB(cob_srvs::Trigger::Request& request,
 	else
 	{
 		bRun = true;
+		bStarted = false;
 		timer = ros::Time::now();
-		start = ros::Time::now();
-		targetDuration = 2;
-
-		
+		tstart = ros::Time::now();
+		targetDuration = 7;
+		currentDuration = 0;
+		return true;
 	}	
-	return true;
 }
 
-//Pose is global pose
-void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::Pose::ConstPtr& msg)
+//Pose is global pose with odometry
+void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
 	if(bRun)
 	{
 		ros::Duration dt = ros::Time::now() - timer;
-		std::cout << "Time is " << dt.toSec() << "\n";
 		timer = ros::Time::now();
-		if(targetDuration <= 0)
+		if((targetDuration-currentDuration) <= 0)
 		{
-			ROS_INFO("finished trajectory in %f", ros::Time::now().toSec() - start.toSec());
-			bRun = false;		
+			geometry_msgs::Twist twist;
+			cart_command_pub.publish(twist);
+			ROS_INFO("finished trajectory in %f", ros::Time::now().toSec() - tstart.toSec());
+			bRun = false;
+			bStarted = false;
 			return;
 		}		
+		KDL::Frame current;
+		tf::PoseMsgToKDL(msg->pose, current);
 		geometry_msgs::Twist twist;
-		twist.linear.z = 0.02;
+		KDL::Twist ktwist = getTwist(currentDuration, current);
+		twist.linear.x =  ktwist.vel.x();
+		twist.linear.y =  ktwist.vel.y();
+		twist.linear.z =  ktwist.vel.z();
+
+		//twist.linear.z = -0.02;
 		cart_command_pub.publish(twist);
-		targetDuration-=dt.toSec();
+		currentDuration+=dt.toSec();
 	}
 }
 
+void cob_cartesian_trajectories::getSollLinear(double dt, double &sollx, double &solly)
+{
+	double look_ahead = 0.1;
+	sollx = ((dt+look_ahead)/targetDuration) * 0.6;
+	solly = 0.0; //((dt+look_ahead)/targetDuration) * 0.6;
+}
+void cob_cartesian_trajectories::getSollCircular(double dt, double &sollx, double &solly)
+{
+	double look_ahead = 0.1;
+	double max_ang = 2*3.14;
+	sollx = sin(max_ang*(dt+look_ahead/targetDuration)) * 0.6;
+	solly = 0.6-(cos(max_ang*(dt+look_ahead/targetDuration)) * 0.6);
+}
+
+KDL::Twist cob_cartesian_trajectories::getTwist(double dt, Frame F_current)
+{
+	KDL::Frame F_soll = F_start;
+	KDL::Frame F_diff = F_start;
+	KDL::Twist lin;
+
+	if(!bStarted)
+	{
+		F_start = F_current;
+		bStarted = true;
+	}
+	double soll_x, soll_y;
+	if(mode == "linear")
+		getSollLinear(dt, soll_x, soll_y);
+	else
+		getSollCircular(dt, soll_x, soll_y);
+
+	F_soll.p.x(F_start.p.x() + soll_x);
+	F_soll.p.y(F_start.p.y() + soll_y);
+	F_soll.p.z(F_start.p.z());
+
+	F_diff.p.x(F_soll.p.x()-F_current.p.x());
+	F_diff.p.y(F_soll.p.y()-F_current.p.y());
+	F_diff.p.z(F_soll.p.z()-F_current.p.z());
+
+	lin.vel.x(0.1 * F_diff.p.x());
+	lin.vel.y(0.1 * F_diff.p.y());
+	lin.vel.z(0.0);
+
+	//DEBUG
+	geometry_msgs::PoseArray poses;
+	poses.poses.resize(3);
+	tf::PoseKDLToMsg(F_current, poses.poses[0]);
+	tf::PoseKDLToMsg(F_soll, poses.poses[1]);
+	tf::PoseKDLToMsg(F_diff, poses.poses[2]);
+	debug_cart_pub_.publish(poses);
+	std::cout << "Twist x: " << 0.1 * F_diff.p.x() << " y: " << 0.1 * F_diff.p.y() << "\n";
+	//
+
+	return lin;
+}
+
+/*
 KDL::Twist cob_cartesian_trajectories::getTrajectoryTwist(double dt, Frame F_current)
 {
+	if(!bStarted)
+	{
+		F_start = F_current;
+		bStarted = true;
+	}
 	KDL::Twist circ;
 	std::cout << "Time is " << dt << "\n";
-	if(dt <= 7.0)
-	{
-		F_current.p.x(F_current.p.x());
-		F_current.p.y(F_current.p.y());
-		F_current.p.z(F_current.p.z());
-		double max_ang = 3.14/2.0;
-		double max_time = 10.0;
-		double soll_y = -0.6+(cos(max_ang*(dt/max_time)) * 0.6);
-		double soll_x = sin(max_ang*(dt/max_time)) * 0.6;
-		double soll_y_t1 = -0.6+(cos(max_ang*((dt+0.02)/max_time)) * 0.6);
-		double soll_x_t1 = sin(max_ang*((dt+0.02)/max_time)) * 0.6;
-		std::cout << "Soll x:" << soll_x << " y: " << soll_y << "\n";
-		std::cout << "Diff x:" << F_current.p.x()-F_start.p.x() << " y: " << F_current.p.y()-F_start.p.y() << "\n";
+	F_current.p.x(F_current.p.x());
+	F_current.p.y(F_current.p.y());
+	F_current.p.z(F_current.p.z());
+	double max_ang = 0.4*3.14;
+	double soll_y = 0.6-(cos(max_ang*(dt/targetDuration)) * 0.6);
+	double soll_x = sin(max_ang*(dt/targetDuration)) * 0.6;
+	//double soll_y_t1 = -0.6+(cos(max_ang*((dt+0.02)/max_time)) * 0.6);
+	//double soll_x_t1 = sin(max_ang*((dt+0.02)/max_time)) * 0.6;
+	std::cout << "Soll x:" << soll_x << " y: " << soll_y << "\n";
+	std::cout << "Diff x:" << F_current.p.x()-F_start.p.x() << " y: " << F_current.p.y()-F_start.p.y() << "\n";
 
-		KDL::Frame F_soll = F_start;
-		KDL::Frame F_soll2 = F_start;
-		KDL::Frame F_diff = F_start;
-		F_soll.p.x(F_start.p.x() + soll_x);
-		F_soll.p.y(F_start.p.y() - soll_y);
-		F_soll2.p.x(F_start.p.x() + soll_x_t1);
-		F_soll2.p.y(F_start.p.y() - soll_y_t1);
+	KDL::Frame F_soll = F_start;
+	KDL::Frame F_soll2 = F_start;
+	KDL::Frame F_diff = F_start;
+	F_soll.p.x(F_start.p.x() + soll_x);
+	F_soll.p.y(F_start.p.y() - soll_y);
+	//F_soll2.p.x(F_start.p.x() + soll_x_t1);
+	//F_soll2.p.y(F_start.p.y() - soll_y_t1);
 
-		F_diff.p.x(F_current.p.x()-F_soll.p.x());
-		F_diff.p.y(F_current.p.y()-F_soll.p.y());
-		F_diff.p.z(F_current.p.z()-F_start.p.z());
+	F_diff.p.x(F_current.p.x()-F_soll.p.x());
+	F_diff.p.y(F_current.p.y()-F_soll.p.y());
+	F_diff.p.z(F_current.p.z()-F_start.p.z());
 
-		double twist_x = (F_current.p.x()-F_soll2.p.x());
-		double twist_y = (F_current.p.y()-F_soll2.p.y());
+	double twist_x = (F_current.p.x()-F_soll.p.x());
+	double twist_y = (F_current.p.y()-F_soll.p.y());
 
 
-		std::cout << "Twist x: " << twist_x << " y: " << twist_y << "\n";
-		circ.vel.z(0.0);
-		circ.vel.x(-twist_x);
-		circ.vel.y(-twist_y);
+	std::cout << "Twist x: " << twist_x << " y: " << twist_y << "\n";
+	circ.vel.z(0.0);
+	circ.vel.x(twist_x);
+	circ.vel.y(twist_y);
 
-		//DEBUG
-		geometry_msgs::PoseArray poses;
-		poses.poses.resize(3);
-		tf::PoseKDLToMsg(F_current, poses.poses[0]);
-		tf::PoseKDLToMsg(F_soll, poses.poses[1]);
-		tf::PoseKDLToMsg(F_diff, poses.poses[2]);
-		//debug_cart_pub_.publish(poses);
+	//DEBUG
+	geometry_msgs::PoseArray poses;
+	poses.poses.resize(3);
+	tf::PoseKDLToMsg(F_current, poses.poses[0]);
+	tf::PoseKDLToMsg(F_soll, poses.poses[1]);
+	tf::PoseKDLToMsg(F_diff, poses.poses[2]);
+	debug_cart_pub_.publish(poses);
 
-	}
-	else
-		std::cout << "Finnished\n";
+
 	return circ;
 }
+*/
 
 int main(int argc, char **argv)
 {

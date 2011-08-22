@@ -6,17 +6,22 @@ cob_config_controller::cob_config_controller()
 	//parsing urdf for KDL chain
 	KDL::Tree my_tree;
 	ros::NodeHandle node;
+	node.param("arm_base", arm_base_name_, std::string("arm_0_link"));
+	node.param("arm_end_effector", arm_ee_name_, std::string("arm_7_link"));
+	node.param("default_control_mode", kinematic_mode_, std::string("arm_base"));
+
 	std::string robot_desc_string;
 	node.param("/robot_description", robot_desc_string, string());
 	if (!kdl_parser::treeFromString(robot_desc_string, my_tree)){
 		  ROS_ERROR("Failed to construct kdl tree");
 			  return;
 	}
-	my_tree.getChain("base_link","arm_7_link", chain);
+	my_tree.getChain("base_link",arm_ee_name_, arm_base_chain);
+	my_tree.getChain(arm_base_name_,arm_ee_name_, arm_chain);
 
 	//Initializing configuration control solver
-	iksolver1v = new augmented_solver(chain);//Inverse velocity solver
-	fksolver1 = new ChainFkSolverPos_recursive(chain);
+	iksolver1v = new augmented_solver(arm_base_chain);//Inverse velocity solver
+	fksolver1 = new ChainFkSolverPos_recursive(arm_base_chain);
 
 	//Initializing communication
 
@@ -25,10 +30,10 @@ cob_config_controller::cob_config_controller()
 	plat_odom_sub = n.subscribe("/base_controller/odometry", 1, &cob_config_controller::baseTwistCallback, this);
 
 	ROS_INFO("Creating publishers");
-	arm_pub_ = n.advertise<trajectory_msgs::JointTrajectory>("/arm_controller/command",1);
+	arm_pub_ = n.advertise<brics_actuator::JointVelocities>("/arm_controller/command_vel",1);
 	base_pub_ = n.advertise<geometry_msgs::Twist>("/base_controller/command",1);
 	debug_cart_pub_ = n.advertise<geometry_msgs::PoseArray>("/arm_controller/debug/cart",1);
-	cart_position_pub_ = n.advertise<geometry_msgs::Pose>("/arm_controller/cart_state",1);
+	cart_position_pub_ = n.advertise<geometry_msgs::PoseStamped>("/arm_controller/cart_state",1);
 
 	serv = n.advertiseService("/mm/run", &cob_config_controller::SyncMMTrigger, this);
 
@@ -40,22 +45,31 @@ JntArray cob_config_controller::parseJointStates(std::vector<std::string> names,
 {
 	JntArray q_temp(7);
 	int count = 0;
+	bool parsed = false;
 	for(unsigned int i = 0; i < names.size(); i++)
     {
 			if(strncmp(names[i].c_str(), "arm_", 4) == 0)
 			{
 				q_temp(count) = positions[i];
 				count++;
-      }
+				parsed = true;
+			}
     }
+	if(!parsed)
+		return q_last;
+	q_last = q_temp;
+	//ROS_INFO("CurrentConfig: %f %f %f %f %f %f %f", q_temp(0), q_temp(1), q_temp(2), q_temp(3), q_temp(4), q_temp(5), q_temp(6));
 	if(!started)
 	{
+		JntArray zero(7);
+		sendVel(zero,zero,zero);
 		VirtualQ = q_temp;
 		started = true;
 		last = ros::Time::now();
 
 		ROS_INFO("Starting up controller with first configuration");
 		std::cout << VirtualQ(0) << "\n";
+
 	}
 	return q_temp;
 }
@@ -79,6 +93,9 @@ void cob_config_controller::baseTwistCallback(const nav_msgs::Odometry::ConstPtr
 
 bool cob_config_controller::SyncMMTrigger(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
 {
+	ros::ServiceClient client = n.serviceClient<cob_srvs::Trigger>("/arm_controller/reset_brics_interface");
+	cob_srvs::Trigger srv;
+	client.call(srv);
 	if(RunSyncMM)
 		RunSyncMM = false;
 	else
@@ -96,31 +113,27 @@ void cob_config_controller::sendVel(JntArray q_t, JntArray q_dot, JntArray q_dot
 	last = now;
 	double horizon = 3.0*dt;
 
-	trajectory_msgs::JointTrajectory traj;
-	traj.header.stamp = ros::Time::now()+ros::Duration(0.01);
-	traj.joint_names.push_back("arm_1_joint");
-	traj.joint_names.push_back("arm_2_joint");
-	traj.joint_names.push_back("arm_3_joint");
-	traj.joint_names.push_back("arm_4_joint");
-	traj.joint_names.push_back("arm_5_joint");
-	traj.joint_names.push_back("arm_6_joint");
-	traj.joint_names.push_back("arm_7_joint");
-	
-	traj.points.resize(1);
+	brics_actuator::JointVelocities target_joint_vel;
+	target_joint_vel.velocities.resize(7);
 	bool nonzero = false;
-	for(int i = 0; i < 7; i++)
-	{ 
+	for(unsigned int i=0; i<7; i++)
+	{
+		std::stringstream joint_name;
+		joint_name << "arm_" << (i+1) << "_joint";
+		target_joint_vel.velocities[i].joint_uri = joint_name.str();
+		target_joint_vel.velocities[i].unit = "rad";
 		if(q_dot(i) != 0.0)
 		{
-			traj.points[0].positions.push_back(VirtualQ(i) + q_dot(i)*horizon);
-			traj.points[0].velocities.push_back(q_dot(i));
-			VirtualQ(i) += q_dot(i)*dt;
+			target_joint_vel.velocities[i].value = q_dot(i);
 			nonzero = true;
 		}
+
 	}
-	traj.points[0].time_from_start = ros::Duration(horizon);
+	if(!started)
+		nonzero = true;
 	if(nonzero)
-		arm_pub_.publish(traj);
+			arm_pub_.publish(target_joint_vel);
+
 	//send to base
 	geometry_msgs::Twist cmd;
 	if(q_dot_base(0) != 0.0 || q_dot_base(1) != 0.0 || q_dot_base(2) != 0.0)
@@ -135,8 +148,8 @@ void cob_config_controller::sendCartPose()
 {
 	KDL::Frame F_current;
 	F_current = arm_pose_ * base_odom_;
-	geometry_msgs::Pose pose;
-	tf::PoseKDLToMsg(F_current, pose);
+	geometry_msgs::PoseStamped pose;
+	tf::PoseKDLToMsg(F_current, pose.pose);
 	cart_position_pub_.publish(pose);
 }
 
