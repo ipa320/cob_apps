@@ -11,6 +11,7 @@
 #include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/Pose.h>
+#include <visualization_msgs/Marker.h>
 
 
 #include <kdl/chainfksolverpos_recursive.hpp>
@@ -47,8 +48,11 @@ private:
 	ros::Subscriber cart_state_sub_;
 	ros::Publisher cart_command_pub;
 	ros::Publisher debug_cart_pub_;
+	ros::Publisher map_pub_;
 	ros::ServiceServer serv_linear;
 	ros::ServiceServer serv_circular;
+	std::vector<geometry_msgs::Point> trajectory_points;
+
 	bool bRun;
 	bool bStarted;
 	double currentDuration;
@@ -69,6 +73,7 @@ cob_cartesian_trajectories::cob_cartesian_trajectories() : as_(n, "moveCirc", bo
 	debug_cart_pub_ = n.advertise<geometry_msgs::PoseArray>("/mm/debug",1);
 	serv_linear = n.advertiseService("/mm/move_lin", &cob_cartesian_trajectories::moveLinCB, this);
 	serv_circular = n.advertiseService("/mm/move_circ", &cob_cartesian_trajectories::moveCircCB, this);
+	map_pub_ = n.advertise<visualization_msgs::Marker>("/visualization_marker", 1);
 	bRun = false;
 	as_.start();
 	as2_.start();
@@ -79,7 +84,25 @@ cob_cartesian_trajectories::cob_cartesian_trajectories() : as_(n, "moveCirc", bo
 
 void cob_cartesian_trajectories::sendMarkers()
 {
+	visualization_msgs::Marker marker;
+	marker.header.frame_id = "/base_link";
+	marker.header.stamp = ros::Time::now();
+	marker.ns = "trajectory_values";
+	marker.id = 10;
+	marker.type = visualization_msgs::Marker::POINTS;
+	marker.action = visualization_msgs::Marker::ADD;
+	marker.scale.x = 0.04;
+	marker.scale.y = 0.2;
+	marker.color.r = 1.0;
+	marker.color.a = 1.0;
+	marker.lifetime = ros::Duration(10.0);
 
+	for(int i=0; i<trajectory_points.size(); i++)
+	{
+		//ROS_INFO("line %f %f %f %f\n", iX1, iY1, iX2, iY2);
+		marker.points.push_back(trajectory_points[i]);
+	}
+	map_pub_.publish(marker);
 }
 
 void cob_cartesian_trajectories::moveCircActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal)
@@ -137,6 +160,7 @@ bool cob_cartesian_trajectories::start()
 		tstart = ros::Time::now();
 		targetDuration = 7;
 		currentDuration = 0;
+		trajectory_points.clear();
 		return true;
 	}	
 }
@@ -155,6 +179,7 @@ void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::PoseStam
 			ROS_INFO("finished trajectory in %f", ros::Time::now().toSec() - tstart.toSec());
 			bRun = false;
 			bStarted = false;
+			sendMarkers();
 			return;
 		}		
 		KDL::Frame current;
@@ -168,6 +193,12 @@ void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::PoseStam
 		//twist.linear.z = -0.02;
 		cart_command_pub.publish(twist);
 		currentDuration+=dt.toSec();
+
+		geometry_msgs::Point p;
+		p.x = msg->pose.position.x;
+		p.y = msg->pose.position.y;
+		p.z = msg->pose.position.z;
+		trajectory_points.push_back(p);
 	}
 }
 
