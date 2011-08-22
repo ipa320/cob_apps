@@ -112,9 +112,9 @@ class initialize(smach.State):
 		# initialize components #
 		#########################
 		
-		#handle_head = sss.init("head")
-		#if handle_head.get_error_code() != 0:
-		#	return 'failed'
+		handle_head = sss.init("head")
+		if handle_head.get_error_code() != 0:
+			return 'failed'
 
 		handle_torso = sss.init("torso")
 		if handle_torso.get_error_code() != 0:
@@ -140,9 +140,9 @@ class initialize(smach.State):
 		# recover components #
 		######################
 		
-		#handle_head = sss.recover("head")
-		#if handle_head.get_error_code() != 0:
-		#	return 'failed'		
+		handle_head = sss.recover("head")
+		if handle_head.get_error_code() != 0:
+			return 'failed'		
 		
 		handle_torso = sss.recover("torso")
 		if handle_torso.get_error_code() != 0:
@@ -152,7 +152,7 @@ class initialize(smach.State):
 		if handle_tray.get_error_code() != 0:
 			return 'failed'
 
-		#handle_arm = sss.recover("arm")
+		handle_arm = sss.recover("arm")
 		#if handle_arm.get_error_code() != 0:
 		#	return 'failed'
 
@@ -209,9 +209,10 @@ class interrupt(smach.State):
 
 #------------------------------------------------------------------------------------------#
 
+# This state moves the robot to the given pose.
 class approach_pose(smach.State):
 
-	def __init__(self, pose = ""):
+	def __init__(self, pose = "", mode = "omni", move_second = "False"):
 
 		smach.State.__init__(
 			self,
@@ -220,8 +221,8 @@ class approach_pose(smach.State):
 			output_keys=['pose', 'message'])
 
 		self.pose = pose
-
-		# This state moves the robot to the given pose.
+		self.mode = mode
+		self.move_second = move_second
 
 	def execute(self, userdata):
 
@@ -244,7 +245,7 @@ class approach_pose(smach.State):
 
 		# try reaching pose
 		handle_base = sss.move("base", pose, False)
-		move_second = False
+		move_second = self.move_second
 
 		timeout = 0
 		while True:
@@ -253,9 +254,6 @@ class approach_pose(smach.State):
 				handle_base = sss.move("base", pose, False)
 				move_second = True
 			elif (handle_base.get_state() == 3) and (move_second):
-				userdata.message = []
-				userdata.message.append(3)
-				userdata.message.append("Pose was succesfully reached")
 				return 'succeeded'			
 
 			# check if service is available

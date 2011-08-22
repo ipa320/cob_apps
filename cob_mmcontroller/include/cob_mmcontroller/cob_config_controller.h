@@ -38,9 +38,17 @@ private:
 
 	ros::NodeHandle n;
 
-	KDL::Chain chain;
+	//configuration
+	std::string arm_base_name_;
+	std::string arm_ee_name_;
+	std::string kinematic_mode_;
+
+
+	KDL::Chain arm_base_chain;
+	KDL::Chain arm_chain;
 	KDL::JntArray VirtualQ;
 	KDL::JntArray q;
+	KDL::JntArray q_last;
 	bool started;
 	KDL::Twist extTwist;
 	ros::Time last;

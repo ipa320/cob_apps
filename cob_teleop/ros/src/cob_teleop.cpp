@@ -66,7 +66,7 @@
 #include <unistd.h>
 #include <XmlRpcValue.h>
 #include <ros/ros.h>
-#include <joy/Joy.h>
+#include <sensor_msgs/Joy.h>
 #include <sensor_msgs/JointState.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <geometry_msgs/Twist.h>
@@ -142,7 +142,7 @@ public:
 	void waitForParameters();
 	void getConfigurationFromParameters();
 	void init();
-	void joy_cb(const joy::Joy::ConstPtr &joy_msg);
+	void joy_cb(const sensor_msgs::Joy::ConstPtr &joy_msg);
 	void joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_states_msg);
 	void update();
 	void update_joint_modules();
@@ -504,7 +504,7 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
  *
  * \param joy_msg Joy
  */
-void TeleopCOB::joy_cb(const joy::Joy::ConstPtr &joy_msg)
+void TeleopCOB::joy_cb(const sensor_msgs::Joy::ConstPtr &joy_msg)
 {
 	// deadman button to activate joystick
 	if(deadman_button_>=0 && deadman_button_<(int)joy_msg->buttons.size() && joy_msg->buttons[deadman_button_]==1)

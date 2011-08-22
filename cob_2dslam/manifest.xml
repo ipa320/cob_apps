@@ -10,6 +10,6 @@
   <url>http://ros.org/wiki/cob_2dslam</url>
 
   <depend package="gmapping"/>
-  <depend package="cob_bringup"/>
+  <depend package="robot_pose_ekf"/>
   
 </package>

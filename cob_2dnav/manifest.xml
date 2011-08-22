@@ -10,9 +10,10 @@
   <url>http://ros.org/wiki/cob_2dnav</url>
   
   <depend package="move_base"/>
-  <depend package="cob_base"/>
-  <depend package="cob_teleop"/>
-  <depend package="cob_sick_s300"/>
-  <depend package="cob_hokuyo"/>
+  <depend package="map_server"/>
+  <depend package="robot_pose_ekf"/>
+  <depend package="amcl"/>
+  <depend package="topic_tools"/>
+  <depend package="cob_2dslam"/>
 
 </package>

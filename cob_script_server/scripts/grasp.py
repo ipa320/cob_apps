@@ -14,6 +14,7 @@ from geometry_msgs.msg import *
 class GraspScript(script):
 		
 	def Initialize(self):
+		
 		# initialize components (not needed for simulation)
 		self.sss.init("tray")
 		self.sss.init("torso")

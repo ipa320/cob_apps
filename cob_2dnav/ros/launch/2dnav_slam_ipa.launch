@@ -16,7 +16,7 @@
 		<remap from="imu_data" to="torso_lift_imu/data" />
 	</node>
 
-  <!-- Run ipa navigation -->
-  <include file="$(find cob_platform_ctrl)/ros/launch/platform_ctrl_extloc.launch"/>
+	<!-- Run ipa navigation -->
+	<include file="$(find cob_platform_ctrl)/ros/launch/platform_ctrl_extloc.launch"/>
 
 </launch>

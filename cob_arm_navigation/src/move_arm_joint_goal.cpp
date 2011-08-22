@@ -59,18 +59,18 @@
 
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
-#include <move_arm_msgs/MoveArmAction.h>
+#include <arm_navigation_msgs/MoveArmAction.h>
 
 int main(int argc, char **argv){
   ros::init (argc, argv, "move_arm_joint_goal_test");
   ros::NodeHandle nh;
-  actionlib::SimpleActionClient<move_arm_msgs::MoveArmAction> move_arm("move_arm",true);
+  actionlib::SimpleActionClient<arm_navigation_msgs::MoveArmAction> move_arm("move_arm",true);
 
   ROS_INFO("waiting for action server...");
   move_arm.waitForServer();
   ROS_INFO("Connected to server");
 
-  move_arm_msgs::MoveArmGoal goalB;
+  arm_navigation_msgs::MoveArmGoal goalB;
   std::vector<std::string> names(7);
   names[0] = "arm_1_joint";//"r_shoulder_pan_joint";
   names[1] = "arm_2_joint";//"r_shoulder_lift_joint";
