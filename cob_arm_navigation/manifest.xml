@@ -9,7 +9,6 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_arm_nagivation</url>
   
-  <depend package="pr2_arm_navigation_tutorials"/>
   <depend package="actionlib"/>
   <depend package="pr2_controllers_msgs"/>
   <depend package="tinyxml"/>
