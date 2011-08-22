@@ -62,7 +62,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <mapping_msgs/CollisionObject.h>
+#include <arm_navigation_msgs/CollisionObject.h>
 //#include <tf/tf.h>
 #include <gazebo/GetModelState.h>
 
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros::Publisher object_in_map_pub_;
-  object_in_map_pub_  = nh.advertise<mapping_msgs::CollisionObject>("collision_object", 20);
+  object_in_map_pub_  = nh.advertise<arm_navigation_msgs::CollisionObject>("collision_object", 20);
   
 
   if (argc != 3){
@@ -231,10 +231,10 @@ int main(int argc, char** argv) {
   
   
   //add to environment_server as a known obstacle
-  mapping_msgs::CollisionObject collision_object;
+  arm_navigation_msgs::CollisionObject collision_object;
   collision_object.id = model_name + "_object";
-  collision_object.operation.operation = mapping_msgs::CollisionObjectOperation::ADD;
-  //collision_object.operation.operation = mapping_msgs::CollisionObjectOperation::REMOVE;
+  collision_object.operation.operation = arm_navigation_msgs::CollisionObjectOperation::ADD;
+  //collision_object.operation.operation = arm_navigation_msgs::CollisionObjectOperation::REMOVE;
   collision_object.header.frame_id = frame_id;
   collision_object.header.stamp = ros::Time::now();
   collision_object.shapes.resize(1);
@@ -242,7 +242,7 @@ int main(int argc, char** argv) {
   
   //ToDo: figure out how *.model-size and *.urdf-extend are related
   //ToDo: figure out where the *.model origin is located (top,center,bottom?)
-  collision_object.shapes[0].type = geometric_shapes_msgs::Shape::BOX;
+  collision_object.shapes[0].type = arm_navigation_msgs::Shape::BOX;
   collision_object.shapes[0].dimensions.push_back(x_d/2.0);
   collision_object.shapes[0].dimensions.push_back(y_d/2.0);
   collision_object.shapes[0].dimensions.push_back(z_d/2.0);
