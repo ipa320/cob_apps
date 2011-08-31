@@ -38,6 +38,8 @@ cob_config_controller::cob_config_controller()
 	serv = n.advertiseService("/mm/run", &cob_config_controller::SyncMMTrigger, this);
 
 	ROS_INFO("Running cartesian velocity controller.");
+	zeroCounter = 0;
+	zeroCounterTwist = 0;
 }
 
 
@@ -97,9 +99,13 @@ bool cob_config_controller::SyncMMTrigger(cob_srvs::Trigger::Request& request, c
 	cob_srvs::Trigger srv;
 	client.call(srv);
 	if(RunSyncMM)
+	{
+		ROS_INFO("Stopping MM interface");
 		RunSyncMM = false;
+	}	
 	else
 	{
+		ROS_INFO("Starting MM interface");
 		started = false;
 		RunSyncMM = true;
 	}	
@@ -126,13 +132,27 @@ void cob_config_controller::sendVel(JntArray q_t, JntArray q_dot, JntArray q_dot
 		{
 			target_joint_vel.velocities[i].value = q_dot(i);
 			nonzero = true;
+			zeroCounter = 0;
+		}
+		else
+		{
+			target_joint_vel.velocities[i].value = 0.0;
 		}
 
+	}
+	if(zeroCounter <= 4)
+	{
+		zeroCounter++;
+		if(!nonzero)
+			std::cout << "Sending additional zero\n";
+		nonzero = true;
 	}
 	if(!started)
 		nonzero = true;
 	if(nonzero)
-			arm_pub_.publish(target_joint_vel);
+	{
+		arm_pub_.publish(target_joint_vel);
+	}
 
 	//send to base
 	geometry_msgs::Twist cmd;
@@ -166,6 +186,7 @@ void cob_config_controller::controllerStateCallback(const sensor_msgs::JointStat
 	{
 		if(extTwist.vel.x() != 0.0 || extTwist.vel.y() != 0.0 || extTwist.vel.z() != 0.0)
 		{
+			zeroCounterTwist = 0;
 			int ret = iksolver1v->CartToJnt(q, extTwist, q_out, q_dot_base);
 			if(ret >= 0)
 			{
@@ -174,6 +195,21 @@ void cob_config_controller::controllerStateCallback(const sensor_msgs::JointStat
 			}	
 			else
 				std::cout << "Something went wrong" << "\n";
+		}
+		else
+		{
+			if(zeroCounterTwist >= 4)
+			{
+				int ret = iksolver1v->CartToJnt(q, extTwist, q_out, q_dot_base);
+				if(ret >= 0)
+				{
+					sendVel(q, q_out, q_dot_base);
+					//std::cout << q_out(0) << " " << q_out(1) << " " << q_out(2) << " " << q_out(3) << " " << q_out(4) << " " << q_out(5) << " " << q_out(6)  << "\n";
+				}	
+				else
+					std::cout << "Something went wrong" << "\n";
+			}
+			zeroCounterTwist++;
 		}	
 	}
 }

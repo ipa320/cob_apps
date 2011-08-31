@@ -37,6 +37,8 @@ private:
 	void controllerStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
 
 	ros::NodeHandle n;
+	int zeroCounter;
+	int zeroCounterTwist;
 
 	//configuration
 	std::string arm_base_name_;

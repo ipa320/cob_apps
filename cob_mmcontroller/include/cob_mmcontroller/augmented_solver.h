@@ -5,6 +5,7 @@
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl/utilities/svd_HH.hpp>
 #include <Eigen/LU>
+#include <iostream>
 
 namespace KDL
 {

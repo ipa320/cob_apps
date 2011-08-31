@@ -200,20 +200,27 @@ void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::PoseStam
 		p.z = msg->pose.position.z;
 		trajectory_points.push_back(p);
 	}
+	else
+	{
+		//publish zero	
+		geometry_msgs::Twist twist;
+		cart_command_pub.publish(twist);
+	}
 }
 
 void cob_cartesian_trajectories::getSollLinear(double dt, double &sollx, double &solly)
 {
 	double look_ahead = 0.1;
-	sollx = ((dt+look_ahead)/targetDuration) * 0.6;
+	sollx = ((dt+look_ahead)/targetDuration) * -0.6;
 	solly = 0.0; //((dt+look_ahead)/targetDuration) * 0.6;
 }
 void cob_cartesian_trajectories::getSollCircular(double dt, double &sollx, double &solly)
 {
-	double look_ahead = 0.1;
-	double max_ang = 2*3.14;
-	sollx = sin(max_ang*(dt+look_ahead/targetDuration)) * 0.6;
-	solly = 0.6-(cos(max_ang*(dt+look_ahead/targetDuration)) * 0.6);
+	double look_ahead = 0.02;
+	double max_ang = 3.14;
+	sollx = sin(max_ang*((dt+look_ahead)/targetDuration)) * 0.6;
+	solly = 0.6-(cos(max_ang*((dt+look_ahead)/targetDuration)) * 0.6);
+	solly *= -1;
 }
 
 KDL::Twist cob_cartesian_trajectories::getTwist(double dt, Frame F_current)
