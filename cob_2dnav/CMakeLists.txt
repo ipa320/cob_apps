@@ -13,10 +13,6 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
 #genaction()
 
-rosbuild_find_ros_package(actionlib_msgs)
-include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
-genaction()
-
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -25,7 +21,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #uncomment if you have defined messages
-rosbuild_genmsg()
+#rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
 
@@ -37,5 +33,7 @@ rosbuild_genmsg()
 #rospack_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_roslaunch_check(launch/script_server.launch)
-rosbuild_add_rostest(launch/script_server.launch TIMEOUT 10.0)
+# rostest
+rosbuild_add_roslaunch_check(ros/launch/2dnav.launch)
+rosbuild_add_roslaunch_check(ros/launch/2dnav_local.launch)
+rosbuild_add_roslaunch_check(ros/launch/2dnav_slam.launch)
