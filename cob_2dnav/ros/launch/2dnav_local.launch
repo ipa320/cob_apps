@@ -9,7 +9,6 @@
 		<!--- load common configuration files -->
 		<rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
 		<rosparam file="$(find cob_2dnav)/ros/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-		<rosparam file="$(find cob_2dnav)/ros/config/move_base_params.yaml" command="load" ns="global_costmap" />
 
 		<!--- load global navigation specific parameters -->
 		<rosparam file="$(find cob_2dnav)/ros/config/local/local_costmap_params.yaml" command="load" />

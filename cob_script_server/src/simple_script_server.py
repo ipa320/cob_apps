@@ -167,9 +167,9 @@ class simple_script_server:
 		self.parse = parse
 		
 		# init light publisher
-		self.pub_light = rospy.Publisher('light_controller/command', Light)
+		self.pub_light = rospy.Publisher('/light_controller/command', Light)
 
-		rospy.sleep(1) # we have to wait here until publisher is ready, don't ask why
+		rospy.sleep(1) # we have to wait here until publishers are ready, don't ask why
 
     #------------------- Init section -------------------#
 	## Initializes different components.
@@ -275,7 +275,10 @@ class simple_script_server:
 		else:
 			ah.set_active()
 		
-		rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+		if(mode == None or mode == ""):
+			rospy.loginfo("Move <<%s>> to <<%s>>",component_name,parameter_name)
+		else:
+			rospy.loginfo("Move <<%s>> to <<%s>> using <<%s>> mode",component_name,parameter_name,mode)
 		
 		# get joint values from parameter server
 		if type(parameter_name) is str:
@@ -327,7 +330,7 @@ class simple_script_server:
 		pose.pose.orientation.w = q[3]
 		
 		# call action server
-		if(mode == None):
+		if(mode == None or mode == ""):
 			action_server_name = "/move_base"
 		elif(mode == "omni"):
 			action_server_name = "/move_base"
@@ -1029,116 +1032,6 @@ class simple_script_server:
 			print "parameter is:", parameter_name
 			ah.set_failed(2)
 			return ah		
-		
-#-------------------- Object_Handler section --------------------#
-
-	## Add an object to the environment_server.
-	#
-	# \param object_name name of the object
-	def add_object(self,object_name,blocking=True):
-		component_name = "object_handler"
-		ah = action_handle("add", component_name, "add_" + object_name, False, self.parse)
-		if(self.parse):
-			return ah
-		else:
-			ah.set_active()
-		
-		try:
-			adder = rospy.ServiceProxy("/object_handler/add_object", HandleObject)
-			req = HandleObjectRequest()
-			req.object.data = object_name
-			#print req
-			res = adder(req)
-			#print resp
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			ah.set_failed(1)
-			return ah
-		
-		ah.set_succeeded()
-		return ah
-
-
-	## Remove an object from the environment_server.
-	#
-	# \param object_name name of the object
-	def remove_object(self,object_name,blocking=True):
-		component_name = "object_handler"
-		ah = action_handle("remove", component_name, "remove_" + object_name, False, self.parse)
-		if(self.parse):
-			return ah
-		else:
-			ah.set_active()
-		
-		try:
-			remover = rospy.ServiceProxy("/object_handler/remove_object", HandleObject)
-			req = HandleObjectRequest()
-			req.object.data = object_name
-			#print req
-			res = remover(req)
-			#print resp
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			ah.set_failed(1)
-			return ah
-		
-		ah.set_succeeded()
-		return ah
-
-
-	## Attach a known object to the robot's SDH.
-	#
-	# \param object_name name of the object
-	def attach_object(self,object_name,blocking=True):
-		component_name = "object_handler"
-		ah = action_handle("attach", component_name, "attach_" + object_name, False, self.parse)
-		if(self.parse):
-			return ah
-		else:
-			ah.set_active()
-		
-		try:
-			attacher = rospy.ServiceProxy("/object_handler/attach_object", HandleObject)
-			req = HandleObjectRequest()
-			req.object.data = object_name
-			#print req
-			res = attacher(req)
-			#print resp
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			ah.set_failed(1)
-			return ah
-		
-		ah.set_succeeded()
-		return ah
-
-
-	## Detach an attached object from the robot's SDH.
-	#
-	# \param object_name name of the object
-	def detach_object(self,object_name,blocking=True):
-		component_name = "object_handler"
-		ah = action_handle("attach", component_name, "detach_" + object_name, False, self.parse)
-		if(self.parse):
-			return ah
-		else:
-			ah.set_active()
-		
-		try:
-			detacher = rospy.ServiceProxy("/object_handler/detach_object", HandleObject)
-			req = HandleObjectRequest()
-			req.object.data = object_name
-			#print req
-			res = detacher(req)
-			#print resp
-		except rospy.ServiceException, e:
-			print "Service call failed: %s"%e
-			ah.set_failed(1)
-			return ah
-		
-		ah.set_succeeded()
-		return ah
-				
 
 #------------------- General section -------------------#
 	## Sleep for a certain time.
@@ -1201,6 +1094,7 @@ class action_handle:
 		self.level = int(rospy.get_param("/script_server/level",100))
 		self.state_pub = rospy.Publisher("/script_server/state", ScriptState)
 		self.AppendNode(blocking)
+		self.client = actionlib.SimpleActionClient("dummy",ScriptAction)
 
 	## Sets the actionlib client.
 	def set_client(self,client):
