@@ -9,6 +9,10 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 
+rosbuild_find_ros_package(actionlib_msgs)
+include(${actionlib_msgs_PACKAGE_PATH}/cmake/actionbuild.cmake)
+genaction()
+
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -17,15 +21,24 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #uncomment if you have defined messages
-#rosbuild_genmsg()
+rosbuild_genmsg()
 #uncomment if you have defined services
 rosbuild_gensrv()
+
+
+
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
+
 
 #common commands for building c++ executables and libraries
 #rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
 #target_link_libraries(${PROJECT_NAME} another_library)
 #rosbuild_add_boost_directories()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
-rosbuild_add_executable(cob_mmcontroller src/cob_mmcontroller.cpp)
-rosbuild_add_executable(cob_kukatest src/kuka_test.cpp)
+#rosbuild_add_executable(cob_mmcontroller src/cob_mmcontroller.cpp)
+#rosbuild_add_executable(cob_trajectory_manager src/trajectory_manager.cpp)
+rosbuild_add_executable(cob_config_controller src/cob_config_controller.cpp src/augmented_solver.cpp)
+#rosbuild_add_executable(cob_manipulability src/manipulability_publisher.cpp)
+rosbuild_add_executable(cob_spnav_filter src/cob_spnav_filter.cpp)
+rosbuild_add_executable(cob_cartesian_trajectories src/cob_cartesian_trajectories.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
