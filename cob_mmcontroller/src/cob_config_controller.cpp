@@ -35,7 +35,8 @@ cob_config_controller::cob_config_controller()
 	debug_cart_pub_ = n.advertise<geometry_msgs::PoseArray>("/arm_controller/debug/cart",1);
 	cart_position_pub_ = n.advertise<geometry_msgs::PoseStamped>("/arm_controller/cart_state",1);
 
-	serv = n.advertiseService("/mm/run", &cob_config_controller::SyncMMTrigger, this);
+	serv_start = n.advertiseService("/mm/start", &cob_config_controller::SyncMMTriggerStart, this);
+	serv_stop = n.advertiseService("/mm/stop", &cob_config_controller::SyncMMTriggerStop, this);
 
 	ROS_INFO("Running cartesian velocity controller.");
 	zeroCounter = 0;
@@ -83,8 +84,8 @@ void cob_config_controller::cartTwistCallback(const geometry_msgs::Twist::ConstP
 	extTwist.vel.z(msg->linear.z);
 
 	extTwist.rot.x(msg->angular.x);
-	extTwist.rot.x(msg->angular.y);
-	extTwist.rot.x(msg->angular.z);
+	extTwist.rot.y(msg->angular.y);
+	extTwist.rot.z(msg->angular.z);
 }
 
 void cob_config_controller::baseTwistCallback(const nav_msgs::Odometry::ConstPtr& msg)
@@ -93,11 +94,25 @@ void cob_config_controller::baseTwistCallback(const nav_msgs::Odometry::ConstPtr
 }
 
 
-bool cob_config_controller::SyncMMTrigger(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
+bool cob_config_controller::SyncMMTriggerStart(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
 {
 	ros::ServiceClient client = n.serviceClient<cob_srvs::Trigger>("/arm_controller/reset_brics_interface");
 	cob_srvs::Trigger srv;
 	client.call(srv);
+	if(RunSyncMM)
+	{
+		ROS_INFO("Already started");
+	}	
+	else
+	{
+		ROS_INFO("Starting MM interface");
+		started = false;
+		RunSyncMM = true;
+	}	
+	return true;
+}
+bool cob_config_controller::SyncMMTriggerStop(cob_srvs::Trigger::Request& request, cob_srvs::Trigger::Response& response)
+{
 	if(RunSyncMM)
 	{
 		ROS_INFO("Stopping MM interface");
@@ -105,9 +120,7 @@ bool cob_config_controller::SyncMMTrigger(cob_srvs::Trigger::Request& request, c
 	}	
 	else
 	{
-		ROS_INFO("Starting MM interface");
-		started = false;
-		RunSyncMM = true;
+		ROS_INFO("Already stopped");
 	}	
 	return true;
 }

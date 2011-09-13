@@ -36,8 +36,8 @@ private:
 	actionlib::SimpleActionServer<cob_mmcontroller::OpenFridgeAction> as_;
 	actionlib::SimpleActionServer<cob_mmcontroller::OpenFridgeAction> as2_;
 	KDL::Twist getTwist(double dt, Frame F_current);
-	void getSollLinear(double dt, double &sollx, double &solly);
-	void getSollCircular(double dt, double &sollx, double &solly);
+	void getSollLinear(double dt, double &sollx, double &solly, double &sollangle);
+	void getSollCircular(double dt, double &sollx, double &solly, double &sollangle);
 	void cartStateCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
 	void moveCircActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal);
 	void moveLinActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal);
@@ -62,6 +62,8 @@ private:
 	ros::Time tstart;
 	Frame F_start;
 	std::string mode;
+
+	geometry_msgs::PoseStamped current_hinge;
 
 };
 
@@ -107,6 +109,8 @@ void cob_cartesian_trajectories::sendMarkers()
 
 void cob_cartesian_trajectories::moveCircActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal)
 {
+	mode = "circular";
+	current_hinge = goal->hinge;
 	if(start())
 	{
 		while(bRun)
@@ -121,6 +125,7 @@ void cob_cartesian_trajectories::moveCircActionCB(const cob_mmcontroller::OpenFr
 }
 void cob_cartesian_trajectories::moveLinActionCB(const cob_mmcontroller::OpenFridgeGoalConstPtr& goal)
 {
+	mode = "linear";
 	if(start())
 	{
 		while(bRun)
@@ -183,12 +188,21 @@ void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::PoseStam
 			return;
 		}		
 		KDL::Frame current;
+		KDL::Frame myhinge;
 		tf::PoseMsgToKDL(msg->pose, current);
+		tf::PoseMsgToKDL(current_hinge.pose, myhinge);
+		KDL::Vector unitz = myhinge.M.UnitZ();
+		std::cout << "Radius because of Hinge: " << (myhinge.p - current.p) << "UnitZ of hinge: " << unitz.z() << "\n";
 		geometry_msgs::Twist twist;
 		KDL::Twist ktwist = getTwist(currentDuration, current);
 		twist.linear.x =  ktwist.vel.x();
 		twist.linear.y =  ktwist.vel.y();
 		twist.linear.z =  ktwist.vel.z();
+
+		twist.angular.x =  ktwist.rot.x();
+		twist.angular.y =  ktwist.rot.y();
+		twist.angular.z =  ktwist.rot.z();
+
 
 		//twist.linear.z = -0.02;
 		cart_command_pub.publish(twist);
@@ -208,19 +222,23 @@ void cob_cartesian_trajectories::cartStateCallback(const geometry_msgs::PoseStam
 	}
 }
 
-void cob_cartesian_trajectories::getSollLinear(double dt, double &sollx, double &solly)
+void cob_cartesian_trajectories::getSollLinear(double dt, double &sollx, double &solly, double &sollangle)
 {
 	double look_ahead = 0.1;
-	sollx = ((dt+look_ahead)/targetDuration) * -0.6;
+	sollx = ((dt+look_ahead)/targetDuration) * -0.1;
 	solly = 0.0; //((dt+look_ahead)/targetDuration) * 0.6;
+	sollangle = 0.0;
 }
-void cob_cartesian_trajectories::getSollCircular(double dt, double &sollx, double &solly)
+void cob_cartesian_trajectories::getSollCircular(double dt, double &sollx, double &solly, double &sollangle)
 {
 	double look_ahead = 0.02;
-	double max_ang = 3.14;
-	sollx = sin(max_ang*((dt+look_ahead)/targetDuration)) * 0.6;
-	solly = 0.6-(cos(max_ang*((dt+look_ahead)/targetDuration)) * 0.6);
+	double max_ang = 3.14/2;
+	double radius = 0.3; //TODO: Radius einstellen
+
+	sollx = sin(max_ang*((dt+look_ahead)/targetDuration)) * radius ;
+	solly = radius-(cos(max_ang*((dt+look_ahead)/targetDuration)) * radius);
 	solly *= -1;
+	sollangle = -max_ang*((dt+look_ahead)/targetDuration);	
 }
 
 KDL::Twist cob_cartesian_trajectories::getTwist(double dt, Frame F_current)
@@ -228,30 +246,47 @@ KDL::Twist cob_cartesian_trajectories::getTwist(double dt, Frame F_current)
 	KDL::Frame F_soll = F_start;
 	KDL::Frame F_diff = F_start;
 	KDL::Twist lin;
+	double start_roll, start_pitch, start_yaw = 0.0;
+	double current_roll, current_pitch, current_yaw = 0.0;
 
 	if(!bStarted)
 	{
 		F_start = F_current;
 		bStarted = true;
 	}
-	double soll_x, soll_y;
+	double soll_x, soll_y, soll_angle;
 	if(mode == "linear")
-		getSollLinear(dt, soll_x, soll_y);
+		getSollLinear(dt, soll_x, soll_y, soll_angle);
 	else
-		getSollCircular(dt, soll_x, soll_y);
+		getSollCircular(dt, soll_x, soll_y, soll_angle);
 
 	F_soll.p.x(F_start.p.x() + soll_x);
 	F_soll.p.y(F_start.p.y() + soll_y);
 	F_soll.p.z(F_start.p.z());
+	
+	F_start.M.GetRPY(start_roll, start_pitch, start_yaw);
+	F_current.M.GetRPY(current_roll, current_pitch, current_yaw);
+
+	std::cout << "AngleDiff: " << (current_yaw-start_yaw) << " vs " << (soll_angle) << " error: " << (soll_angle-current_yaw-start_yaw) << "\n";
 
 	F_diff.p.x(F_soll.p.x()-F_current.p.x());
 	F_diff.p.y(F_soll.p.y()-F_current.p.y());
 	F_diff.p.z(F_soll.p.z()-F_current.p.z());
 
-	lin.vel.x(0.1 * F_diff.p.x());
-	lin.vel.y(0.1 * F_diff.p.y());
+	lin.vel.x(0.5 * F_diff.p.x());
+	lin.vel.y(0.5 * F_diff.p.y());
 	lin.vel.z(0.0);
-
+	lin.rot.x(0.0);
+	lin.rot.y(0.0);
+	/*if(fabs(soll_angle-current_yaw-start_yaw) < 0.6) 
+		lin.rot.z((soll_angle-current_yaw-start_yaw));
+	else
+	{
+		std::cout << "MAXROT\n";
+		lin.rot.z(-0.6);
+	}*/
+	lin.rot.z(-0.4); //TODO: Rotationsgeschwindigkeit
+		
 	//DEBUG
 	geometry_msgs::PoseArray poses;
 	poses.poses.resize(3);

@@ -1,5 +1,6 @@
 # Define the goal
 uint32 fridge_id
+geometry_msgs/PoseStamped hinge
 ---
 # Define the result
 uint32 finished

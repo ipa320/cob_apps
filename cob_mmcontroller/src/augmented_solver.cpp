@@ -89,9 +89,9 @@ namespace KDL
         v_in_eigen(0,0) = v_in.vel.x();
         v_in_eigen(1,0) = v_in.vel.y();
         v_in_eigen(2,0) = v_in.vel.z();
-        v_in_eigen(3,0) = 0.0;//v_in.rot.x();
-        v_in_eigen(4,0) = 0.0;//v_in.rot.y();
-        v_in_eigen(5,0) = 0.0;//v_in.rot.z();
+        v_in_eigen(3,0) = v_in.rot.x();
+        v_in_eigen(4,0) = v_in.rot.y();
+        v_in_eigen(5,0) = v_in.rot.z();
         q_dot_conf_control = damped_inversion.inverse() * jac_full.transpose() * W_e * v_in_eigen;
 
         if(DEBUG)
