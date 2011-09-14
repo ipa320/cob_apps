@@ -37,5 +37,5 @@ rosbuild_genmsg()
 #rospack_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_roslaunch_check(launch/script_server.launch)
+rosbuild_add_roslaunch_check(launch/script_server.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
 rosbuild_add_rostest(launch/script_server.launch TIMEOUT 10.0)
