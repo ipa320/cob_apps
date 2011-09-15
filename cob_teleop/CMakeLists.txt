@@ -33,3 +33,8 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/ros/lib)
 rosbuild_add_executable(${PROJECT_NAME} ros/src/${PROJECT_NAME}.cpp)
 rosbuild_add_executable(${PROJECT_NAME}_keyboard ros/src/${PROJECT_NAME}_keyboard.cpp)
 rosbuild_add_executable(keyboard_publisher ros/src/keyboard_publisher.cpp)
+
+# rostest
+rosbuild_add_roslaunch_check(ros/launch/teleop.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
+rosbuild_add_roslaunch_check(ros/launch/teleop_keyboard.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
+rosbuild_add_roslaunch_check(ros/launch/teleop_keyboard2.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
