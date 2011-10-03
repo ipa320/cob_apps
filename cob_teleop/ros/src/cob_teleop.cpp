@@ -168,7 +168,7 @@ void TeleopCOB::waitForParameters()
 	n_.getParam("/robot_config/robot_modules",module_list);
 	ROS_ASSERT(module_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-	for(int i=0;i<module_list.size();i++)
+	for(unsigned int i=0;i<module_list.size();i++)
 	{
 		ROS_ASSERT(module_list[i].getType() == XmlRpc::XmlRpcValue::TypeString);
 		std::string s((std::string)module_list[i]);
@@ -250,7 +250,7 @@ bool TeleopCOB::assign_joint_module(std::string mod_name, XmlRpc::XmlRpcValue mo
 
 			ROS_ASSERT(joint_names.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			ROS_DEBUG("joint_names.size: %d \n", joint_names.size());
-			for(int i=0;i<joint_names.size();i++)
+			for(unsigned int i=0;i<joint_names.size();i++)
 			{
 				ROS_ASSERT(joint_names[i].getType() == XmlRpc::XmlRpcValue::TypeString);
 				std::string s((std::string)joint_names[i]);
@@ -269,7 +269,7 @@ bool TeleopCOB::assign_joint_module(std::string mod_name, XmlRpc::XmlRpcValue mo
 
 			ROS_ASSERT(joint_steps.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			ROS_DEBUG("joint_steps.size: %d \n", joint_steps.size());
-			for(int i=0;i<joint_steps.size();i++)
+			for(unsigned int i=0;i<joint_steps.size();i++)
 			{
 				ROS_ASSERT(joint_steps[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 				double step((double)joint_steps[i]);
@@ -315,7 +315,7 @@ bool TeleopCOB::assign_base_module(XmlRpc::XmlRpcValue mod_struct)
 			ROS_ASSERT(max_vel.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			if(max_vel.size()!=3){ROS_WARN("invalid base parameter size");}
 			ROS_DEBUG("max_vel.size: %d \n", max_vel.size());
-			for(int i=0;i<max_vel.size();i++)
+			for(unsigned int i=0;i<max_vel.size();i++)
 			{
 				ROS_ASSERT(max_vel[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 				double val = (double)max_vel[i];
@@ -331,7 +331,7 @@ bool TeleopCOB::assign_base_module(XmlRpc::XmlRpcValue mod_struct)
 			ROS_ASSERT(max_acc.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			if(max_acc.size()!=3){ROS_DEBUG("invalid base parameter size");}
 			ROS_DEBUG("max_acc.size: %d \n", max_acc.size());
-			for(int i=0;i<max_acc.size();i++)
+			for(unsigned int i=0;i<max_acc.size();i++)
 			{
 				ROS_ASSERT(max_acc[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 				double val = (double)max_acc[i];
@@ -370,7 +370,7 @@ TeleopCOB::TeleopCOB()
 	// add all found joint names to joint_names_vector, which is used to pass values to the state aggregator
 	for(std::map<std::string,joint_module>::iterator module_it=joint_modules_.begin();module_it!=joint_modules_.end();++module_it){
 		std::vector<std::string> names = (module_it->second).joint_names;
-		for(int i=0; i<names.size();i++){
+		for(unsigned int i=0; i<names.size();i++){
 			joint_names_.push_back(names[i]);
 			combined_joints_.joint_names_.push_back(names[i]); // puch joit name to combined collection
 			combined_joints_.joint_init_values_.push_back(0.0); // be sure that a init value is related to the joint name
@@ -446,11 +446,11 @@ void TeleopCOB::setInitValues()
 {
 
 	// loop trough all the joints in the combined collection
-	for(int i=0; i<combined_joints_.joint_init_values_.size();i++){
+	for(unsigned int i=0; i<combined_joints_.joint_init_values_.size();i++){
 		//loop trough all the joints in module containing joint settings,
 		//and try to find the one with a name matching the currently browsed joint
 		//in the combined collection
-		for(int j=0; j<combined_joints_.module_ref_[i]->joint_names.size();j++){
+		for(unsigned int j=0; j<combined_joints_.module_ref_[i]->joint_names.size();j++){
 			// if the matching joint is found, assign value to pos command and stop looking for this name
 			if(combined_joints_.module_ref_[i]->joint_names[j].compare(combined_joints_.joint_names_[i])==0){
 				combined_joints_.module_ref_[i]->req_joint_pos_[j] = combined_joints_.joint_init_values_[i];
@@ -838,7 +838,7 @@ void TeleopCOB::update()
 			// stop components: send zero for one time
 			for(std::map<std::string,joint_module>::iterator module_it=joint_modules_.begin();module_it!=joint_modules_.end();++module_it)
 			{
-				for(int i=0; i<module_it->second.req_joint_vel_.size();i++)
+				for(unsigned int i=0; i<module_it->second.req_joint_vel_.size();i++)
 				{
 					module_it->second.req_joint_vel_[i] = 0.0;
 				}
@@ -846,7 +846,7 @@ void TeleopCOB::update()
 
 			if(has_base_module_)
 			{
-				for(int i=0; i<3; i++){
+				for(unsigned int i=0; i<3; i++){
 					base_module_.req_vel_[i]=0;
 					base_module_.vel_old_[i]=0;
 				}
