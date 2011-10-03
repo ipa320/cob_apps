@@ -38,4 +38,4 @@ rosbuild_genmsg()
 #target_link_libraries(example ${PROJECT_NAME})
 
 #rosbuild_add_roslaunch_check(launch/script_server.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
-rosbuild_add_rostest(launch/script_server.launch TIMEOUT 100.0)
+#rosbuild_add_rostest(launch/script_server.launch TIMEOUT 100.0)
