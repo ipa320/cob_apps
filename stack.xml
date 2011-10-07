@@ -8,23 +8,22 @@
   <license>BSD,LGPL</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_apps</url>
-  <depend stack="arm_navigation" /> <!-- planning_environment, planning_models, kinematics_msgs -->
+  <depend stack="arm_navigation" /> <!-- planning_environment, planning_models, kinematics_msgs, arm_navigation_msgs -->
   <depend stack="assimp" /> <!-- assimp -->
   <depend stack="bullet" /> <!-- bullet -->
-  <depend stack="cob_common" /> <!-- cob_utilities, cob_default_config, brics_actuator, cob_machine, cob_srvs -->
+  <depend stack="cob_common" /> <!-- cob_default_config, cob_srvs, cob_utilities, brics_actuator, cob_description, cob_machine -->
   <depend stack="cob_driver" /> <!-- cob_relayboard, cob_torso, cob_sick_s300, cob_arm, cob_hokuyo, cob_tray_sensors, cob_tray, cob_joy, cob_base, cob_head_axis, cob_light, cob_sdh, cob_base_drive_chain, cob_camera_sensors, cob_manipulator, cob_joint_state_aggregator, cob_sound -->
-  <depend stack="cob_simulation" /> <!-- cob_gazebo -->
+  <depend stack="cob_simulation" /> <!-- cob_gazebo_worlds, cob_gazebo -->
   <depend stack="common" /> <!-- actionlib, tinyxml -->
   <depend stack="common_msgs" /> <!-- nav_msgs, actionlib_msgs, trajectory_msgs, sensor_msgs, geometry_msgs, visualization_msgs -->
-  <depend stack="executive_smach" /> <!-- smach_ros, smach -->
   <depend stack="geometry" /> <!-- tf, tf_conversions -->
-  <depend stack="navigation" /> <!-- move_base_msgs, move_base -->
+  <depend stack="navigation" /> <!-- move_base_msgs, move_base, map_server, amcl, robot_pose_ekf -->
   <depend stack="orocos_kinematics_dynamics" /> <!-- kdl -->
-  <depend stack="pr2_arm_navigation" /> <!-- pr2_arm_navigation_tutorials -->
+  <depend stack="pr2_apps" /> <!-- pr2_teleop -->
   <depend stack="pr2_controllers" /> <!-- pr2_controllers_msgs -->
   <depend stack="robot_model" /> <!-- robot_state_publisher, kdl_parser -->
   <depend stack="ros" />
-  <depend stack="ros_comm" /> <!-- std_msgs, rospy, roscpp -->
+  <depend stack="ros_comm" /> <!-- std_msgs, topic_tools, rostest, rospy, roscpp -->
   <depend stack="simulator_gazebo" /> <!-- gazebo -->
   <depend stack="slam_gmapping" /> <!-- gmapping -->
 

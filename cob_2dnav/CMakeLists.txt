@@ -34,6 +34,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #target_link_libraries(example ${PROJECT_NAME})
 
 # rostest
-rosbuild_add_roslaunch_check(ros/launch/2dnav.launch)
-rosbuild_add_roslaunch_check(ros/launch/2dnav_local.launch)
-rosbuild_add_roslaunch_check(ros/launch/2dnav_slam.launch)
+rosbuild_add_roslaunch_check(ros/launch/2dnav.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
+rosbuild_add_roslaunch_check(ros/launch/2dnav_local.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
+rosbuild_add_roslaunch_check(ros/launch/2dnav_slam.launch ROBOT=cob3-3 ROBOT_ENV=ipa-kitchen)
