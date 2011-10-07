@@ -73,6 +73,8 @@ import sys
 planning_enabled = False
 base_diff_enabled = False
 
+initialized = False
+
 #Initializing the gtk's thread engine
 gtk.gdk.threads_init()
 
@@ -96,6 +98,8 @@ def startGTK(widget, data):
 ## Class for general gtk panel implementation
 class GtkGeneralPanel(gtk.Frame):
   def __init__(self):
+    global initialized
+    self.sss = simple_script_server()
     gtk.Frame.__init__(self)
     if not pynotify.init ("cob_dashboard"):
       sys.exit (1)
@@ -113,16 +117,20 @@ class GtkGeneralPanel(gtk.Frame):
     #self.vbox.pack_start(hbox, False, False, 5)    
     hbox=gtk.HBox(True, 0)
     self.status_image = gtk.Image()
-    self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
+    #self.status_image.set_from_file(roslib.packages.get_pkg_dir("cob_dashboard") + "/common/files/icons/weather-clear.png")
     hbox.pack_start(self.status_image, False, False, 0)
     self.status_label = gtk.Label("Status OK")
     hbox.pack_start(self.status_label, False, False, 0)
     self.vbox.pack_start(hbox, False, False, 5)    
 
-    #but = gtk.Button("Init all")
-    #but.connect("clicked", lambda w: gtk.main_quit())
-    #self.vbox.pack_start(but, False, False, 5)
-    
+    butinit = gtk.Button("Init all")
+    butinit.connect("clicked", lambda w: self.sss.initAll())
+    self.vbox.pack_start(butinit, False, False, 5)
+
+    butrec = gtk.Button("Recover all")
+    butrec.connect("clicked", lambda w: self.sss.recoverAll())
+    self.vbox.pack_start(butrec, False, False, 5)
+
     plan_check = gtk.CheckButton("Planning")#
     plan_check.connect("toggled", self.planned_toggle)
     self.vbox.pack_start(plan_check, False, False, 5)
@@ -134,6 +142,7 @@ class GtkGeneralPanel(gtk.Frame):
     but = gtk.Button(stock=gtk.STOCK_QUIT	)
     but.connect("clicked", lambda w: gtk.main_quit())
     self.vbox.pack_start(but, False, False, 5)
+    initialized = True
 
   def setEMStop(self, em):
     if(em):
@@ -192,7 +201,9 @@ class Knoeppkes():
     return False
 
   def emcb(self, msg):
-    self.gpanel.setEMStop(msg.emergency_state)
+    global initialized
+    if(initialized):
+        self.gpanel.setEMStop(msg.emergency_state)
     
   def __init__(self):
     # init ros node
