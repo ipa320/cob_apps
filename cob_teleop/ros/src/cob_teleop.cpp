@@ -168,7 +168,7 @@ void TeleopCOB::waitForParameters()
 	n_.getParam("/robot_config/robot_modules",module_list);
 	ROS_ASSERT(module_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
-	for(unsigned int i=0;i<module_list.size();i++)
+	for(int i=0;i<module_list.size();i++)
 	{
 		ROS_ASSERT(module_list[i].getType() == XmlRpc::XmlRpcValue::TypeString);
 		std::string s((std::string)module_list[i]);
@@ -250,7 +250,7 @@ bool TeleopCOB::assign_joint_module(std::string mod_name, XmlRpc::XmlRpcValue mo
 
 			ROS_ASSERT(joint_names.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			ROS_DEBUG("joint_names.size: %d \n", joint_names.size());
-			for(unsigned int i=0;i<joint_names.size();i++)
+			for(int i=0;i<joint_names.size();i++)
 			{
 				ROS_ASSERT(joint_names[i].getType() == XmlRpc::XmlRpcValue::TypeString);
 				std::string s((std::string)joint_names[i]);
@@ -269,7 +269,7 @@ bool TeleopCOB::assign_joint_module(std::string mod_name, XmlRpc::XmlRpcValue mo
 
 			ROS_ASSERT(joint_steps.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			ROS_DEBUG("joint_steps.size: %d \n", joint_steps.size());
-			for(unsigned int i=0;i<joint_steps.size();i++)
+			for(int i=0;i<joint_steps.size();i++)
 			{
 				ROS_ASSERT(joint_steps[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 				double step((double)joint_steps[i]);
@@ -315,7 +315,7 @@ bool TeleopCOB::assign_base_module(XmlRpc::XmlRpcValue mod_struct)
 			ROS_ASSERT(max_vel.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			if(max_vel.size()!=3){ROS_WARN("invalid base parameter size");}
 			ROS_DEBUG("max_vel.size: %d \n", max_vel.size());
-			for(unsigned int i=0;i<max_vel.size();i++)
+			for(int i=0;i<max_vel.size();i++)
 			{
 				ROS_ASSERT(max_vel[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 				double val = (double)max_vel[i];
@@ -331,7 +331,7 @@ bool TeleopCOB::assign_base_module(XmlRpc::XmlRpcValue mod_struct)
 			ROS_ASSERT(max_acc.getType() == XmlRpc::XmlRpcValue::TypeArray);
 			if(max_acc.size()!=3){ROS_DEBUG("invalid base parameter size");}
 			ROS_DEBUG("max_acc.size: %d \n", max_acc.size());
-			for(unsigned int i=0;i<max_acc.size();i++)
+			for(int i=0;i<max_acc.size();i++)
 			{
 				ROS_ASSERT(max_acc[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 				double val = (double)max_acc[i];
@@ -477,9 +477,9 @@ void TeleopCOB::joint_states_cb(const sensor_msgs::JointState::ConstPtr &joint_s
 	if (!got_init_values_ && stopped_ && joy_active_)
 	{
 		ROS_DEBUG("joint_states_cb: getting init values");
-		for (int j = 0; j<joint_names_.size(); j++ )
+		for (unsigned int j = 0; j<joint_names_.size(); j++ )
 		{
-			for (int i = 0; i<joint_states_msg->name.size(); i++ )
+			for (unsigned int i = 0; i<joint_states_msg->name.size(); i++ )
 			{
 				ROS_DEBUG("joint names in init: %s should match %s",joint_names_[j].c_str(),joint_states_msg->name[i].c_str());
 				if (joint_states_msg->name[i] == joint_names_[j])
@@ -808,17 +808,17 @@ void TeleopCOB::joy_cb(const sensor_msgs::Joy::ConstPtr &joy_msg)
 	//================base================
 	if(has_base_module_ && base_module_.req_vel_.size()==3)
 	{
-		if(axis_vx_>=0 && axis_vx_<(int)joy_msg->get_axes_size())
+		if(axis_vx_>=0 && axis_vx_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[0] = joy_msg->axes[axis_vx_]*base_module_.max_vel_[0]*run_factor_;
 		else
 			base_module_.req_vel_[0] = 0.0;
 
-		if(axis_vy_>=0 && axis_vy_<(int)joy_msg->get_axes_size())
+		if(axis_vy_>=0 && axis_vy_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[1] = joy_msg->axes[axis_vy_]*base_module_.max_vel_[1]*run_factor_;//req_vy_ = joy_msg->axes[axis_vy_]*max_vy_*run_factor_;
 		else
 			base_module_.req_vel_[1] = 0.0; //req_vy_ = 0.0;
 
-		if(axis_vth_>=0 && axis_vth_<(int)joy_msg->get_axes_size())
+		if(axis_vth_>=0 && axis_vth_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[2] = joy_msg->axes[axis_vth_]*base_module_.max_vel_[2]*run_factor_;//req_vth_ = joy_msg->axes[axis_vth_]*max_vth_*run_factor_;
 		else
 			base_module_.req_vel_[2] = 0.0; //req_vth_ = 0.0;
@@ -898,7 +898,7 @@ void TeleopCOB::update_joint_modules()
 		brics_actuator::JointValue joint_vel;
 		joint_vel.timeStamp = traj.header.stamp;
 		joint_vel.unit = "rad";
-		for( int i = 0; i<jointModule->joint_names.size();i++)
+		for(unsigned int i = 0; i<jointModule->joint_names.size();i++)
 		{
 			// as trajectory message
 			traj.joint_names.push_back(jointModule->joint_names[i]);
