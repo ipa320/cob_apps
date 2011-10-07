@@ -808,17 +808,17 @@ void TeleopCOB::joy_cb(const sensor_msgs::Joy::ConstPtr &joy_msg)
 	//================base================
 	if(has_base_module_ && base_module_.req_vel_.size()==3)
 	{
-		if(axis_vx_>=0 && axis_vx_<(int)joy_msg->get_axes_size())
+		if(axis_vx_>=0 && axis_vx_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[0] = joy_msg->axes[axis_vx_]*base_module_.max_vel_[0]*run_factor_;
 		else
 			base_module_.req_vel_[0] = 0.0;
 
-		if(axis_vy_>=0 && axis_vy_<(int)joy_msg->get_axes_size())
+		if(axis_vy_>=0 && axis_vy_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[1] = joy_msg->axes[axis_vy_]*base_module_.max_vel_[1]*run_factor_;//req_vy_ = joy_msg->axes[axis_vy_]*max_vy_*run_factor_;
 		else
 			base_module_.req_vel_[1] = 0.0; //req_vy_ = 0.0;
 
-		if(axis_vth_>=0 && axis_vth_<(int)joy_msg->get_axes_size())
+		if(axis_vth_>=0 && axis_vth_<(int)joy_msg->axes.size())
 			base_module_.req_vel_[2] = joy_msg->axes[axis_vth_]*base_module_.max_vel_[2]*run_factor_;//req_vth_ = joy_msg->axes[axis_vth_]*max_vth_*run_factor_;
 		else
 			base_module_.req_vel_[2] = 0.0; //req_vth_ = 0.0;
