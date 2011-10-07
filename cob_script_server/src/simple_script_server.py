@@ -180,6 +180,14 @@ class simple_script_server:
 	def init(self,component_name,blocking=True):
 		return self.trigger(component_name,"init",blocking)
 
+	def initAll(self, blocking=True):
+		#FIXME: make this generic based on cob_default_configuration
+		self.trigger("base", "init", blocking)
+		self.trigger("torso", "init", blocking)
+		self.trigger("tray", "init", blocking)
+		self.trigger("sdh", "init", blocking)
+		return self.trigger("head", "init", blocking)
+
 	## Stops different components.
 	#
 	# Based on the component, the corresponding stop service will be called.
@@ -195,6 +203,14 @@ class simple_script_server:
 	# \param component_name Name of the component.
 	def recover(self,component_name):
 		return self.trigger(component_name,"recover")
+
+	def recoverAll(self, blocking=True):
+		#FIXME: make this generic based on cob_default_configuration
+		self.trigger("base", "recover", blocking)
+		self.trigger("torso", "recover", blocking)
+		self.trigger("tray", "recover", blocking)
+		self.trigger("sdh", "init", blocking)
+		return self.trigger("head", "recover", blocking)
 
 	## Deals with all kind of trigger services for different components.
 	#
@@ -494,9 +510,9 @@ class simple_script_server:
 			rospy.logdebug("%s action server ready",action_server_name)
 		
 		# set operation mode to position
-		if not component_name == "arm":
-			self.set_operation_mode(component_name,"position")
-		#self.set_operation_mode(component_name,"position")		
+		#if not component_name == "arm":
+		#	self.set_operation_mode(component_name,"position")
+		self.set_operation_mode(component_name,"position")		
 
 		# sending goal
 		client_goal = JointTrajectoryGoal()
