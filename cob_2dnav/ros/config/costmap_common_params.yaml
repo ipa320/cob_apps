@@ -16,13 +16,13 @@ inflation_radius: 0.55
 footprint: [[0.4,0.3],[-0.4,0.3],[-0.4,-0.3],[0.4,-0.3]]
 
 # BEGIN VOXEL STUFF
-observation_sources: laser_scan_front laser_scan_rear #cloud_full_cloud #laser_scan_top
+observation_sources: laser_scan_front laser_scan_rear cloud_cam3d #laser_scan_top
 
-laser_scan_front: {sensor_frame: base_laser_front_link, topic: /scan_front, data_type: LaserScan, marking: true, clearing: true}
+laser_scan_front: {sensor_frame: base_laser_front_link, topic: /scan_front, data_type: LaserScan, marking: true, clearing: false}
 
 laser_scan_rear: {sensor_frame: base_laser_rear_link, topic: /scan_rear, data_type: LaserScan, marking: true, clearing: true}
 
 laser_scan_top: {sensor_frame: base_laser_top_link, topic: /scan_top, data_type: LaserScan, marking: true, clearing: true}
 
-cloud_full_cloud: {sensor_frame: head_tof_frame, topic: /full_cloud, data_type: PointCloud, marking: true, clearing: true}
+cloud_cam3d: {sensor_frame: head_cam3d_link, topic: /voxel_grid/output, data_type: PointCloud2, marking: true, clearing: true, min_obstacle_height: 0.12}
 # END VOXEL STUFF

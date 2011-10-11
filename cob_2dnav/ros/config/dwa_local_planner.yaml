@@ -1,6 +1,6 @@
-acc_lim_th: 3.2
-acc_lim_x: 2.5
-acc_lim_y: 2.5
+acc_lim_th: 1.0
+acc_lim_x: 1.0
+acc_lim_y: 1.0
 
 max_vel_x: 0.3
 min_vel_x: 0.0
