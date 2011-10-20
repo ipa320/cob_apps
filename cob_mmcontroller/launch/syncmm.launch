@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-
-	<!-- start trajectory manager -->
-	<node pkg="cob_mmcontroller" type="cob_trajectory_manager" name="arm_trajectory_node" ns="arm_controller" cwd="node" respawn="false" output="screen"/>
-
-
-
-</launch>
