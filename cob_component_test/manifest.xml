@@ -4,8 +4,8 @@
      cob_component_test
 
   </description>
-  <author></author>
-  <license>BSD</license>
+  <author>Florian Weisshardt</author>
+  <license>LGPL</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_component_test</url>
   <depend package="cob_gazebo"/>
