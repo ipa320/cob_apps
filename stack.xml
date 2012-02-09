@@ -8,11 +8,7 @@
   <license>LGPL</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/cob_apps</url>
-  <depend stack="cob_command_tools" /> <!-- cob_script_server -->
-  <depend stack="cob_simulation" /> <!-- cob_gazebo -->
-  <depend stack="common_msgs" /> <!-- geometry_msgs -->
-  <depend stack="geometry" /> <!-- tf -->
-  <depend stack="navigation" /> <!-- move_base_msgs -->
   <depend stack="ros" />
+  <depend stack="ros_comm" /> <!-- rospy -->
 
 </stack>
